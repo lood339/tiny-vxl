@@ -11,8 +11,10 @@
 
 #include <Eigen/Dense>
 
-template <typename T, unsigned int num_rows, unsigned int num_cols> class vnl_matrix_fixed;
 template <typename T> class vnl_vector;
+template <typename T> class vnl_matrix;
+template <typename T, unsigned int num_rows, unsigned int num_cols> class vnl_matrix_fixed;
+
 
 template <typename T, unsigned int num_rows, unsigned int num_cols>
 class vnl_matrix_fixed : public Eigen::Matrix<T, num_rows, num_cols, Eigen::RowMajor>
@@ -156,6 +158,27 @@ public:
             }
         }
         return *this = out;
+    }
+    
+    /*
+    //----------------------------------------------------------------------
+    // Conversion to vnl_matrix_ref.
+    
+    // The const version of as_ref should return a const vnl_matrix_ref
+    // so that the vnl_matrix_ref::non_const() cannot be used on
+    // it. This prevents a const vnl_matrix_fixed from being cast into a
+    // non-const vnl_matrix reference, giving a slight increase in type safety.
+    
+    //: Explicit conversion to a vnl_matrix_ref or vnl_matrix.
+    // This is a cheap conversion for those functions that have an interface
+    // for vnl_matrix but not for vnl_matrix_fixed. There is also a
+    // conversion operator that should work most of the time.
+    // \sa vnl_matrix_ref::non_const
+    vnl_matrix_ref<T> as_ref() { return vnl_matrix_ref<T>( num_rows, num_cols, data_block() ); }
+    const vnl_matrix_ref<T> as_ref() const { return vnl_matrix_ref<T>( num_rows, num_cols, data_block() ); }
+     */
+    vnl_matrix<T> as_matrix() const {
+        return vnl_matrix<T>(const_cast<T*>(this->data()),num_rows, num_cols);
     }
 
     
