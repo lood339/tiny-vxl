@@ -20,8 +20,10 @@ class vnl_vector_fixed : public Eigen::Matrix<T, n, 1, Eigen::ColMajor>
 {
     static constexpr size_t num_bytes = n*sizeof(T);
     using base_class = Eigen::Matrix<T, n, 1, Eigen::ColMajor>;
-public:
     
+public:
+    //: Construct an uninitialized n-vector
+    vnl_vector_fixed() = default;
     
     //: Construct a fixed-n-vector initialized from \a datablck
     //  The data \e must have enough data. No checks performed.
@@ -43,7 +45,6 @@ public:
         this->base_class::operator=(other);
         return *this;
     }
-    
 };
 
 

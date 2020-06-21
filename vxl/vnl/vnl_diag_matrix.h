@@ -12,6 +12,8 @@
 #include <Eigen/Dense>
 
 template<typename T> class vnl_matrix;
+template<typename T> class vnl_vector;
+template<typename T, unsigned int n> class vnl_vector_fixed;
 template<typename T> class vnl_diag_matrix;
 
 template<typename T>
@@ -28,6 +30,9 @@ public:
     vnl_diag_matrix(unsigned nn, T const& value) : base_class(nn, nn) {
         this->setConstant(value);
     }
+    
+    template<unsigned int n>
+    vnl_diag_matrix(const vnl_vector_fixed<T, n>& v) = delete;
     
     //: Construct a diagonal matrix from a vnl_vector.
     //  The vector elements become the diagonal elements.
@@ -52,25 +57,36 @@ public:
     // Data Access---------------------------------------------------------------
     
     inline T operator () (unsigned i, unsigned j) const {
-        return (i != j) ? T(0) : this->diagonal()[i];
+        return (i != j) ? T(0) : base_class::diagonal()[i];
     }
     
     inline T& operator () (unsigned i, unsigned j) {
         assert(i == j); (void)j;
-        return this->diagonal()[i];
+        return base_class::diagonal()[i];
     }
     
     //: Return the total number of elements stored by the matrix.
     // Since vnl_diag_matrix only stores values on the diagonal
     // and must be square, size() == rows() == cols().
-    inline unsigned int size() const { return this->diagonal().size(); }
+    inline unsigned int size() const { return base_class::rows(); }
     
     //: Return the number of rows.
-    inline unsigned int rows() const { return this->diagonal().size(); }
+    inline unsigned int rows() const { return base_class::rows(); }
     
     //: Return the number of columns.
     // A synonym for columns().
-    inline unsigned int cols() const { return this->diagonal().size(); }
+    inline unsigned int cols() const { return base_class::rows(); }
+    
+    
+    //: Return diagonal elements as a vector
+    inline vnl_vector<T> diagonal() const
+    {
+        vnl_vector<T> diag(this->size());
+        for(int i =0 ; i<this->size(); ++i) {
+            diag[i] = base_class::diagonal()[i];
+        }
+        return diag;
+    }
     
     
 };
@@ -107,7 +123,7 @@ inline vnl_matrix<T> operator+ (vnl_matrix<T> const& A, vnl_diag_matrix<T> const
     const unsigned n = D.size();
     assert(A.rows() == n); assert(A.columns() == n);
     vnl_matrix<T> ret(A);
-    T const* d = D.diagonal();
+    T const* d = D.data();
     for (unsigned j = 0; j < n; ++j)
         ret(j,j) += d[j];
     return ret;
@@ -143,7 +159,7 @@ inline vnl_matrix<T> operator- (vnl_matrix<T> const& A, vnl_diag_matrix<T> const
     const unsigned n = D.size();
     assert(A.rows() == n); assert(A.cols() == n);
     vnl_matrix<T> ret(A);
-    T const* d = D.diagonal();
+    T const* d = D.data();
     for (unsigned j = 0; j < n; ++j)
         ret(j,j) -= d[j];
     return ret;
@@ -158,7 +174,7 @@ inline vnl_matrix<T> operator- (vnl_diag_matrix<T> const& D, vnl_matrix<T> const
     const unsigned n = D.size();
     assert(A.rows() == n); assert(A.cols() == n);
     vnl_matrix<T> ret(n, n);
-    T const* d = D.diagonal();
+    T const* d = D.data();
     for (unsigned i = 0; i < n; ++i)
     {
         for (unsigned j = 0; j < i; ++j)
@@ -182,6 +198,7 @@ inline vnl_diag_matrix<T> operator* (vnl_diag_matrix<T> const& A, vnl_diag_matri
         ret(i,i) *= B(i,i);
     return ret;
 }
+
 
 //: Multiply a vnl_matrix by a vnl_diag_matrix.  Just scales the columns - mn flops
 // \relatesalso vnl_diag_matrix
@@ -212,7 +229,7 @@ inline vnl_matrix<T> operator* (vnl_diag_matrix<T> const& D, vnl_matrix<T> const
     return ret;
 }
 
-/*
+
 //: Multiply a vnl_diag_matrix by a vnl_vector.  n flops.
 // \relatesalso vnl_diag_matrix
 // \relatesalso vnl_vector
@@ -220,9 +237,12 @@ template <class T>
 inline vnl_vector<T> operator* (vnl_diag_matrix<T> const& D, vnl_vector<T> const& A)
 {
     assert(A.size() == D.size());
+    
     return element_product(D.diagonal(), A);
 }
 
+
+/*
 //: Multiply a vnl_vector by a vnl_diag_matrix.  n flops.
 // \relatesalso vnl_diag_matrix
 // \relatesalso vnl_vector

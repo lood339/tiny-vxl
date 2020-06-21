@@ -11,6 +11,7 @@
 
 #include <Eigen/Dense>
 
+template <typename T> class vnl_matrix;
 template <typename T> class vnl_vector;
 
 template <typename T>
@@ -69,6 +70,41 @@ public:
     
     
 };
+
+//: Returns new vector whose elements are the products v1[i]*v2[i]. O(n).
+
+template<class T>
+vnl_vector<T> element_product (vnl_vector<T> const& v1, vnl_vector<T> const& v2)
+{
+    assert(v1.size() == v2.size());
+
+    
+    vnl_vector<T> result(v1.size());
+    for(int i = 0; i<v1.size(); ++i) {
+        result[i] = v1[i] * v2[i];
+    }
+    
+    //vnl_sse<T>::element_product(v1.begin(), v2.begin(), result.begin(), v1.size());
+    
+    return result;
+}
+
+/*
+//: multiply matrix and (column) vector. O(m*n).
+// \relatesalso vnl_vector
+// \relatesalso vnl_matrix
+template<class T>
+inline vnl_vector<T> operator*(vnl_matrix<T> const& M, vnl_vector<T> const& v)
+{
+    vnl_vector<T> result(M.rows());
+#ifndef NDEBUG
+    if (M.cols() != v.size())
+        vnl_error_vector_dimension ("vnl_vector<>::operator*(M, v)", M.cols(), v.size());
+#endif
+    //vnl_sse<T>::matrix_x_vector(M.begin(), v.begin(), result.begin(), M.rows(), M.cols());
+    return result;
+}
+ */
 
 
 
