@@ -43,6 +43,9 @@ set(VXL_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/vxl)
 #target_compile_features(vxl PUBLIC cxx_std_11)
 #set_target_properties(vxl PROPERTIES LINKER_LANGUAGE CXX)
 
+# add Eigen as dependent
+set(Eigen_SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/third_part/eigen-3.3.7)
+
 
 # test
 option(BUILD_TESTING "Enable creation of Eigen tests." ON)
@@ -79,7 +82,7 @@ if(BUILD_TESTING)
                           "${gmock_SOURCE_DIR}/include")
   endif()
   
-  # testing examples are vxl
-  add_subdirectory(vxl)
+  # testing examples are in test
+  add_subdirectory(test)
 endif()
 
