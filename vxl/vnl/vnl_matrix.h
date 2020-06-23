@@ -68,6 +68,133 @@ public:
         return *this;
     }
     
+    //: Copy construct a matrix
+    // Complexity $O(r.c)$
+    vnl_matrix(vnl_matrix<T> const& other) = default;    // from another matrix.
+    
+    /*
+    // NOTE: move-assignment must be allowed to throw an exception, because we need to maintain
+    //       backwards compatibility and the move-construction & move-aasignment
+    //       operators fall back to the copy-assignment operator behavior in
+    //       cases when the memory is externally managed.
+    //: Move-constructor.
+    vnl_matrix(vnl_matrix<T> &&);
+    //: Move-assignment operator
+    vnl_matrix<T>& operator=(vnl_matrix<T>&& rhs);
+     */
+    
+    //: Matrix destructor
+    virtual ~vnl_matrix() = default;
+    
+    // Basic 2D-Array functionality-------------------------------------------
+    
+    //: Return the total number of elements stored by the matrix.
+    // This equals rows() * cols()
+    inline unsigned int size() const { return base_class::size(); }
+    
+    //: Return the number of rows.
+    //inline unsigned int rows() const { return this->rows(); }
+    
+    //: Return the number of columns.
+    // A synonym for columns().
+    //inline unsigned int cols() const { return this->cols; }
+    
+    //: Return the number of columns.
+    // A synonym for cols().
+    inline unsigned int columns() const { return base_class::cols(); }
+    
+    //: set element with boundary checks if error checking is on.
+    inline void put(unsigned r, unsigned c, T const& v) {
+        assert(r <= this->rows());
+        assert( c <= this->cols());
+        (*this)(r, c) = v;
+    }
+    
+    //: get element with boundary checks if error checking is on.
+    inline T get(unsigned r, unsigned c) const {
+        assert(r <= this->rows());
+        assert( c <= this->cols());
+        return (*this)(r, c);
+    }
+
+    /*
+    //: return pointer to given row
+    // No boundary checking here.
+    T       * operator[](unsigned r) { return data[r]; }
+    
+    //: return pointer to given row
+    // No boundary checking here.
+    T const * operator[](unsigned r) const { return data[r]; }
+     */
+    
+    //: Access an element for reading or writing
+    // There are assert style boundary checks - #define NDEBUG to turn them off.
+    //T       & operator()(unsigned r, unsigned c);
+    
+    //: Access an element for reading
+    // There are assert style boundary checks - #define NDEBUG to turn them off.
+    //T const & operator()(unsigned r, unsigned c) const;
+    
+    // ----------------------- Filling and copying -----------------------
+    
+    //: Sets all elements of matrix to specified value, and returns "*this".
+    //  Complexity $O(r.c)$
+    //  Returning "*this" allows "chaining" two or more operations:
+    //  e.g., to set a matrix to a column-normalized all-elements-equal matrix, say
+    //  \code
+    //     M.fill(1).normalize_columns();
+    //  \endcode
+    //  Returning "*this" also allows passing such a matrix as argument
+    //  to a function f, without having to name the constructed matrix:
+    //  \code
+    //     f(vnl_matrix<double>(5,5,1.0).normalize_columns());
+    //  \endcode
+    vnl_matrix& fill(T const&);
+    
+    //: Sets all diagonal elements of matrix to specified value; returns "*this".
+    //  Complexity $O(\min(r,c))$
+    //  Returning "*this" allows "chaining" two or more operations:
+    //  e.g., to set a 3x3 matrix to [5 0 0][0 10 0][0 0 15], just say
+    //  \code
+    //     M.fill_diagonal(5).scale_row(1,2).scale_column(2,3);
+    //  \endcode
+    //  Returning "*this" also allows passing a diagonal-filled matrix as argument
+    //  to a function f, without having to name the constructed matrix:
+    //  \code
+    //     f(vnl_matrix<double>(3,3).fill_diagonal(5));
+    //  \endcode
+    vnl_matrix& fill_diagonal(T const&);
+    
+    //: Sets the diagonal elements of this matrix to the specified list of values.
+    //  Returning "*this" allows "chaining" two or more operations: see the
+    //  reasoning (and the examples) in the documentation for method
+    //  fill_diagonal().
+    vnl_matrix& set_diagonal(vnl_vector<T> const&);
+    
+    //: Fills (laminates) this matrix with the given data, then returns it.
+    //  We assume that the argument points to a contiguous rows*cols array, stored rowwise.
+    //  No bounds checking on the array.
+    //  Returning "*this" allows "chaining" two or more operations:
+    //  e.g., to fill a square matrix column-wise, fill it rowwise then transpose:
+    //  \code
+    //     M.copy_in(array).inplace_transpose();
+    //  \endcode
+    //  Returning "*this" also allows passing a filled-in matrix as argument
+    //  to a function f, without having to name the constructed matrix:
+    //  \code
+    //     f(vnl_matrix<double>(3,3).copy_in(array));
+    //  \endcode
+    vnl_matrix& copy_in(T const *);
+    
+    //: Fills (laminates) this matrix with the given data, then returns it.
+    // A synonym for copy_in()
+    vnl_matrix& set(T const *d) { return copy_in(d); }
+    
+    //: Fills the given array with this matrix.
+    //  We assume that the argument points to a contiguous rows*cols array, stored rowwise.
+    // No bounds checking on the array.
+    void copy_out(T *) const;
+    
     //: Set all elements to value v
     // Complexity $O(r.c)$
     vnl_matrix<T>& operator=(T const&v)
@@ -252,20 +379,7 @@ public:
 
     
     
-    // fill and copy
-    vnl_matrix& fill(const T v)
-    {
-        this->setConstant(v);
-        return *this;
-    }
     
-    vnl_matrix& fill_diagonal(const T v)
-    {
-        for(int i = 0; i<this->rows() && i<this->cols(); ++i) {
-            this->diagonal()[i] = v;
-        }
-        return *this;
-    }
     
     
     //: Flatten row-major (C-style)
@@ -370,6 +484,21 @@ public:
 
 
 // Implementation
+template <typename T>
+vnl_matrix<T>& vnl_matrix<T>::fill(const T& v)
+{
+    this->setConstant(v);
+    return *this;
+}
+
+template <typename T>
+vnl_matrix<T>& vnl_matrix<T>::fill_diagonal(const T& v)
+{
+    for(int i = 0; i<this->rows() && i<this->cols(); ++i) {
+        this->diagonal()[i] = v;
+    }
+    return *this;
+}
 
 ////--------------------------- Additions------------------------------------
 
