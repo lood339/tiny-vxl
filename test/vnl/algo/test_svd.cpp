@@ -23,13 +23,7 @@ test_hilbert(T /*dummy*/, char const * type, S residual)
 
     std::cout << "H = <" << type << ">[ " << H << "]\n";
 
-    //vnl_svd<T> svd(H);
-    //vnl_svd<double> svd(H);
-    //Eigen::JacobiSVD<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> svd;
-    
-    //Eigen::JacobiSVD<vnl_matrix<double>> svd;
-    //vnl_svd<double> svd(H);
-    /*
+    vnl_svd<T> svd(H);
     std::cout << "rcond(H) = " << svd.well_condition() << std::endl;
 
     vnl_matrix<T> Hinv = svd.inverse();
@@ -44,20 +38,31 @@ test_hilbert(T /*dummy*/, char const * type, S residual)
 
     vnl_matrix<T> res = X - I;
     ASSERT_NEAR(res.fro_norm(), 0, residual)<<"Hilbert recomposition residual\n";
-     */
+    
 }
 
-/*
+
 TEST(nvl_svd, test_hilbert_double)
 {
     test_hilbert(double(), "double", 1.1e-10);
 }
- */
+
+TEST(nvl_svd, test_hilbert_float)
+{
+    test_hilbert(float(), "float", float(0.025));
+}
+
+TEST(nvl_svd, test_hilbert_complex_double)
+{
+    test_hilbert(std::complex<double>(), "std::complex<double>", double(4.4e-10));
+}
+
+
 
 /*
 
-test_hilbert(float(), "float", float(0.025));
-test_hilbert(std::complex<double>(), "std::complex<double>", double(4.4e-10));
+
+
 test_hilbert(std::complex<float>(), "std::complex<float>", float(0.04));
  */
 

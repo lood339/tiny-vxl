@@ -10,14 +10,19 @@
 #define vnl_matrix_h
 
 #include <Eigen/Dense>
+//#include <vnl/vnl_numeric_traits.h>
 
 template <typename T> class vnl_matrix;
 template <typename T> class vnl_vector;
+//template <typename T> class vnl_numeric_traits;
 
 template <typename T>
 class vnl_matrix: public Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
 {
     using base_class = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+    //using abs_t = typename vnl_numeric_traits<T>::abs_t;
+    using abs_t = typename Eigen::NumTraits<T>::Real;
+    //typedef typename vnl_numeric_traits<T>::abs_t abs_t;
 public:
     vnl_matrix()=default;
     
@@ -427,10 +432,10 @@ public:
     //: Swap this matrix with that matrix
     void swap(vnl_matrix<T> & that) noexcept;
     
-    /*
-    //: Type def for norms.
-    typedef typename vnl_c_vector<T>::abs_t abs_t;
     
+    //: Type def for norms.
+    //typedef typename vnl_c_vector<T>::abs_t abs_t;
+    /*
     //: Return sum of absolute values of elements
     abs_t array_one_norm() const { return vnl_c_vector<T>::one_norm(begin(), size()); }
     
@@ -451,13 +456,13 @@ public:
     
     // $ || M ||_\inf := \max_i \sum_j | M_{ij} | $
     abs_t operator_inf_norm() const;
-    
+    */
     //: Return Frobenius norm of matrix (sqrt of sum of squares of its elements)
-    abs_t frobenius_norm() const { return vnl_c_vector<T>::two_norm(begin(), size()); }
+    abs_t frobenius_norm() const { return this->norm(); }
     
     //: Return Frobenius norm of matrix (sqrt of sum of squares of its elements)
     abs_t fro_norm() const { return frobenius_norm(); }
-    
+    /*
     //: Return RMS of all elements
     abs_t rms() const { return vnl_c_vector<T>::rms_norm(begin(), size()); }
     */
@@ -819,6 +824,15 @@ vnl_matrix<T> vnl_matrix<T>::transpose() const
         for (unsigned int j = 0; j < this->rows(); j++)
             result(i, j) = (*this)(j, i);
     return result;
+}
+
+//: Return conjugate transpose
+template <typename T>
+vnl_matrix<T> vnl_matrix<T>::conjugate_transpose() const
+{
+    // matrix.adjoint() (or matrix.conjugate().transpose()
+    //https://stackoverflow.com/questions/30451040/complex-number-matrix-multiplication-eigen-vs-matlab
+    return this->conjugate().transpose();
 }
 
 //: Set values of this matrix to those of M, starting at [top,left]
