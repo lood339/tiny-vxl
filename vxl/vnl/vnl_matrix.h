@@ -537,24 +537,25 @@ public:
     //  2d array, [row][column].
     T      *      * data_array();// { return data; }
     
-    /*
-    typedef T element_type;
+    
+    //typedef T element_type;
     
     
     //: Iterators
     typedef T       *iterator;
     //: Iterator pointing to start of data
-    iterator       begin() { return data?data[0]:nullptr; }
+    iterator       begin() { return this->data(); }
     //: Iterator pointing to element beyond end of data
-    iterator       end() { return data?data[0]+num_rows*num_cols:nullptr; }
+    iterator       end() { return this->data()+this->size(); }
     
     //: Const iterators
     typedef T const *const_iterator;
     //: Iterator pointing to start of data
-    const_iterator begin() const { return data?data[0]:nullptr; }
+    const_iterator begin() const { return this->data(); }
     //: Iterator pointing to element beyond end of data
-    const_iterator end() const { return data?data[0]+num_rows*num_cols:nullptr; }
+    const_iterator end() const { return this->data()+this->size(); }
     
+     /*
     //: Return a reference to this.
     // Useful in code which would prefer not to know if its argument
     // is a matrix, matrix_ref or a matrix_fixed.  Note that it doesn't

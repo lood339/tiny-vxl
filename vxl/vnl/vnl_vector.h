@@ -11,6 +11,7 @@
 
 #include <Eigen/Dense>
 #include <vnl/vnl_numeric_traits.h>
+#include <vnl/vnl_error.h>
 
 template <typename T> class vnl_matrix;
 template <typename T> class vnl_vector;
@@ -73,6 +74,26 @@ public:
         return true;
     }
     
+    //: Return reference to the element at specified index.
+    // There are assert style boundary checks - #define NDEBUG to turn them off.
+    T       & operator()(size_t i)
+    {
+        assert(i<this->size());
+        return this->data()[i];
+    }
+    //: Return reference to the element at specified index. No range checking.
+    // There are assert style boundary checks - #define NDEBUG to turn them off.
+    T const & operator()(size_t i) const
+    {
+        assert(i<this->size());
+        return this->data()[i];
+    }
+    
+    //: Return reference to the element at specified index. No range checking.
+    T       & operator[](size_t i) { return this->data()[i]; }
+    //: Return reference to the element at specified index. No range checking.
+    T const & operator[](size_t i) const { return this->data()[i]; }
+    
     //: Add scalar value to all elements
     vnl_vector<T>& operator+=(T );
     
@@ -109,6 +130,24 @@ public:
         return result;
     }
     
+    vnl_vector<T> operator*(vnl_matrix<T> const &M) const {
+        
+        vnl_vector<T> result(M.cols());
+        if (this->size() != M.rows())
+            vnl_error_vector_dimension("vnl_vector<>::operator*(M)", this->size(),
+                                       M.rows());
+        assert(this->size() == M.rows());
+      
+        for(int i = 0; i<result.size(); ++i) {
+            T v = T{0};
+            for(int j = 0; j<this->size(); ++j) {
+                v += (*this)(j) * M(j, i);
+            }
+            result[i] = v;
+        }
+        return result;
+    }
+    
     //: Applies function to elements
     vnl_vector<T> apply(T (*f)(T)) const;
     //: Applies function to elements
@@ -125,6 +164,30 @@ public:
     
     //: Return magnitude (length) of vector
     abs_t magnitude() const { return this->norm(); }
+    
+    //: Return sum of absolute values of the elements
+    //abs_t one_norm() const { return vnl_c_vector<T>::one_norm(begin(), size()); }
+    
+    //: Return sqrt of sum of squares of values of elements
+    abs_t two_norm() const { return this->norm(); }
+    
+    //: Return largest absolute element value
+    //abs_t inf_norm() const { return vnl_c_vector<T>::inf_norm(begin(), size()); }
+    
+    //: Type defs for iterators
+    typedef T       *iterator;
+    //: Iterator pointing to start of data
+    iterator begin() { return this->data(); }
+    
+    //: Iterator pointing to element beyond end of data
+    iterator end() { return this->data()+this->size(); }
+    
+    //: Const iterator type
+    typedef T const *const_iterator;
+    //: Iterator pointing to start of data
+    const_iterator begin() const { return this->data(); }
+    //: Iterator pointing to element beyond end of data
+    const_iterator end() const { return this->data()+this->size(); }
     
     
 };
@@ -156,22 +219,40 @@ vnl_vector<T> element_product (vnl_vector<T> const& v1, vnl_vector<T> const& v2)
     return result;
 }
 
-/*
+//: Euclidean Distance between two vectors.
+// Sum of Differences squared.
+// \relatesalso vnl_vector
+template<class T>
+inline T vnl_vector_ssd(vnl_vector<T> const& v1, vnl_vector<T> const& v2)
+{
+#ifndef NDEBUG
+    if (v1.size() != v2.size())
+        vnl_error_vector_dimension("vnl_vector_ssd", v1.size(), v2.size());
+#endif
+    vnl_vector<T> dif = v1 - v2;
+    return dif.squared_magnitude();
+}
+
+
 //: multiply matrix and (column) vector. O(m*n).
 // \relatesalso vnl_vector
 // \relatesalso vnl_matrix
-template<class T>
+template<typename T>
 inline vnl_vector<T> operator*(vnl_matrix<T> const& M, vnl_vector<T> const& v)
 {
+    assert(M.cols() == v.size());
     vnl_vector<T> result(M.rows());
-#ifndef NDEBUG
-    if (M.cols() != v.size())
-        vnl_error_vector_dimension ("vnl_vector<>::operator*(M, v)", M.cols(), v.size());
-#endif
+    for(int i = 0; i<result.size(); ++i) {
+        T s = T{0};
+        for(int j = 0; j<M.cols(); ++j) {
+            s += M(i, j) * v(j);
+        }
+        result[i] = s;
+    }
     //vnl_sse<T>::matrix_x_vector(M.begin(), v.begin(), result.begin(), M.rows(), M.cols());
     return result;
 }
- */
+
 
 
 

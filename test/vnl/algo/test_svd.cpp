@@ -3,8 +3,8 @@
 #include <complex>
 
 #include <vnl/vnl_matrix.h>
-//#include "vnl/vnl_double_3.h"
-//#include "vnl/vnl_random.h"
+#include <vnl/vnl_vector_fixed.h>
+#include <vnl/vnl_random.h>
 #include <vnl/algo/vnl_svd.h>
 
 #include <gtest/gtest.h>
@@ -126,27 +126,24 @@ TEST(vnl_svd, test_pmatrix)
 
     EXPECT_EQ(svd.singularities(), 2)<<"singularities = 2\n";
     EXPECT_EQ(svd.rank(), 2)<<"rank = 2\n";
-    /*
+    
     vnl_matrix<double> N = svd.nullspace();
-    EXPECT_EQ("nullspace dimension", N.columns(), 2);
+    EXPECT_EQ(N.columns(), 2)<<"nullspace dimension\n";
     std::cout << "null(P) =\n" << N << std::endl;
-
+    
     vnl_matrix<double> PN = P * N;
     std::cout << "P * null(P) =\n" << PN << std::endl;
-    ASSERT_NEAR("P nullspace residual", PN.fro_norm(), 0, 1e-12);
+    ASSERT_NEAR(PN.fro_norm(), 0, 1e-12)<<"P nullspace residual\n";
 
     vnl_vector<double> n = svd.nullvector();
-    ASSERT_NEAR("P nullvector residual", (P * n).magnitude(), 0, 1e-12);
+    ASSERT_NEAR((P * n).magnitude(), 0, 1e-12)<<"P nullvector residual\n";
 
     vnl_vector<double> l = svd.left_nullvector();
     std::cout << "left_nullvector(P) = " << l << std::endl;
-    ASSERT_NEAR("P left nullvector residual", (l * P).magnitude(), 0, 1e-12);
-     */
+    ASSERT_NEAR((l * P).magnitude(), 0, 1e-12)<<"P left nullvector residual\n";
 }
 
-/*
-static void
-test_I()
+TEST(vnl_svd, test_I)
 {
   double Idata[] = {
     1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
@@ -156,7 +153,23 @@ test_I()
   std::cout << svd;
 
   vnl_vector_fixed<double, 4> w_expected(1, 1, 1, 0);
-  TEST_NEAR("Singular values", vnl_vector_ssd(w_expected, svd.W().diagonal().as_ref()), 0, 1e-16);
+  ASSERT_NEAR(vnl_vector_ssd(w_expected, svd.W().diagonal()), 0, 1e-16)<<"Singular values\n";
+}
+
+template <typename T>
+static
+void test_util_fill_random(T * b, T * e, vnl_random & rng)
+{
+    for (T * p = b; p < e; ++p)
+        *p = (T)rng.drand64(-1.0, +1.0);
+}
+
+template <typename T>
+static
+void test_util_fill_random(std::complex<T> * b, std::complex<T> * e, vnl_random & rng)
+{
+    for (std::complex<T> * p = b; p < e; ++p)
+        *p = std::complex<T>((T)rng.drand64(-1.0, +1.0), (T)rng.drand64(-1.0, +1.0));
 }
 
 template <class T>
@@ -176,10 +189,8 @@ test_svd_recomposition(char const * type, double maxres, T *, vnl_random & rng)
   std::cout << "B = [\n" << B << "]\n";
 
   double residual = (A - B).fro_norm();
-  TEST_NEAR("vnl_svd<float> recomposition residual", residual, 0, maxres);
+  ASSERT_NEAR(residual, 0, maxres)<<"vnl_svd<float> recomposition residual\n";
 }
-
-#include "vnl/vnl_matlab_print.h"
 
 template <class T>
 static void
@@ -191,36 +202,30 @@ test_nullvector(char const * type, double max_err, T *, vnl_random & rng)
   vnl_svd<T> svd(A);
   vnl_vector<T> x = svd.nullvector();
   vnl_vector<T> Ax = A * x;
-  std::cout << __FILE__ ": type = " << type << std::endl;
-  vnl_matlab_print(std::cout, A, "A", vnl_matlab_print_format_long);
-  std::cout << __FILE__ ": || x|| = " << x.two_norm() << std::endl
-            << __FILE__ ": ||Ax|| = " << Ax.two_norm() << std::endl;
-  TEST_NEAR("||Ax||", Ax.two_norm(), 0.0, max_err);
+  //std::cout << __FILE__ ": type = " << type << std::endl;
+  //vnl_matlab_print(std::cout, A, "A", vnl_matlab_print_format_long);
+  //std::cout << __FILE__ ": || x|| = " << x.two_norm() << std::endl
+  //          << __FILE__ ": ||Ax|| = " << Ax.two_norm() << std::endl;
+  ASSERT_NEAR(Ax.two_norm(), 0.0, max_err)<<"||Ax||\n";
 }
-*/
-// Driver
-/*
-void
-test_svd()
+
+TEST(vnl_svd, recomposition)
 {
-  //vnl_random rng(9667566);
-  test_hilbert(double(), "double", 1.1e-10);
-  test_hilbert(float(), "float", float(0.025));
-  test_hilbert(std::complex<double>(), "std::complex<double>", double(4.4e-10));
-  test_hilbert(std::complex<float>(), "std::complex<float>", float(0.04));
-  //test_ls();
-  //test_pmatrix();
-  //test_I();
+  vnl_random rng(9667566);
+  
   test_svd_recomposition("float", 1e-5, (float *)nullptr, rng);
   test_svd_recomposition("double", 1e-10, (double *)nullptr, rng);
   test_svd_recomposition("std::complex<float>", 1e-5, (std::complex<float> *)nullptr, rng);
   test_svd_recomposition("std::complex<double>", 1e-10, (std::complex<double> *)nullptr, rng);
-
-  test_nullvector("float", 5e-7, (float *)nullptr, rng);
-  test_nullvector("double", 5e-15, (double *)nullptr, rng);
-  test_nullvector("std::complex<float>", 5e-7, (std::complex<float> *)nullptr, rng);
-  test_nullvector("std::complex<double>", 5e-15, (std::complex<double> *)nullptr, rng);
 }
- */
 
-//TESTMAIN(test_svd);
+TEST(vnl_svd, nullvector)
+{
+    vnl_random rng(9667566);
+    
+    test_nullvector("float", 5e-7, (float *)nullptr, rng);
+    test_nullvector("double", 5e-15, (double *)nullptr, rng);
+    test_nullvector("std::complex<float>", 5e-7, (std::complex<float> *)nullptr, rng);
+    test_nullvector("std::complex<double>", 5e-15, (std::complex<double> *)nullptr, rng);
+}
+

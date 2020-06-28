@@ -117,6 +117,7 @@ public:
     // Assuming that the singular values W have been preinverted by the caller.
     void solve_preinverted(vnl_vector<T> const& rhs, vnl_vector<T>* out) const;
     
+     */
     //: Return N such that M * N = 0
     vnl_matrix<T> nullspace() const;
     
@@ -138,8 +139,8 @@ public:
     //  Does not check to see whether or not the matrix actually was rank-deficient.
     vnl_vector<T> left_nullvector() const;
     
-    bool valid() const { return valid_; }
-     */
+    //bool valid() const { return valid_; }
+    
     
 private:
     
@@ -312,7 +313,7 @@ vnl_matrix<T> vnl_svd<T>::recompose (unsigned int rnk) const // ~0u == (unsigned
 }
 
 //: Solve the matrix-vector system M x = y, returning x.
-template <class T>
+template <typename T>
 vnl_vector<T> vnl_svd<T>::solve(vnl_vector<T> const& y)  const
 {
     // fsm sanity check :
@@ -351,6 +352,87 @@ vnl_vector<T> vnl_svd<T>::solve(vnl_vector<T> const& y)  const
     return V_ * x;                                // premultiply with v.
 }
 
+//-----------------------------------------------------------------------------
+//: Return N s.t. M * N = 0
+template <typename T>
+vnl_matrix <T> vnl_svd<T>::nullspace()  const
+{
+    int k = rank();
+    if (k == n_)
+        std::cerr << "vnl_svd<T>::nullspace() -- Matrix is full rank." << last_tol_ << std::endl;
+    return nullspace(n_-k);
+}
 
+//-----------------------------------------------------------------------------
+//: Return N s.t. M * N = 0
+template <typename T>
+vnl_matrix <T> vnl_svd<T>::nullspace(int required_nullspace_dimension)  const
+{
+    return V_.extract(V_.rows(), required_nullspace_dimension, 0, n_ - required_nullspace_dimension);
+}
+
+//-----------------------------------------------------------------------------
+//: Return N s.t. M' * N = 0
+template <typename T>
+vnl_matrix <T> vnl_svd<T>::left_nullspace()  const
+{
+    int k = rank();
+    if (k == n_)
+        std::cerr << "vnl_svd<T>::left_nullspace() -- Matrix is full rank." << last_tol_ << std::endl;
+    return U_.extract(U_.rows(), n_-k, 0, k);
+}
+
+//:
+// \todo Implementation to be done yet; currently returns left_nullspace(). - PVr.
+template <typename T>
+vnl_matrix<T> vnl_svd<T>::left_nullspace(int /*required_nullspace_dimension*/) const
+{
+    return left_nullspace();
+}
+
+//-----------------------------------------------------------------------------
+//: Return the rightmost column of V.
+//  Does not check to see whether or not the matrix actually was rank-deficient -
+//  the caller is assumed to have examined W and decided that to his or her satisfaction.
+template <typename T>
+vnl_vector <T> vnl_svd<T>::nullvector()  const
+{
+    vnl_vector<T> ret(n_);
+    for (int i = 0; i < n_; ++i)
+        ret(i) = V_(i, n_-1);
+    return ret;
+}
+
+//-----------------------------------------------------------------------------
+//: Return the rightmost column of U.
+//  Does not check to see whether or not the matrix actually was rank-deficient.
+template <typename T>
+vnl_vector <T> vnl_svd<T>::left_nullvector()  const
+{
+    vnl_vector<T> ret(m_);
+    int col = std::min(m_, n_) - 1;
+    for (int i = 0; i < m_; ++i)
+        ret(i) = U_(i, col);
+    return ret;
+}
+
+template <class T>
+inline
+vnl_matrix<T> vnl_svd_inverse(vnl_matrix<T> const& m)
+{
+    return vnl_svd<T>(m).inverse();
+}
+
+template <class T>
+std::ostream& operator<<(std::ostream& s, vnl_svd<T> const& svd)
+{
+    s << "vnl_svd<T>:\n"
+    //  << "M = [\n" << M << "]\n"
+    << "U = [\n" << svd.U() << "]\n"
+    << "W = " << svd.W() << '\n'
+    << "V = [\n" << svd.V() << "]\n"
+    << "rank = " << svd.rank() << std::endl;
+    return s;
+}
 
 #endif /* vnl_svd_h */

@@ -45,6 +45,8 @@
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
 		BFE0232324A3098500936454 /* vnl_numeric_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_numeric_traits.h; sourceTree = "<group>"; };
 		BFE0232724A30E1700936454 /* test_svd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_svd.cpp; sourceTree = "<group>"; };
+		BFE8646424A908CB00FC848F /* vnl_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_error.h; sourceTree = "<group>"; };
+		BFE8646524A9171800FC848F /* vnl_random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_random.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +77,8 @@
 				BF062ADC249E99C40020843E /* vnl_matrix.h */,
 				BF062ADD249E99C40020843E /* vnl_vector_fixed.h */,
 				BF062ADE249E99C40020843E /* vnl_vector.h */,
+				BFE8646424A908CB00FC848F /* vnl_error.h */,
+				BFE8646524A9171800FC848F /* vnl_random.h */,
 				BF062ADF249E99C40020843E /* vnl_diag_matrix.h */,
 				BFE0232324A3098500936454 /* vnl_numeric_traits.h */,
 				BF115EDF24A59B93007EC319 /* vnl_export.h */,
