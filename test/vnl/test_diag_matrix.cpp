@@ -12,7 +12,7 @@ TEST(vnl_diag_matrix, simple)
 {
     constexpr unsigned int N = 3;
     
-    vnl_diag_matrix<double> m1(N);
+    vnl_diag_matrix<double> m1(N, 0.0);
     for (unsigned i=0; i<N; i++)
         m1(i,i) = i*0.25-0.25;
     

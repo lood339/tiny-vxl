@@ -10,18 +10,18 @@
 #define vnl_matrix_h
 
 #include <Eigen/Dense>
-//#include <vnl/vnl_numeric_traits.h>
+#include <vnl/vnl_numeric_traits.h>
 
 template <typename T> class vnl_matrix;
 template <typename T> class vnl_vector;
-//template <typename T> class vnl_numeric_traits;
+
 
 template <typename T>
 class vnl_matrix: public Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
 {
     using base_class = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-    //using abs_t = typename vnl_numeric_traits<T>::abs_t;
-    using abs_t = typename Eigen::NumTraits<T>::Real;
+    using abs_t = typename vnl_numeric_traits<T>::abs_t;
+    //using abs_t = typename Eigen::NumTraits<T>::Real;
     //typedef typename vnl_numeric_traits<T>::abs_t abs_t;
 public:
     vnl_matrix()=default;

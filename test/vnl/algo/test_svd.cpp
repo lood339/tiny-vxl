@@ -57,91 +57,94 @@ TEST(nvl_svd, test_hilbert_complex_double)
     test_hilbert(std::complex<double>(), "std::complex<double>", double(4.4e-10));
 }
 
-
-
-/*
-
-
-
-test_hilbert(std::complex<float>(), "std::complex<float>", float(0.04));
- */
-
-/*
+TEST(vnl_svd, test_hilbert_complex_float)
+{
+    test_hilbert(std::complex<float>(), "std::complex<float>", float(0.04));
+}
 
 //: Test recovery of parameters of least-squares parabola fit.
-static void
-test_ls()
+TEST(vnl_svd, test_least_squares_fit)
 {
-  std::cout << "----- Testing svd on a Least Squares problem -----" << std::endl;
-  double a = 0.15;
-  double b = 1.2;
-  double c = 3.1;
-
-  // Generate parabola design matrix
-  vnl_matrix<double> D(100, 3);
-  for (int n = 0; n < 100; ++n)
-  {
-    double x = n;
-    D(n, 0) = x * x;
-    D(n, 1) = x;
-    D(n, 2) = 1.0;
-  }
-
-  // Generate Y vector
-  vnl_vector<double> y(100);
-  for (int n = 0; n < 100; ++n)
-  {
-    double x = n;
-    double fx = a * x * x + b * x + c;
-    // Add sawtooth "noise"
-    y(n) = fx + (n % 4 - 2) / 10.0;
-  }
-  std::cout << "y = [" << y << "]\n";
-
-  // Extract vnl_svd<double>
-  vnl_svd<double> svd(D);
-
-  // Solve for parameters
-  vnl_double_3 A = svd.solve(y);
-  std::cout << "A = " << A << '\n';
-
-  vnl_double_3 T(a, b, c);
-  TEST_NEAR("Least squares residual", (A - T).squared_magnitude(), 0, 0.005);
+    std::cout << "----- Testing svd on a Least Squares problem -----" << std::endl;
+    double a = 0.15;
+    double b = 1.2;
+    double c = 3.1;
+    
+    // Generate parabola design matrix
+    vnl_matrix<double> D(100, 3);
+    for (int n = 0; n < 100; ++n)
+    {
+        double x = n;
+        D(n, 0) = x * x;
+        D(n, 1) = x;
+        D(n, 2) = 1.0;
+    }
+    
+    // Generate Y vector
+    vnl_vector<double> y(100);
+    for (int n = 0; n < 100; ++n)
+    {
+        double x = n;
+        double fx = a * x * x + b * x + c;
+        // Add sawtooth "noise"
+        y(n) = fx + (n % 4 - 2) / 10.0;
+    }
+    std::cout << "y = [" << y << "]\n";
+    
+    // Extract vnl_svd<double>
+    vnl_svd<double> svd(D);
+    
+    // Solve for parameters
+    vnl_vector<double> A = svd.solve(y);
+    std::cout << "A = " << A << '\n';
+    
+    vnl_vector<double> T(3);
+    T[0] = a;
+    T[1] = b;
+    T[2] = c;
+   
+    ASSERT_NEAR((A - T).squared_magnitude(), 0, 0.005)<<"Least squares residual\n";
 }
+
+
 
 //: Test nullspace extraction of rank=2 3x4 matrix.
-static void
-test_pmatrix()
+
+TEST(vnl_svd, test_pmatrix)
 {
-  double pdata[] = {
-    2, 0, 0, 0, 3, 10, 5, 5, 5, 12, 6, 6,
-  };
-  vnl_matrix<double> P(pdata, 3, 4);
-  vnl_svd<double> svd(P, 1e-8);
+    double pdata[] = {
+        2, 0, 0, 0,
+        3, 10, 5, 5,
+        5, 12, 6, 6,
+    };
+    vnl_matrix<double> P(pdata, 3, 4);
+    vnl_svd<double> svd(P, 1e-8);
 
-  vnl_matrix<double> res = svd.recompose() - P;
-  TEST_NEAR("PMatrix recomposition residual", res.fro_norm(), 0, 1e-12);
-  std::cout << " Inv = " << svd.inverse() << std::endl;
+    vnl_matrix<double> res = svd.recompose() - P;
+    ASSERT_NEAR(res.fro_norm(), 0, 1e-12)<<"PMatrix recomposition residual\n";
+    std::cout << " Inv = " << svd.inverse() << std::endl;
 
-  TEST("singularities = 2", svd.singularities(), 2);
-  TEST("rank = 2", svd.rank(), 2);
+    EXPECT_EQ(svd.singularities(), 2)<<"singularities = 2\n";
+    EXPECT_EQ(svd.rank(), 2)<<"rank = 2\n";
+    /*
+    vnl_matrix<double> N = svd.nullspace();
+    EXPECT_EQ("nullspace dimension", N.columns(), 2);
+    std::cout << "null(P) =\n" << N << std::endl;
 
-  vnl_matrix<double> N = svd.nullspace();
-  TEST("nullspace dimension", N.columns(), 2);
-  std::cout << "null(P) =\n" << N << std::endl;
+    vnl_matrix<double> PN = P * N;
+    std::cout << "P * null(P) =\n" << PN << std::endl;
+    ASSERT_NEAR("P nullspace residual", PN.fro_norm(), 0, 1e-12);
 
-  vnl_matrix<double> PN = P * N;
-  std::cout << "P * null(P) =\n" << PN << std::endl;
-  TEST_NEAR("P nullspace residual", PN.fro_norm(), 0, 1e-12);
+    vnl_vector<double> n = svd.nullvector();
+    ASSERT_NEAR("P nullvector residual", (P * n).magnitude(), 0, 1e-12);
 
-  vnl_vector<double> n = svd.nullvector();
-  TEST_NEAR("P nullvector residual", (P * n).magnitude(), 0, 1e-12);
-
-  vnl_vector<double> l = svd.left_nullvector();
-  std::cout << "left_nullvector(P) = " << l << std::endl;
-  TEST_NEAR("P left nullvector residual", (l * P).magnitude(), 0, 1e-12);
+    vnl_vector<double> l = svd.left_nullvector();
+    std::cout << "left_nullvector(P) = " << l << std::endl;
+    ASSERT_NEAR("P left nullvector residual", (l * P).magnitude(), 0, 1e-12);
+     */
 }
 
+/*
 static void
 test_I()
 {

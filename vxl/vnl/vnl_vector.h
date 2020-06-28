@@ -10,6 +10,7 @@
 #define vnl_vector_h
 
 #include <Eigen/Dense>
+#include <vnl/vnl_numeric_traits.h>
 
 template <typename T> class vnl_matrix;
 template <typename T> class vnl_vector;
@@ -18,14 +19,18 @@ template <typename T>
 class vnl_vector: public Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>
 {
     using base_class = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>;
+    using abs_t = typename vnl_numeric_traits<T>::abs_t;
 public:
     vnl_vector()=default;
     
     //: Creates a vector containing n uninitialized elements.
-    explicit vnl_vector(size_t len):base_class(len)
-    {
-        
+    explicit vnl_vector(size_t len):base_class(len){}
+   
+    //: Creates a vector containing n elements, all set to v0.
+    vnl_vector(size_t len, T const& v0):base_class(len) {
+        this->setConstant(v0);
     }
+    
     //: Construct a fixed-n-vector initialized from \a datablck
     //  The data \e must have enough data. No checks performed.
     explicit vnl_vector( const T* datablck, size_t n )
@@ -68,11 +73,73 @@ public:
         return true;
     }
     
+    //: Add scalar value to all elements
+    vnl_vector<T>& operator+=(T );
+    
+    //: Subtract scalar value from all elements
+    vnl_vector<T>& operator-=(T value) { return *this += T(-value); }
+    
+    //: Multiply all elements by scalar
+    vnl_vector<T>& operator*=(T );
+    
+    //: Divide all elements by scalar
+    vnl_vector<T>& operator/=(T );
+    
+    //: Add rhs to this and return *this
+    vnl_vector<T>& operator+=(vnl_vector<T> const& rhs);
+    
+    //: Subtract rhs from this and return *this
+    vnl_vector<T>& operator-=(vnl_vector<T> const& rhs);
+    
+    vnl_vector<T> operator+(vnl_vector<T> const &v) const {
+        assert(this->size() == v.size());
+        vnl_vector<T> result(this->size());
+        for(int i = 0; i<this->size(); ++i) {
+            result[i] = (*this)[i] + v[i];
+        }
+        return result;
+    }
+    
+    vnl_vector<T> operator-(vnl_vector<T> const &v) const {
+        assert(this->size() == v.size());
+        vnl_vector<T> result(this->size());
+        for(int i = 0; i<this->size(); ++i) {
+            result[i] = (*this)[i] - v[i];
+        }
+        return result;
+    }
+    
+    //: Applies function to elements
+    vnl_vector<T> apply(T (*f)(T)) const;
+    //: Applies function to elements
+    vnl_vector<T> apply(T (*f)(T const&)) const;
+    
+    //: Returns a subvector specified by the start index and length. O(n).
+    vnl_vector<T> extract(size_t len, size_t start=0) const;
+    
+    //: Replaces elements with index beginning at start, by values of v. O(n).
+    vnl_vector<T>& update(vnl_vector<T> const&, size_t start=0);
+    
+    //: Return sum of squares of elements
+    abs_t squared_magnitude() const { return this->squaredNorm(); }
+    
+    //: Return magnitude (length) of vector
+    abs_t magnitude() const { return this->norm(); }
+    
     
 };
 
-//: Returns new vector whose elements are the products v1[i]*v2[i]. O(n).
+template<class T>
+vnl_vector<T>& vnl_vector<T>::update (vnl_vector<T> const& v, size_t start)
+{
+    size_t stop = start + v.size();
+    assert(stop <= this->size());
+    for (size_t i = start; i < stop; i++)
+        (*this)[i] = v[i-start];
+    return *this;
+}
 
+//: Returns new vector whose elements are the products v1[i]*v2[i]. O(n).
 template<class T>
 vnl_vector<T> element_product (vnl_vector<T> const& v1, vnl_vector<T> const& v2)
 {

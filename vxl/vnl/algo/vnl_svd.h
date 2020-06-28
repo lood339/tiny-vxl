@@ -97,18 +97,20 @@ public:
     //: pseudo-inverse (for non-square matrix) of desired rank.
     vnl_matrix<T> pinverse (unsigned int rank = ~0u) const; // ~0u == (unsigned int)-1
     
-    /*
+    
     //: Calculate inverse of transpose, using desired rank.
     vnl_matrix<T> tinverse (unsigned int rank = ~0u) const; // ~0u == (unsigned int)-1
     
     //: Recompose SVD to U*W*V', using desired rank.
     vnl_matrix<T> recompose (unsigned int rank = ~0u) const; // ~0u == (unsigned int)-1
     
+    /*
     //: Solve the matrix equation M X = B, returning X
     vnl_matrix<T> solve (vnl_matrix<T> const& B) const;
-    
+    */
     //: Solve the matrix-vector system M x = y, returning x.
     vnl_vector<T> solve (vnl_vector<T> const& y) const;
+    /*
     void          solve (T const *rhs, T *lhs) const; // min ||A*lhs - rhs||
     
     //: Solve the matrix-vector system M x = y.
@@ -145,8 +147,8 @@ private:
     
     int m_, n_;              // Size of M, local cache.
     vnl_matrix<T> U_;        // Columns Ui are basis for range of M for Wi != 0
-    vnl_diag_matrix<singval_t> W_;// Singular values, sorted in decreasing order
-    vnl_diag_matrix<singval_t> Winverse_;
+    vnl_diag_matrix<singval_t> W_;// Singular values, sorted in decreasing order @todo it is not a diagonal matrix
+    vnl_diag_matrix<singval_t> Winverse_; // @todo it is not a diagonal matrixs
     vnl_matrix<T> V_;       // Columns Vi are basis for nullspace of M for Wi = 0
     unsigned rank_;
     bool have_max_;
@@ -165,7 +167,9 @@ private:
 // implementation
 template<typename T>
 vnl_svd<T>::vnl_svd(vnl_matrix<T> const &M, double zero_out_tol):
-m_(M.rows()), n_(M.cols()), U_(m_, n_), W_(n_), Winverse_(n_), V_(n_, n_)
+m_(M.rows()), n_(M.cols()),
+U_(m_, n_), // why is mxn, but not mxm
+W_(n_), Winverse_(n_), V_(n_, n_)
 {
     // Eigen::JacobiSVD<Eigen::MatrixXd> svd(m, Eigen::ComputeThinU | Eigen::ComputeThinV);
     // copy data from vnl_matrix to
@@ -195,14 +199,40 @@ m_(M.rows()), n_(M.cols()), U_(m_, n_), W_(n_), Winverse_(n_), V_(n_, n_)
      */
     
     svd_.setThreshold(zero_out_tol);
- 
-    U_ = svd_.matrixU();
-    V_ = svd_.matrixV();
-    //W_  = svd_.singularValues().asDiagonal();
-    auto S = svd_.singularValues();
+    
+    // copy U S V values
+    const auto& U = svd_.matrixU();
+    assert(U.rows() <= U_.rows());
+    assert(U.cols() <= U_.cols());
+    for(int i = 0; i<U.rows(); ++i) {
+        for(int j = 0; j<U.cols(); ++j) {
+            U_(i, j) = U(i, j);
+        }
+    }
+    
+    const auto& S = svd_.singularValues();
+    W_.fill(0);
+    assert(S.size() <= W_.rows());
     for(int i = 0; i<S.size(); ++i) {
         W_(i, i) = S[i];
     }
+    
+    const auto& V = svd_.matrixV();
+    assert(V.rows() <= V_.rows());
+    assert(V.cols() <= V_.cols());
+    
+    V_.fill(0);
+    for(int i = 0; i<V.rows(); ++i) {
+        for(int j = 0; j<V.cols(); ++j) {
+            V_(i, j) = V(i, j);
+        }
+    }
+    
+    
+    //std::cout<<"S singular value size: "<<S.size()<<std::endl;
+    //std::cout<<"S: "<<S<<std::endl;
+    //std::cout<<"W: row "<<W_.rows()<<std::endl;
+    //std::cout<<"W from svd:"<<svd_.singularValues().asDiagonal()<<std::endl;
     
     if (zero_out_tol >= 0) {
         // Zero out small sv's and update rank count.
@@ -212,6 +242,8 @@ m_(M.rows()), n_(M.cols()), U_(m_, n_), W_(n_), Winverse_(n_), V_(n_, n_)
         // negative tolerance implies relative to max elt.
         zero_out_relative(double(-zero_out_tol));
     }
+    std::cout<<"rank: {}"<<svd_.rank()<<std::endl;
+    assert(svd_.rank() == rank_);
 }
 
 template <typename T>
@@ -244,12 +276,79 @@ template <typename T>
 vnl_matrix<T> vnl_svd<T>::pinverse(unsigned int rnk) const
 {
     if (rnk > rank_) rnk=rank_;
-    vnl_matrix<T> W_inverse(Winverse_.rows(),Winverse_.columns());
+    vnl_matrix<T> W_inverse(Winverse_.rows(), Winverse_.cols());
     W_inverse.fill(T(0));
     for (unsigned int i=0;i<rnk;++i)
         W_inverse(i,i)=Winverse_(i,i);
     
     return V_ * W_inverse * U_.conjugate_transpose();
+}
+
+//: Calculate inverse of transpose, using desired rank.
+template <typename T>
+vnl_matrix<T> vnl_svd<T>::tinverse (unsigned int rnk) const // ~0u == (unsigned int)-1
+{
+    if (rnk > rank_) rnk=rank_;
+    vnl_matrix<T> W_inverse(Winverse_.rows(),Winverse_.columns());
+    W_inverse.fill(T(0));
+    for (unsigned int i=0;i<rnk;++i)
+        W_inverse(i,i)=Winverse_(i,i);
+    
+    return U_ * W_inverse * V_.conjugate_transpose();
+    
+}
+
+//: Recompose SVD to U*W*V', using desired rank.
+template <typename T>
+vnl_matrix<T> vnl_svd<T>::recompose (unsigned int rnk) const // ~0u == (unsigned int)-1
+{
+    if (rnk > rank_) rnk=rank_;
+    vnl_matrix<T> Wmatr(W_.rows(), W_.cols());
+    Wmatr.fill(T(0));
+    for (unsigned int i=0;i<rnk;++i)
+        Wmatr(i,i)=W_(i,i);
+    
+    return U_*Wmatr*V_.conjugate_transpose();
+}
+
+//: Solve the matrix-vector system M x = y, returning x.
+template <class T>
+vnl_vector<T> vnl_svd<T>::solve(vnl_vector<T> const& y)  const
+{
+    // fsm sanity check :
+    if (y.size() != U_.rows())
+    {
+        std::cerr << __FILE__ << ": size of rhs is incompatible with no. of rows in U_\n"
+        << "y =" << y << '\n'
+        << "m_=" << m_ << '\n'
+        << "n_=" << n_ << '\n'
+        << "U_=\n" << U_
+        << "V_=\n" << V_
+        << "W_=\n" << W_;
+    }
+    
+    vnl_vector<T> x(V_.rows());                   // Solution matrix.
+    if (U_.rows() < U_.columns()) {               // Augment y with extra rows of
+        vnl_vector<T> yy(U_.rows(), T(0));          // zeros, so that it matches
+        if (yy.size()<y.size()) { // fsm
+            std::cerr << "yy=" << yy << std::endl
+            << "y =" << y  << std::endl;
+            // the update() call on the next line will abort...
+        }
+        yy.update(y);                               // cols of u.transpose.
+        x = U_.conjugate_transpose() * yy;
+    }
+    else
+        x = U_.conjugate_transpose() * y;
+    
+    for (unsigned i = 0; i < x.size(); i++) {        // multiply with diagonal 1/W
+        T weight = W_(i, i), zero_(0);
+        if (weight != zero_)
+            x[i] /= weight;
+        else
+            x[i] = zero_;
+    }
+    return V_ * x;                                // premultiply with v.
 }
 
 

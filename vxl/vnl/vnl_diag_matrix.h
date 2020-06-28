@@ -32,8 +32,10 @@ public:
     vnl_diag_matrix(unsigned nn) : base_class(nn) {}
     
     //: Construct a diagonal matrix with diagonal elements equal to value.
-    vnl_diag_matrix(unsigned nn, T const& value) : base_class(nn, nn) {
-        this->setConstant(value);
+    vnl_diag_matrix(unsigned nn, T const& value) : base_class(nn) {
+        for(int i = 0; i<base_class::diagonal().size(); ++i) {
+            base_class::diagonal()[i] = value;
+        }
     }
     
     //: Construct a diagonal matrix from a vnl_vector.
@@ -179,8 +181,12 @@ public:
     inline void set_size(int n) { this->resize(n); }
     
     inline void clear() { this->resize(0); }
-    inline vnl_diag_matrix& fill(T const &x) { this->setConstant(x); return *this; }
-    
+    inline vnl_diag_matrix& fill(T const &x) {
+        for(int i = 0; i<base_class::diagonal().size(); ++i) {
+            base_class::diagonal()[i] = x;
+        }
+        return *this;
+    }
     
     //: Return pointer to the diagonal elements as a contiguous 1D C array;
     inline T*       data_block()       { return base_class::diagonal().data(); }
