@@ -32,6 +32,13 @@ public:
         this->setConstant(v0);
     }
     
+    // Creates a vector of specified length and initialize first n elements with values. O(n).
+    vnl_vector(size_t len, size_t n, const T* data_block):base_class(len)
+    {
+        n = std::min(len, n);
+        std::copy(data_block, data_block+n, this->data());
+    }
+    
     //: Construct a fixed-n-vector initialized from \a datablck
     //  The data \e must have enough data. No checks performed.
     explicit vnl_vector( const T* datablck, size_t n )
@@ -40,12 +47,22 @@ public:
         std::memcpy(this->data(), datablck, n*sizeof(T));
     }
     
-    // Creates a vector of specified length and initialize first n elements with values. O(n).
-    vnl_vector(size_t len, size_t n, const T* data_block):base_class(len)
-    {
-        n = std::min(len, n);
-        std::copy(data_block, data_block+n, this->data());
-    }
+    //: Copy constructor.
+    //vnl_vector(vnl_vector<T> const&);
+    
+    // NOTE: move-assignment must be allowed to throw an exception, because we need to maintain
+    //       backwards compatibility and the move-construction & move-aasignment
+    //       operators fall back to the copy-assignment operator behavior in
+    //       cases when the memory is externally managed.
+    //: Move-constructor.
+    //vnl_vector(vnl_vector<T> &&);
+    //: Move-assignment operator
+    //vnl_vector<T>& operator=(vnl_vector<T>&& rhs);
+    
+    //: Destructor
+    /** This destructor *must* be virtual to ensure that the vnl_vector_ref subclass destructor
+     * is called and memory is not accidently de-allocated. */
+    //virtual ~vnl_vector();
     
     template<typename OtherDrived>
     vnl_vector(const Eigen::MatrixBase<OtherDrived>& other):
@@ -59,20 +76,30 @@ public:
         return *this;
     }
     
+    //: Return the length, number of elements, dimension of this vector.
+    //size_t size() const { return this->num_elmts; }
     
-    //:  Return true if all elements of vectors are equal, within given tolerance
-    bool is_equal(vnl_vector<T> const& rhs, double tol) const
-    {
-        if (this == &rhs)                                         //Same object ? => equal.
-            return true;
-        
-        if (this->size() != rhs.size())                           //Size different ?
-            return false;
-        for (size_t i = 0; i < this->size(); i++)
-            if (std::abs(this->data()[i] - rhs.data()[i]) > tol)    //Element different ?
-                return false;
-        return true;
-    }
+    //: Put value at given position in vector.
+    inline void put(size_t i, T const& v);
+    
+    //: Get value at element i
+    inline T get(size_t  i) const;
+    
+    //: Set all values to v
+    vnl_vector& fill(T const& v);
+    
+    //: Sets elements to ptr[i]
+    //  Note: ptr[i] must be valid for i=0..size()-1
+    vnl_vector& copy_in(T const * ptr);
+    
+    //: Copy elements to ptr[i]
+    //  Note: ptr[i] must be valid for i=0..size()-1
+    void copy_out(T *) const; // from vector to array[].
+    
+    //: Sets elements to ptr[i]
+    //  Note: ptr[i] must be valid for i=0..size()-1
+    //vnl_vector& set(T const *ptr) { return copy_in(ptr); }
+    
     
     //: Return reference to the element at specified index.
     // There are assert style boundary checks - #define NDEBUG to turn them off.
@@ -94,6 +121,12 @@ public:
     //: Return reference to the element at specified index. No range checking.
     T const & operator[](size_t i) const { return this->data()[i]; }
     
+    //: Set all elements to value v
+    //vnl_vector<T>& operator=(T const&v) { fill(v); return *this; }
+    
+    //: Copy operator
+    //vnl_vector<T>& operator=(vnl_vector<T> const& rhs);
+    
     //: Add scalar value to all elements
     vnl_vector<T>& operator+=(T );
     
@@ -111,6 +144,52 @@ public:
     
     //: Subtract rhs from this and return *this
     vnl_vector<T>& operator-=(vnl_vector<T> const& rhs);
+    
+    //: *this = M*(*this) where M is a suitable matrix.
+    //  this is treated as a column vector
+    vnl_vector<T>& pre_multiply(vnl_matrix<T> const& M);
+    
+    //: *this = (*this)*M where M is a suitable matrix.
+    //  this is treated as a row vector
+    vnl_vector<T>& post_multiply(vnl_matrix<T> const& M);
+    
+    //: *this = (*this)*M where M is a suitable matrix.
+    //  this is treated as a row vector
+    //vnl_vector<T>& operator*=(vnl_matrix<T> const& m) { return this->post_multiply(m); }
+    
+    //: Unary plus operator
+    // Return new vector = (*this)
+    vnl_vector<T> operator+() const { return *this; }
+    
+    //: Unary minus operator
+    // Return new vector = -1*(*this)
+    vnl_vector<T> operator-() const;
+    
+    vnl_vector<T> operator+(T v) const {
+        vnl_vector<T> result(this->size());
+        std::transform(this->begin(), this->end(), result.begin(),
+                       [v](T d) -> T { return d + v; });
+        return result;
+    }
+    vnl_vector<T> operator-(T v) const {
+        vnl_vector<T> result(this->size());
+        std::transform(this->begin(), this->end(), result.begin(),
+                       [v](T d) -> T { return d - v; });
+        return result;
+    }
+    vnl_vector<T> operator*(T v) const {
+        vnl_vector<T> result(this->size());
+        std::transform(this->begin(), this->end(), result.begin(),
+                       [v](T d) -> T { return d * v; });
+        return result;
+    }
+    vnl_vector<T> operator/(T v) const {
+        vnl_vector<T> result(this->size());
+        std::transform(this->begin(), this->end(), result.begin(),
+                       [v](T d) -> T { return d / v; });
+        return result;
+    }
+    
     
     vnl_vector<T> operator+(vnl_vector<T> const &v) const {
         assert(this->size() == v.size());
@@ -147,6 +226,30 @@ public:
         }
         return result;
     }
+    //--------------------------------------------------------------------------------
+    
+    //: Access the contiguous block storing the elements in the vector. O(1).
+    //  data_block()[0] is the first element of the vector
+    T const* data_block() const { return this->data(); }
+    
+    //: Access the contiguous block storing the elements in the vector. O(1).
+    //  data_block()[0] is the first element of the vector
+    T      * data_block() { return this->data(); }
+    
+    //: Type defs for iterators
+    typedef T       *iterator;
+    //: Iterator pointing to start of data
+    iterator begin() { return this->data(); }
+    
+    //: Iterator pointing to element beyond end of data
+    iterator end() { return this->data()+this->size(); }
+    
+    //: Const iterator type
+    typedef T const *const_iterator;
+    //: Iterator pointing to start of data
+    const_iterator begin() const { return this->data(); }
+    //: Iterator pointing to element beyond end of data
+    const_iterator end() const { return this->data()+this->size(); }
     
     //: Applies function to elements
     vnl_vector<T> apply(T (*f)(T)) const;
@@ -174,25 +277,92 @@ public:
     //: Return largest absolute element value
     //abs_t inf_norm() const { return vnl_c_vector<T>::inf_norm(begin(), size()); }
     
-    //: Type defs for iterators
-    typedef T       *iterator;
-    //: Iterator pointing to start of data
-    iterator begin() { return this->data(); }
+    //: Normalise by dividing through by the magnitude
+    //vnl_vector<T>& normalize() { vnl_c_vector<T>::normalize(begin(), size()); return *this; }
     
-    //: Iterator pointing to element beyond end of data
-    iterator end() { return this->data()+this->size(); }
+    // These next 6 functions are should really be helper functions since they aren't
+    // really proper functions on a vector in a philosophical sense.
     
-    //: Const iterator type
-    typedef T const *const_iterator;
-    //: Iterator pointing to start of data
-    const_iterator begin() const { return this->data(); }
-    //: Iterator pointing to element beyond end of data
-    const_iterator end() const { return this->data()+this->size(); }
+    //: Root Mean Squares of values
+    //abs_t rms() const { return vnl_c_vector<T>::rms_norm(begin(), size()); }
     
+    //: Smallest value
+    T min_value() const;
+    //{ return vnl_c_vector<T>::min_value(begin(), size()); }
+    
+    //: Largest value
+    T max_value() const;
+    
+    //: Location of smallest value
+    size_t arg_min() const;
+    
+    //: Location of largest value
+    size_t arg_max() const;
+    
+    //: Mean of values in vector
+    T mean() const;
+    
+    //: Sum of values in a vector
+    T sum() const;
+    
+    //: Reverse the order of the elements
+    //  Element i swaps with element size()-1-i
+    vnl_vector<T>& flip();
+    
+    //: Reverse the order of the elements from index b to 1-e, inclusive.
+    //  When b = 0 and e = size(), this is equivalent to flip();
+    vnl_vector<T>& flip(const size_t &b, const size_t &e);
+    
+    //: Roll the vector forward by the specified shift.
+    //  The shift is cyclical, such that the elements which
+    //  are displaced from the end reappear at the beginning.
+    //  Negative shifts and shifts >= the length of the array are supported.
+    //  A new vector is returned; the underlying data is unchanged.
+    vnl_vector<T> roll(const int &shift) const;
+    
+    //: Roll the vector forward by the specified shift.
+    //  The shift is cyclical, such that the elements which
+    //  are displaced from the end reappear at the beginning.
+    //  Negative shifts and shifts >= the length of the array are supported.
+    //
+    vnl_vector& roll_inplace(const int &shift);
+    
+    //: Set this to that and that to this
+    void swap(vnl_vector<T> & that) noexcept;
+    
+    
+    //: Return true if it's finite
+    bool is_finite() const;
+    
+    //: Return true iff all the entries are zero.
+    bool is_zero() const;
+    
+    //: Return true iff the size is zero.
+    //bool empty() const { return !data || !num_elmts; }
+    
+    //:  Return true if all elements of vectors are equal, within given tolerance
+    bool is_equal(vnl_vector<T> const& rhs, double tol) const;
+    
+    //: Return true if *this == v
+    bool operator_eq(vnl_vector<T> const& v) const;
+    
+    //: Equality test
+    //bool operator==(vnl_vector<T> const &that) const { return  this->operator_eq(that); }
+    
+    //: Inequality test
+    //bool operator!=(vnl_vector<T> const &that) const { return !this->operator_eq(that); }
+    
+    //: Resize to n elements.
+    // This is a destructive resize, in that the old data is lost if size() != \a n before the call.
+    // If size() is already \a n, this is a null operation.
+    bool set_size(size_t n);
+    
+    //: Make the vector as if it had been default-constructed.
+    void clear();
     
 };
 
-template<class T>
+template<typename T>
 vnl_vector<T>& vnl_vector<T>::update (vnl_vector<T> const& v, size_t start)
 {
     size_t stop = start + v.size();
@@ -200,6 +370,59 @@ vnl_vector<T>& vnl_vector<T>::update (vnl_vector<T> const& v, size_t start)
     for (size_t i = start; i < stop; i++)
         (*this)[i] = v[i-start];
     return *this;
+}
+
+//: Smallest value
+template<typename T>
+T vnl_vector<T>::min_value() const
+{
+    return this->minCoeff();
+}
+
+//: Largest value
+template<typename T>
+T vnl_vector<T>::max_value() const
+{
+    return this->maxCoeff(&index);
+}
+
+//: Location of smallest value
+template<typename T>
+size_t vnl_vector<T>::arg_min() const
+{
+    unsigned int index = 0;
+    this->minCoeff(&index);
+    return index;
+}
+
+//: Location of largest value
+template<typename T>
+size_t vnl_vector<T>::arg_max() const
+{
+    unsigned int index = 0;
+    this->maxCoeff(&index);
+    return index;
+}
+
+//: Mean of values in vector
+//T mean() const { return vnl_c_vector<T>::mean(begin(), size()); }
+
+//: Sum of values in a vector
+//T sum() const { return vnl_c_vector<T>::sum(begin(), size()); }
+
+//:  Return true if all elements of vectors are equal, within given tolerance
+template <typename T>
+bool vnl_vector<T>::is_equal(vnl_vector<T> const& rhs, double tol) const
+{
+    if (this == &rhs)                                         //Same object ? => equal.
+        return true;
+    
+    if (this->size() != rhs.size())                           //Size different ?
+        return false;
+    for (size_t i = 0; i < this->size(); i++)
+        if (std::abs(this->data()[i] - rhs.data()[i]) > tol)    //Element different ?
+            return false;
+    return true;
 }
 
 //: Returns new vector whose elements are the products v1[i]*v2[i]. O(n).

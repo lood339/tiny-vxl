@@ -26,6 +26,18 @@ public:
     //: Construct an empty num_rows*num_cols matrix
     vnl_matrix_fixed() = default;
     
+    //: Construct an m*n matrix and fill with value
+    explicit vnl_matrix_fixed(T value)
+    {
+        this->setConstant(value);
+    }
+    
+    //: Construct an m*n Matrix and copy data into it row-wise.
+    explicit vnl_matrix_fixed(const T* datablck)
+    {
+        std::memcpy(this->data(), datablck, num_bytes);
+    }
+    
     //: Construct an m*n Matrix and copy rhs into it.
     //  Abort if rhs is not the same size.
     //vnl_matrix_fixed(const vnl_matrix_fixed& rhs) = default;
@@ -47,17 +59,7 @@ public:
     
     
     
-    //: Construct an m*n matrix and fill with value
-    explicit vnl_matrix_fixed(T value)
-    {
-        this->setConstant(value);
-    }
     
-    //: Construct an m*n Matrix and copy data into it row-wise.
-    explicit vnl_matrix_fixed(const T* datablck)
-    {
-        std::memcpy(this->data(), datablck, num_bytes);
-    }
     
     //: Return a vector with the content of the (main) diagonal
     vnl_vector<T> get_diagonal() const
