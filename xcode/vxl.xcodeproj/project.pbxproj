@@ -12,6 +12,7 @@
 		BF062B2B249F1A7D0020843E /* test_matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B19249F1A7D0020843E /* test_matrix.cpp */; };
 		BF062B2C249F1A7D0020843E /* test_matrix_fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B1A249F1A7D0020843E /* test_matrix_fixed.cpp */; };
 		BF062B31249F1C4C0020843E /* test_vector_fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */; };
+		BF0E957024AAE846000F6E4C /* test_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF0E956F24AAE846000F6E4C /* test_vector.cpp */; };
 		BFE0232824A30E1700936454 /* test_svd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFE0232724A30E1700936454 /* test_svd.cpp */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 		BF062B1A249F1A7D0020843E /* test_matrix_fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_matrix_fixed.cpp; sourceTree = "<group>"; };
 		BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_vector_fixed.cpp; sourceTree = "<group>"; };
 		BF0A75D824723D3F00DD8BB6 /* vxl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vxl; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF0E956F24AAE846000F6E4C /* test_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_vector.cpp; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
 		BFE0232324A3098500936454 /* vnl_numeric_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_numeric_traits.h; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 				BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */,
 				BF062B19249F1A7D0020843E /* test_matrix.cpp */,
 				BF062B1A249F1A7D0020843E /* test_matrix_fixed.cpp */,
+				BF0E956F24AAE846000F6E4C /* test_vector.cpp */,
 			);
 			path = vnl;
 			sourceTree = "<group>";
@@ -203,6 +206,7 @@
 				BF062B2C249F1A7D0020843E /* test_matrix_fixed.cpp in Sources */,
 				BF062B31249F1C4C0020843E /* test_vector_fixed.cpp in Sources */,
 				BFE0232824A30E1700936454 /* test_svd.cpp in Sources */,
+				BF0E957024AAE846000F6E4C /* test_vector.cpp in Sources */,
 				BF062B2B249F1A7D0020843E /* test_matrix.cpp in Sources */,
 				BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */,
 			);

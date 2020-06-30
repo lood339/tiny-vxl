@@ -43,7 +43,7 @@ public:
     //  The data \e must have enough data. No checks performed.
     explicit vnl_vector( const T* datablck, size_t n )
     {
-        *this = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>::Zero(n);
+        *this = base_class::Zero(n);
         std::memcpy(this->data(), datablck, n*sizeof(T));
     }
     
@@ -80,13 +80,25 @@ public:
     //size_t size() const { return this->num_elmts; }
     
     //: Put value at given position in vector.
-    inline void put(size_t i, T const& v);
+    inline void put(size_t i, T const& v)
+    {
+        assert(i<this->size());
+        this->data()[i] = v;
+    }
     
     //: Get value at element i
-    inline T get(size_t  i) const;
+    inline T get(size_t  i) const
+    {
+        assert(i<this->size());
+        return this->data()[i];
+    }
     
     //: Set all values to v
-    vnl_vector& fill(T const& v);
+    vnl_vector& fill(T const& v)
+    {
+        this->setConstant(v);
+        return *this;
+    }
     
     //: Sets elements to ptr[i]
     //  Note: ptr[i] must be valid for i=0..size()-1
@@ -122,16 +134,16 @@ public:
     T const & operator[](size_t i) const { return this->data()[i]; }
     
     //: Set all elements to value v
-    //vnl_vector<T>& operator=(T const&v) { fill(v); return *this; }
+    vnl_vector<T>& operator=(T const&v) { fill(v); return *this; }
     
     //: Copy operator
     //vnl_vector<T>& operator=(vnl_vector<T> const& rhs);
     
     //: Add scalar value to all elements
-    vnl_vector<T>& operator+=(T );
+    vnl_vector<T>& operator+=(T value);
     
     //: Subtract scalar value from all elements
-    vnl_vector<T>& operator-=(T value) { return *this += T(-value); }
+    vnl_vector<T>& operator-=(T value);
     
     //: Multiply all elements by scalar
     vnl_vector<T>& operator*=(T );
@@ -361,6 +373,123 @@ public:
     void clear();
     
 };
+
+//: Add scalar value to all elements
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::operator+=(T value)
+{
+    this->array() += value;
+    return *this;
+}
+
+//: Subtract scalar value from all elements
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::operator-=(T value)
+{
+    this->array() -= value;
+    return *this;
+}
+
+//: Multiply all elements by scalar
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::operator*=(T value)
+{
+    this->array() *= value;
+    return *this;
+}
+
+//: Divide all elements by scalar
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::operator/=(T value)
+{
+    this->array() /= value;
+    return *this;
+}
+
+//: Add rhs to this and return *this
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::operator+=(vnl_vector<T> const& rhs)
+{
+    if (this->size() != rhs.size()) {
+        vnl_error_vector_index("operator+=", this->size(), rhs.size());
+    }
+    const unsigned int n = this->size();
+    T *a = this->data();
+    T const *b = rhs.data();
+    for(unsigned int i = 0; i<n; ++i) {
+        a[i] = T(a[i] + b[i]);
+    }
+    return *this;
+}
+
+//: Subtract rhs from this and return *this
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::operator-=(vnl_vector<T> const& rhs)
+{
+    if (this->size() != rhs.size()) {
+        vnl_error_vector_index("operator+=", this->size(), rhs.size());
+    }
+    const unsigned int n = this->size();
+    T *a = this->data();
+    T const *b = rhs.data();
+    for(unsigned int i = 0; i<n; ++i) {
+        a[i] = T(a[i] - b[i]);
+    }
+    return *this;
+}
+
+//: *this = M*(*this) where M is a suitable matrix.
+//  this is treated as a column vector
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::pre_multiply(vnl_matrix<T> const& m)
+{
+    if(m.cols() != this->size()) {
+        vnl_error_vector_index("pre_multiply", m.cols(), this->size());
+    }
+    
+    vnl_vector<T> v_copy = *this;
+    *this = base_class::Zero(m.rows());
+    for(int i = 0; i<m.rows(); ++i) {
+        T s = T{0};
+        for(int j = 0; j<m.cols(); ++j) {
+            s += m[i][j] * v_copy[j];
+        }
+        (*this)[i] = s;
+    }
+    return *this;
+}
+
+//: *this = (*this)*M where M is a suitable matrix.
+//  this is treated as a row vector
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::post_multiply(vnl_matrix<T> const& m)
+{
+    if(m.rows() != this->size()) {
+        vnl_error_vector_index("post_multiply", m.rows(), this->size());
+    }
+    
+    vnl_vector<T> v_copy = *this;
+    *this = base_class::Zero(m.cols());
+    for(int j = 0; j<m.cols(); ++j) {
+        T s = T{0};
+        for(int i = 0; i<m.rows(); ++i) {
+            s += v_copy[i] * m[i][j];
+        }
+        (*this)[j] = s;
+    }
+    return *this;
+}
+
+//: Creates new vector containing the negation of THIS vector. O(n).
+
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator- () const
+{
+    vnl_vector<T> result(this->num_elmts);
+    for (size_t i = 0; i < this->num_elmts; i++)
+        result.data[i] = - this->data[i];           // negate element
+    return result;
+}
 
 template<typename T>
 vnl_vector<T>& vnl_vector<T>::update (vnl_vector<T> const& v, size_t start)
