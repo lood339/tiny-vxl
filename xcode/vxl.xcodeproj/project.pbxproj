@@ -42,6 +42,7 @@
 		BF062B1A249F1A7D0020843E /* test_matrix_fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_matrix_fixed.cpp; sourceTree = "<group>"; };
 		BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_vector_fixed.cpp; sourceTree = "<group>"; };
 		BF0A75D824723D3F00DD8BB6 /* vxl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vxl; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF0E22FA24AC3C53003C181C /* vnl_cross.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_cross.h; sourceTree = "<group>"; };
 		BF0E956F24AAE846000F6E4C /* test_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_vector.cpp; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
@@ -84,6 +85,7 @@
 				BF062ADF249E99C40020843E /* vnl_diag_matrix.h */,
 				BFE0232324A3098500936454 /* vnl_numeric_traits.h */,
 				BF115EDF24A59B93007EC319 /* vnl_export.h */,
+				BF0E22FA24AC3C53003C181C /* vnl_cross.h */,
 			);
 			name = vnl;
 			path = ../../vxl/vnl;

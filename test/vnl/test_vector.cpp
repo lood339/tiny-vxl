@@ -3,13 +3,13 @@
 #include <sstream>
 
 #include <vnl/vnl_vector.h>
+#include <vnl/vnl_matrix.h>
 //#include "vnl/vnl_math.h"
-//#include "vnl/vnl_vector.h"
 //#include "vnl/vnl_float_3.h"
 //#include "vnl/vnl_float_4.h"
 //#include "vnl/vnl_matrix_fixed.h"
-//#include "vnl/vnl_cross.h"
-//#include "testlib/testlib_test.h"
+#include <vnl/vnl_cross.h>
+
 
 #include <gtest/gtest.h>
 
@@ -93,6 +93,124 @@ TEST(vnl_vector, test_int)
     vnl_vector<int> v4(v3);
     EXPECT_EQ(v3, v4);
     EXPECT_EQ((v0 = v2, v0), v2);
+    
+#if VNL_CONFIG_CHECK_BOUNDS
+    
+    {
+        bool exceptionThrownAndCaught = false;
+        try
+        {
+            v0.get(25);
+        } // Raise out of bounds exception.
+        catch (...)
+        {
+            exceptionThrownAndCaught = true;
+        }
+        TEST("Out of bounds get()", exceptionThrownAndCaught, true);
+        
+        exceptionThrownAndCaught = false;
+        try
+        {
+            v0.put(25, 0);
+        } // Raise out of bounds exception.
+        catch (...)
+        {
+            exceptionThrownAndCaught = true;
+        }
+        TEST("Out of bounds put()", exceptionThrownAndCaught, true);
+    }
+    
+#endif
+    
+    //// test additions and subtractions
+    EXPECT_EQ(((v0 = v2 + 3), (v0.get(0) == 5 && v0.get(1) == 5)), true);
+    EXPECT_EQ(((v0 = 3 + v2), (v0.get(0) == 5 && v0.get(1) == 5)), true);
+    EXPECT_EQ((v0 += (-3), (v0.get(0) == 2 && v0.get(1) == 2)), true);
+    EXPECT_EQ((v0 -= (-3), (v0.get(0) == 5 && v0.get(1) == 5)), true);
+    EXPECT_EQ(((v0 = v2 - 3), (v0.get(0) == -1 && v0.get(1) == -1)), true);
+    EXPECT_EQ(((v0 = 3 - v2), (v0.get(0) == 1 && v0.get(1) == 1)), true);
+    EXPECT_EQ((v0 = -v2, (v0.get(0) == -2 && v0.get(1) == -2)), true);
+    
+    vnl_vector<int> v5(2);
+    v0 = v2;
+    EXPECT_EQ(((v5 = v0 + v2), (v5.get(0) == 4 && v5.get(1) == 4)), true);
+    EXPECT_EQ(((v5 = v0 - v2), (v5.get(0) == 0 && v5.get(1) == 0)), true);
+    EXPECT_EQ(((v0 += v2), (v0.get(0) == 4 && v0.get(1) == 4)), true);
+    EXPECT_EQ(((v0 -= v2), (v0.get(0) == 2 && v0.get(1) == 2)), true);
+    
+    //// test multiplications and divisions
+    EXPECT_EQ(((v4 = v3 * 5), (v4.get(0) == 5 && v4.get(1) == 10 && v4.get(2) == 15)), true);
+    
+    EXPECT_EQ(((v4 = 5 * v3), (v4.get(0) == 5 && v4.get(1) == 10 && v4.get(2) == 15)), true);
+    EXPECT_EQ(((v3 *= 5), (v3 == v4)), true);
+    EXPECT_EQ(((v4 = v3 / 5), (v4.get(0) == 1 && v4.get(1) == 2 && v4.get(2) == 3)), true);
+    EXPECT_EQ(((v3 /= 5), (v3 == v4)), true);
+    
+    //// additional tests
+    int vvalues[] = { 0, -2, 2, 0 };
+    vnl_vector<int> v(4, 4, vvalues);
+    v0 = v;
+    v1 = v;
+    v2 = v;
+    EXPECT_EQ((v(0) == 0 && v(1) == -2 && v(2) == 2 && v(3) == 0), true);
+    
+    EXPECT_EQ(v.max_value(), 2);
+    EXPECT_EQ(v.min_value(), -2);
+    EXPECT_EQ(v.arg_max(), 2);
+    EXPECT_EQ(v.arg_min(), 1);
+    
+    EXPECT_EQ(
+         ((v1 = element_product(v, v)), (v1(0) == 0 && v1(1) == 4 && v1(2) == 4 && v1(3) == 0)),
+         true);
+    EXPECT_EQ(
+         ((v2 = 2), (v1 = element_quotient(v, v2)), (v1(0) == 0 && v1(1) == -1 && v1(2) == 1 && v1(3) == 0)),
+         true);
+    EXPECT_EQ(((v1 = v.extract(1, 3)), (v1.size() == 1 && v1(0) == v(3))), true);
+    EXPECT_EQ(((v1 = 4), (v.update(v1, 3)), (v(0) == 0 && v(1) == -2 && v(2) == 2 && v(3) == 4)), true);
+    
+    
+    { // new scope to reuse variables
+        int vvalues[] = { 1, 0, 0, 0 };
+        vnl_vector<int> v(4, 4, vvalues);
+        int v1values[] = { 1, 0, 0 };
+        int v2values[] = { 0, 1, 0 };
+        int v3values[] = { 0, 0, 1 };
+        vnl_vector<int> v1(3, 3, v1values);
+        vnl_vector<int> v2(3, 3, v2values);
+        vnl_vector<int> v3(3, 3, v3values);
+        EXPECT_EQ((dot_product(v1, v2) == 0 && dot_product(v1, v3) == 0 && dot_product(v2, v3) == 0), true);
+        EXPECT_EQ((dot_product(v1, v1) == 1 && dot_product(v2, v2) == 1 && dot_product(v3, v3) == 1), true);
+        EXPECT_EQ(((v = v3), v.size() == 3 && v == v3), true);
+        EXPECT_EQ(vnl_cross_3d(v1, v2), v3);
+        EXPECT_EQ(vnl_cross_3d(v2, v3), v1);
+        EXPECT_EQ(vnl_cross_3d(v1, v3), -v2);
+        vnl_vector<int> vv(2, 0);
+        v1 = vv;
+        v1[0] = 1;
+        v2 = vv;
+        v2[1] = 1;
+        EXPECT_EQ(vnl_cross_2d(v1, v2) == 1, true);
+    }
+    
+    {
+        int vvalues[] = { 1, 2, 3 };
+        vnl_vector<int> v(3, 3, vvalues);
+        vnl_matrix<int> m = outer_product(v, v);
+        EXPECT_EQ(
+             (m(0, 0) == 1 && m(0, 1) == 2 && m(0, 2) == 3 && m(1, 0) == 2 && m(1, 1) == 4 && m(1, 2) == 6 &&
+              m(2, 0) == 3 && m(2, 1) == 6 && m(2, 2) == 9),
+             true);
+    }
+    {
+        int vvalues[] = { 1, 0, 0, 0 };
+        vnl_vector<int> v(4, 4, vvalues);
+        EXPECT_EQ((v.squared_magnitude() == 1), true);
+        EXPECT_EQ((v.magnitude() == 1), true);
+        // normalize not sensible for ints
+        // TEST("v.normalize", (v1 = 3 * v, v1.normalize(), v1), v);
+    }
+    
+
 
 }
 
@@ -104,122 +222,12 @@ vnl_vector_test_int()
   // ACCESSORS //
   ///////////////
 
-#if VNL_CONFIG_CHECK_BOUNDS
-
-  {
-    bool exceptionThrownAndCaught = false;
-    try
-    {
-      v0.get(25);
-    } // Raise out of bounds exception.
-    catch (...)
-    {
-      exceptionThrownAndCaught = true;
-    }
-    TEST("Out of bounds get()", exceptionThrownAndCaught, true);
-
-    exceptionThrownAndCaught = false;
-    try
-    {
-      v0.put(25, 0);
-    } // Raise out of bounds exception.
-    catch (...)
-    {
-      exceptionThrownAndCaught = true;
-    }
-    TEST("Out of bounds put()", exceptionThrownAndCaught, true);
-  }
-
-#endif
+ 
+ 
 
  
-  //// test additions and subtractions
-  TEST("v0=v2+3", ((v0 = v2 + 3), (v0.get(0) == 5 && v0.get(1) == 5)), true);
-  TEST("v0=3+v2", ((v0 = 3 + v2), (v0.get(0) == 5 && v0.get(1) == 5)), true);
-  TEST("v0+=(-3)", (v0 += (-3), (v0.get(0) == 2 && v0.get(1) == 2)), true);
-  TEST("v0-=(-3)", (v0 -= (-3), (v0.get(0) == 5 && v0.get(1) == 5)), true);
-  TEST("v0=v2-3", ((v0 = v2 - 3), (v0.get(0) == -1 && v0.get(1) == -1)), true);
-  TEST("v0=3-v2", ((v0 = 3 - v2), (v0.get(0) == 1 && v0.get(1) == 1)), true);
-  TEST("v0= -v2", (v0 = -v2, (v0.get(0) == -2 && v0.get(1) == -2)), true);
 
-  vnl_vector<int> v5(2);
-  v0 = v2;
-  TEST("v5=v0+v2", ((v5 = v0 + v2), (v5.get(0) == 4 && v5.get(1) == 4)), true);
-  TEST("v5=v0-v2", ((v5 = v0 - v2), (v5.get(0) == 0 && v5.get(1) == 0)), true);
-  TEST("v0+=v2", ((v0 += v2), (v0.get(0) == 4 && v0.get(1) == 4)), true);
-  TEST("v0-=v2", ((v0 -= v2), (v0.get(0) == 2 && v0.get(1) == 2)), true);
-
-  //// test multiplications and divisions
-  TEST("v4=v3*5", ((v4 = v3 * 5), (v4.get(0) == 5 && v4.get(1) == 10 && v4.get(2) == 15)), true);
-
-  TEST("v4=5*v3", ((v4 = 5 * v3), (v4.get(0) == 5 && v4.get(1) == 10 && v4.get(2) == 15)), true);
-  TEST("v3*=5", ((v3 *= 5), (v3 == v4)), true);
-  TEST("v4=v3/5", ((v4 = v3 / 5), (v4.get(0) == 1 && v4.get(1) == 2 && v4.get(2) == 3)), true);
-  TEST("v3/=5", ((v3 /= 5), (v3 == v4)), true);
-
-  //// additional tests
-  int vvalues[] = { 0, -2, 2, 0 };
-  vnl_vector<int> v(4, 4, vvalues);
-  v0 = v;
-  v1 = v;
-  v2 = v;
-  TEST("v(i)", (v(0) == 0 && v(1) == -2 && v(2) == 2 && v(3) == 0), true);
-
-  TEST("v.max_value()", v.max_value(), 2);
-  TEST("v.min_value()", v.min_value(), -2);
-  TEST("v.arg_max()", v.arg_max(), 2);
-  TEST("v.arg_min()", v.arg_min(), 1);
-  TEST("element_product(v,v)",
-       ((v1 = element_product(v, v)), (v1(0) == 0 && v1(1) == 4 && v1(2) == 4 && v1(3) == 0)),
-       true);
-  TEST("element_quotient(v,[2])",
-       ((v2 = 2), (v1 = element_quotient(v, v2)), (v1(0) == 0 && v1(1) == -1 && v1(2) == 1 && v1(3) == 0)),
-       true);
-  TEST("v.extract(1,3)", ((v1 = v.extract(1, 3)), (v1.size() == 1 && v1(0) == v(3))), true);
-  TEST("v.update([4],3)", ((v1 = 4), (v.update(v1, 3)), (v(0) == 0 && v(1) == -2 && v(2) == 2 && v(3) == 4)), true);
-
-  { // new scope to reuse variables
-    int vvalues[] = { 1, 0, 0, 0 };
-    vnl_vector<int> v(4, 4, vvalues);
-    int v1values[] = { 1, 0, 0 };
-    int v2values[] = { 0, 1, 0 };
-    int v3values[] = { 0, 0, 1 };
-    vnl_vector<int> v1(3, 3, v1values);
-    vnl_vector<int> v2(3, 3, v2values);
-    vnl_vector<int> v3(3, 3, v3values);
-    TEST(
-      "dot_product(v1,v2)", (dot_product(v1, v2) == 0 && dot_product(v1, v3) == 0 && dot_product(v2, v3) == 0), true);
-    TEST(
-      "dot_product(v1,v1)", (dot_product(v1, v1) == 1 && dot_product(v2, v2) == 1 && dot_product(v3, v3) == 1), true);
-    TEST("4d-v=3d-v", ((v = v3), v.size() == 3 && v == v3), true);
-    TEST("vnl_cross_3d(v1,v2)", vnl_cross_3d(v1, v2), v3);
-    TEST("vnl_cross_3d(v2,v3)", vnl_cross_3d(v2, v3), v1);
-    TEST("vnl_cross_3d(v1,v3)", vnl_cross_3d(v1, v3), -v2);
-    vnl_vector<int> vv(2, 0);
-    v1 = vv;
-    v1[0] = 1;
-    v2 = vv;
-    v2[1] = 1;
-    TEST("vnl_cross_2d(v1,v2)", vnl_cross_2d(v1, v2) == 1, true);
-  }
-
-  {
-    int vvalues[] = { 1, 2, 3 };
-    vnl_vector<int> v(3, 3, vvalues);
-    vnl_matrix<int> m = outer_product(v, v);
-    TEST("outer_product",
-         (m(0, 0) == 1 && m(0, 1) == 2 && m(0, 2) == 3 && m(1, 0) == 2 && m(1, 1) == 4 && m(1, 2) == 6 &&
-          m(2, 0) == 3 && m(2, 1) == 6 && m(2, 2) == 9),
-         true);
-  }
-  {
-    int vvalues[] = { 1, 0, 0, 0 };
-    vnl_vector<int> v(4, 4, vvalues);
-    TEST("v.squared_magnitude", (v.squared_magnitude() == 1), true);
-    TEST("v.magnitude", (v.magnitude() == 1), true);
-    // normalize not sensible for ints
-    // TEST("v.normalize", (v1 = 3 * v, v1.normalize(), v1), v);
-  }
+ 
 
   //////////
   // FLIP //

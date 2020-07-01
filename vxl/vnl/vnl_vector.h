@@ -281,13 +281,13 @@ public:
     abs_t magnitude() const { return this->norm(); }
     
     //: Return sum of absolute values of the elements
-    //abs_t one_norm() const { return vnl_c_vector<T>::one_norm(begin(), size()); }
+    abs_t one_norm() const { return this->template lpNorm<1>(); }
     
     //: Return sqrt of sum of squares of values of elements
     abs_t two_norm() const { return this->norm(); }
     
     //: Return largest absolute element value
-    //abs_t inf_norm() const { return vnl_c_vector<T>::inf_norm(begin(), size()); }
+    abs_t inf_norm() const { return this->template lpNorm<Eigen::Infinity>(); }
     
     //: Normalise by dividing through by the magnitude
     //vnl_vector<T>& normalize() { vnl_c_vector<T>::normalize(begin(), size()); return *this; }
@@ -300,7 +300,6 @@ public:
     
     //: Smallest value
     T min_value() const;
-    //{ return vnl_c_vector<T>::min_value(begin(), size()); }
     
     //: Largest value
     T max_value() const;
@@ -411,7 +410,7 @@ template<typename T>
 vnl_vector<T>& vnl_vector<T>::operator+=(vnl_vector<T> const& rhs)
 {
     if (this->size() != rhs.size()) {
-        vnl_error_vector_index("operator+=", this->size(), rhs.size());
+        vnl_error_vector_dimension("operator+=", this->size(), rhs.size());
     }
     const unsigned int n = this->size();
     T *a = this->data();
@@ -427,7 +426,7 @@ template<typename T>
 vnl_vector<T>& vnl_vector<T>::operator-=(vnl_vector<T> const& rhs)
 {
     if (this->size() != rhs.size()) {
-        vnl_error_vector_index("operator+=", this->size(), rhs.size());
+        vnl_error_vector_dimension("operator+=", this->size(), rhs.size());
     }
     const unsigned int n = this->size();
     T *a = this->data();
@@ -485,9 +484,21 @@ vnl_vector<T>& vnl_vector<T>::post_multiply(vnl_matrix<T> const& m)
 template<typename T>
 vnl_vector<T> vnl_vector<T>::operator- () const
 {
-    vnl_vector<T> result(this->num_elmts);
-    for (size_t i = 0; i < this->num_elmts; i++)
-        result.data[i] = - this->data[i];           // negate element
+    vnl_vector<T> result(this->size());
+    for (size_t i = 0; i < this->size(); i++)
+        result[i] = - (*this)[i];           // negate element
+    return result;
+}
+
+//: Returns a subvector specified by the start index and length. O(n).
+template<typename T>
+vnl_vector<T> vnl_vector<T>::extract(size_t len, size_t start) const
+{
+    assert(start + len <= this->size());
+    vnl_vector<T> result(len);
+    for(int i = 0; i<len; ++i) {
+        result[i] = (*this)[i+start];
+    }
     return result;
 }
 
@@ -512,7 +523,7 @@ T vnl_vector<T>::min_value() const
 template<typename T>
 T vnl_vector<T>::max_value() const
 {
-    return this->maxCoeff(&index);
+    return this->maxCoeff();
 }
 
 //: Location of smallest value
@@ -554,21 +565,103 @@ bool vnl_vector<T>::is_equal(vnl_vector<T> const& rhs, double tol) const
     return true;
 }
 
+template<typename T>
+T dot_product (vnl_vector<T> const& v1, vnl_vector<T> const& v2)
+{
+    if (v1.size() != v2.size())
+        vnl_error_vector_dimension ("dot_product", v1.size(), v2.size());
+
+    return v1.dot(v2);
+}
+
+//: Hermitian inner product. O(n)
+template<typename T>
+T inner_product (vnl_vector<T> const& v1, vnl_vector<T> const& v2)
+{
+    if (v1.size() != v2.size())
+        vnl_error_vector_dimension ("inner_product", v1.size(), v2.size());
+    return v1.dot(v2.conjugate());
+}
+
+//: Returns the 'matrix element' <u|A|v> = u^t * A * v. O(mn).
+template<typename T>
+T bracket(vnl_vector<T> const &u, vnl_matrix<T> const &A, vnl_vector<T> const &v)
+{
+#ifndef NDEBUG
+    if (u.size() != A.rows())
+        vnl_error_vector_dimension("bracket",u.size(),A.rows());
+    if (A.columns() != v.size())
+        vnl_error_vector_dimension("bracket",A.columns(),v.size());
+#endif
+    T brak(0);
+    for (size_t i=0; i<u.size(); ++i)
+        for (size_t j=0; j<v.size(); ++j)
+            brak += u[i]*A(i,j)*v[j];
+    return brak;
+}
+
+//: Returns the nxn outer product of two nd-vectors, or [v1]^T*[v2]. O(n).
+
+template<typename T>
+vnl_matrix<T> outer_product (vnl_vector<T> const& v1,
+                             vnl_vector<T> const& v2) {
+    vnl_matrix<T> out(v1.size(), v2.size());
+    for (size_t i = 0; i < out.rows(); i++)             // v1.column() * v2.row()
+        for (size_t j = 0; j < out.columns(); j++)
+            out(i, j) = v1[i] * v2[j];
+    return out;
+}
+
 //: Returns new vector whose elements are the products v1[i]*v2[i]. O(n).
 template<class T>
 vnl_vector<T> element_product (vnl_vector<T> const& v1, vnl_vector<T> const& v2)
 {
     assert(v1.size() == v2.size());
 
-    
     vnl_vector<T> result(v1.size());
     for(int i = 0; i<v1.size(); ++i) {
         result[i] = v1[i] * v2[i];
     }
     
-    //vnl_sse<T>::element_product(v1.begin(), v2.begin(), result.begin(), v1.size());
-    
     return result;
+}
+
+template<class T>
+vnl_vector<T> element_quotient (vnl_vector<T> const& v1, vnl_vector<T> const& v2)
+{
+    assert(v1.size() == v2.size());
+    vnl_vector<T> result(v1.size());
+    for(int i = 0; i<v1.size(); ++i) {
+        result[i] = v1[i]/v2[i];
+    }
+    return result;
+}
+
+//: add scalar and vector. O(n).
+// \relatesalso vnl_vector
+template<typename T>
+inline vnl_vector<T> operator+(T s, vnl_vector<T> const& v)
+{
+    return v.operator+(s);
+}
+
+//: subtract vector from scalar. O(n).
+// \relatesalso vnl_vector
+template<typename T>
+inline vnl_vector<T> operator-(T s, vnl_vector<T> const& v)
+{
+    vnl_vector<T> result(v.size());
+    for(size_t i=0; i< result.size(); ++i)
+        result[i]= s - v[i];
+    return result;
+}
+
+//: multiply scalar and vector. O(n).
+// \relatesalso vnl_vector
+template<typename T>
+inline vnl_vector<T> operator*(T s, vnl_vector<T> const& v)
+{
+    return v*s;
 }
 
 //: Euclidean Distance between two vectors.

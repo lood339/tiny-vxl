@@ -122,19 +122,19 @@ public:
         return (*this)(r, c);
     }
 
-    /*
+   
     //: return pointer to given row
     // No boundary checking here.
-    T       * operator[](unsigned r) { return data[r]; }
+    //T       * operator[](unsigned r) { return this->row(r); }
     
     //: return pointer to given row
     // No boundary checking here.
-    T const * operator[](unsigned r) const { return data[r]; }
-     */
+    //T const * operator[](unsigned r) const { return this->row(r); }
+      /**/
     
     //: Access an element for reading or writing
     // There are assert style boundary checks - #define NDEBUG to turn them off.
-    //T       & operator()(unsigned r, unsigned c);
+    //T       & operator()(unsigned r, unsigned c){return (*this)(i, j);}
     
     //: Access an element for reading
     // There are assert style boundary checks - #define NDEBUG to turn them off.
