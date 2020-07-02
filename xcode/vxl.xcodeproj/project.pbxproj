@@ -45,6 +45,7 @@
 		BF0E22FA24AC3C53003C181C /* vnl_cross.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_cross.h; sourceTree = "<group>"; };
 		BF0E956F24AAE846000F6E4C /* test_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_vector.cpp; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
+		BFCB58BB24AD5D5B00966C69 /* vnl_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_math.h; sourceTree = "<group>"; };
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
 		BFE0232324A3098500936454 /* vnl_numeric_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_numeric_traits.h; sourceTree = "<group>"; };
 		BFE0232724A30E1700936454 /* test_svd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_svd.cpp; sourceTree = "<group>"; };
@@ -78,6 +79,7 @@
 				BF062AD9249E99C40020843E /* vnl_matrix_fixed.h */,
 				BF062ADA249E99C40020843E /* algo */,
 				BF062ADC249E99C40020843E /* vnl_matrix.h */,
+				BFCB58BB24AD5D5B00966C69 /* vnl_math.h */,
 				BF062ADD249E99C40020843E /* vnl_vector_fixed.h */,
 				BF062ADE249E99C40020843E /* vnl_vector.h */,
 				BFE8646424A908CB00FC848F /* vnl_error.h */,

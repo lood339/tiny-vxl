@@ -16,6 +16,7 @@
 
 template <typename T, unsigned int n> class vnl_vector_fixed;
 template <typename T> class vnl_vector;
+template <typename T> class vnl_matrix;
 
 template <typename T, unsigned int n>
 class vnl_vector_fixed : public Eigen::Matrix<T, n, 1, Eigen::ColMajor>
@@ -112,6 +113,76 @@ public:
     
     vnl_vector<T> as_vector() const { return vnl_vector<T>(data_block(), n); }
 };
+
+//:
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned n>
+inline T dot_product( const vnl_vector_fixed<T,n>& a, const vnl_vector_fixed<T,n>& b )
+{
+    return dot_product( a.as_vector(), b.as_vector() );
+}
+
+//:
+// \relatesalso vnl_vector
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned n>
+inline T dot_product( const vnl_vector_fixed<T,n>& a, const vnl_vector<T>& b )
+{
+    return dot_product( a.as_vector(), b );
+}
+
+//:
+// \relatesalso vnl_vector
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned n>
+inline T dot_product( const vnl_vector<T>& a, const vnl_vector_fixed<T,n>& b )
+{
+    return dot_product( a, b.as_vector() );
+}
+
+//:
+// \relatesalso vnl_vector
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned int n>
+inline vnl_matrix<T> outer_product( const vnl_vector<T>& a, const vnl_vector_fixed<T,n>& b )
+{
+    return outer_product( a, b.as_vector());
+}
+
+//:
+// \relatesalso vnl_vector
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned int n>
+inline vnl_matrix<T> outer_product( const vnl_vector_fixed<T,n>& a, const vnl_vector<T>& b )
+{
+    return outer_product( a.as_vector(), b);
+}
+
+//:
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned n>
+inline T angle( const vnl_vector_fixed<T,n>& a, const vnl_vector_fixed<T,n>& b )
+{
+    return angle( a.as_vector(), b.as_vector() );
+}
+
+//:
+// \relatesalso vnl_vector
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned n>
+inline T angle( const vnl_vector_fixed<T,n>& a, const vnl_vector<T>& b )
+{
+    return angle( a.as_vector(), b );
+}
+
+//:
+// \relatesalso vnl_vector
+// \relatesalso vnl_vector_fixed
+template<class T, unsigned n>
+inline T angle( const vnl_vector<T>& a, const vnl_vector_fixed<T,n>& b )
+{
+    return angle( a, b.as_vector() );
+}
 
 
 template<class T, unsigned n>

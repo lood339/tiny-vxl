@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 #include <vnl/vnl_numeric_traits.h>
 #include <vnl/vnl_error.h>
+#include <vnl/vnl_math.h>
 
 template <typename T> class vnl_matrix;
 template <typename T> class vnl_vector;
@@ -290,7 +291,10 @@ public:
     abs_t inf_norm() const { return this->template lpNorm<Eigen::Infinity>(); }
     
     //: Normalise by dividing through by the magnitude
-    //vnl_vector<T>& normalize() { vnl_c_vector<T>::normalize(begin(), size()); return *this; }
+    vnl_vector<T>& normalize() {
+        base_class::normalize();
+        return *this;
+    }
     
     // These next 6 functions are should really be helper functions since they aren't
     // really proper functions on a vector in a philosophical sense.
@@ -545,10 +549,90 @@ size_t vnl_vector<T>::arg_max() const
 }
 
 //: Mean of values in vector
-//T mean() const { return vnl_c_vector<T>::mean(begin(), size()); }
+template<typename T>
+T vnl_vector<T>::mean() const
+{
+    if(this->size() == 0) return T{0};
+    T sum = T{0};
+    for(int i = 0; i<this->size(); ++i) {
+        sum += (*this)[i];
+    }
+    return sum/this->size();
+}
 
 //: Sum of values in a vector
-//T sum() const { return vnl_c_vector<T>::sum(begin(), size()); }
+template<typename T>
+T vnl_vector<T>::sum() const
+{
+    T sum = T{0};
+    for(int i = 0; i<this->size(); ++i) {
+        sum += (*this)[i];
+    }
+    return sum;
+}
+
+//: Reverse the order of the elements
+//  Element i swaps with element size()-1-i
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::flip()
+{
+    size_t b = 0;
+    size_t e = this->size() - 1;
+    while(b < e) {
+        T temp = (*this)[b];
+        (*this)[b] = (*this)[e];
+        (*this)[e] = temp;
+        b++;
+        e--;
+    }
+    return *this;
+}
+
+//: Reverse the order of the elements from index b to 1-e, inclusive.
+//  When b = 0 and e = size(), this is equivalent to flip();
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::flip(const size_t &b, const size_t &e)
+{
+    assert (!(b > this->size() || e > this->size() || b > e));
+    for (size_t i=b;i<(e-b)/2+b;++i) {
+        T tmp=(*this)[i];
+        const size_t endIndex = e - 1 - (i-b);
+        (*this)[i]=(*this)[endIndex];
+        (*this)[endIndex]=tmp;
+    }
+    return *this;
+    
+}
+
+//: Roll the vector forward by the specified shift.
+//  The shift is cyclical, such that the elements which
+//  are displaced from the end reappear at the beginning.
+//  Negative shifts and shifts >= the length of the array are supported.
+//  A new vector is returned; the underlying data is unchanged.
+template<typename T>
+vnl_vector<T> vnl_vector<T>::roll(const int &shift) const
+{
+    vnl_vector<T> v(this->size());
+    const size_t wrapped_shift = shift % this->size();
+    for (size_t i = 0; i < this->size(); ++i)
+    {
+        v[(i + wrapped_shift)%this->size()] = this->data()[i];
+    }
+    return v;
+}
+
+//: Roll the vector forward by the specified shift.
+//  The shift is cyclical, such that the elements which
+//  are displaced from the end reappear at the beginning.
+//  Negative shifts and shifts >= the length of the array are supported.
+template<typename T>
+vnl_vector<T>& vnl_vector<T>::roll_inplace(const int &shift)
+{
+    const size_t wrapped_shift = (shift % (int)this->size() + this->size())%this->size();
+    if (0 == wrapped_shift)
+        return *this;
+    return this->flip().flip(0,wrapped_shift).flip(wrapped_shift,this->size());
+}
 
 //:  Return true if all elements of vectors are equal, within given tolerance
 template <typename T>
@@ -598,6 +682,35 @@ T bracket(vnl_vector<T> const &u, vnl_matrix<T> const &A, vnl_vector<T> const &v
         for (size_t j=0; j<v.size(); ++j)
             brak += u[i]*A(i,j)*v[j];
     return brak;
+}
+
+// fsm : cos_angle should return a T, or a double-precision extension
+// of T. "double" is wrong since it won't work if T is complex.
+template <class T>
+T cos_angle(vnl_vector<T> const& a, vnl_vector<T> const& b)
+{
+    typedef typename vnl_numeric_traits<T>::real_t real_t;
+    typedef typename vnl_numeric_traits<T>::abs_t abs_t;
+    typedef typename vnl_numeric_traits<abs_t>::real_t abs_r;
+    
+    real_t ab = inner_product(a,b);
+    real_t a_b = static_cast<real_t>(
+                                     std::sqrt( abs_r(a.squared_magnitude() * b.squared_magnitude()) ));
+    return T( ab / a_b);
+}
+
+//: Returns smallest angle between two non-zero n-dimensional vectors. O(n).
+
+template<class T>
+double angle (vnl_vector<T> const& a, vnl_vector<T> const& b)
+{
+    typedef typename vnl_numeric_traits<T>::abs_t abs_t;
+    typedef typename vnl_numeric_traits<abs_t>::real_t abs_r;
+    const abs_r c = abs_r( cos_angle(a, b) );
+    // IMS: sometimes cos_angle returns 1+eps, which can mess up std::acos.
+    if (c >= 1.0) return 0;
+    if (c <= -1.0) return vnl_math::pi;
+    return std::acos( c );
 }
 
 //: Returns the nxn outer product of two nd-vectors, or [v1]^T*[v2]. O(n).
