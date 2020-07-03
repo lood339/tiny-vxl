@@ -119,23 +119,22 @@ TEST(vnl_matrix, test_int)
     EXPECT_EQ((v = mrc.col(2), (v(0)==3 && v(1)==6)), true);
       
       
-      /*
+     
     // Indices: {1, 0, 1}
     vnl_vector<unsigned int> indices(3, 1);
     indices.put(1,0);
     vnl_matrix<int> mi;
 
-    TEST("mi = mrc.get_rows(indices)",
+    EXPECT_EQ(
          (mi = mrc.get_rows(indices),
          (mi.get_row(0)==mrc.get_row(1)
        && mi.get_row(1)==mrc.get_row(0)
-       && mi.get_row(2)==mrc.get_row(1))), true);
-    TEST("mi = mrc.get_columns(indices)",
+       && mi.get_row(2)==mrc.get_row(1))), true)<<"mi = mrc.get_rows(indices)\n";
+    EXPECT_EQ(
          (mi = mrc.get_columns(indices),
          (mi.get_column(0)==mrc.get_column(1)
        && mi.get_column(1)==mrc.get_column(0)
-       && mi.get_column(2)==mrc.get_column(1))), true);
-       */
+       && mi.get_column(2)==mrc.get_column(1))), true)<<"mi = mrc.get_columns(indices)\n";
   }
  
     int v2_data[] = {2,3};
