@@ -580,127 +580,127 @@ TEST(vnl_vector, test_float)
     EXPECT_EQ(vnl_vector_ssd(vnl_vector<float>(4, 0.0f), vnl_vector<float>(4, 1.0f)), 4.0);
 }
 
+TEST(vnl_vector, test_matrix)
+{
+    int mvalues[] = { 1, 2, 3, 4, 5, 6 }; // product with matrices
+    vnl_matrix<int> m(2, 3, 6, mvalues);
+    
+    int v2values[] = { 1, 0 };
+    int v3values[] = { 1, 0, 0 };
+    vnl_vector<int> v, v2(2, 2, v2values), v3(3, 3, v3values);
+    EXPECT_EQ(((v = v3), (v.pre_multiply(m)), (v.size() == 2 && v(0) == 1 && v(1) == 4)), true);
+    EXPECT_EQ(
+         ((v = v2), (v.post_multiply(m)), (v.size() == 3 && v(0) == 1 && v(1) == 2 && v(2) == 3)),
+         true);
+    EXPECT_EQ(((v = v2), (v *= m), (v.size() == 3 && v(0) == 1 && v(1) == 2 && v(2) == 3)), true);
+    EXPECT_EQ(((v = v2 * m), (v.size() == 3 && v(0) == 1 && v(1) == 2 && v(2) == 3)), true);
+    EXPECT_EQ(((v = m * v3), (v.size() == 2 && v(0) == 1 && v(1) == 4)), true);
+}
 
+TEST(vnl_vector, conversion)
+{
+    bool check;
+    {
+        // convert from a vnl_vector to a block array:
+        int v1values[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+        vnl_vector<int> v1(12, 12, v1values);
+        const int * data = v1.data_block();
+        {
+            check = true;
+            for (int d = 0; d < 12; d++)
+                if (data[d] != d + 1)
+                    check = false;
+        }
+        EXPECT_EQ(check, true)<<"(const int*) m.data_block\n";
+        
+        typedef int block[12];
+        const block & v2 = *((const block *)data);
+        {
+            check = true;
+            for (int i = 0; i < 12; i++)
+                if (v1(i) != v2[i])
+                    check = false;
+        }
+        EXPECT_EQ(check, true)<<"matrix(i)==block[i]\n";
+        
+        // convert from a block array to a vnl_vector:
+        block b1;
+        for (int i = 0; i < 12; i++)
+            b1[i] = i;
+        data = ((const int *)b1);
+        {
+            check = true;
+            for (int d = 0; d < 12; d++)
+                if (data[d] != d)
+                    check = false;
+        }
+        EXPECT_EQ(check, true)<<"(const int*) block\n";
+        vnl_vector<int> b2(data, 12);
+        {
+            check = true;
+            for (int i = 0; i < 12; i++)
+                if (b1[i] != b2(i))
+                    check = false;
+        }
+        EXPECT_EQ(check, true)<<"block[i]==matrix(i)\n";
+    }
+}
+
+/*
+TEST(vnl_vector, test_io)
+{
+    double expected_data[] = { 1.0, 2.0, 3.0 };
+    vnl_vector<double> expected(expected_data, 3);
+    {
+        std::stringstream ss;
+        ss << "";
+        vnl_vector<double> p;
+        ss >> p;
+        TEST("number of values read from stream, empty", p.size(), 0);
+    }
+    {
+        std::stringstream ss;
+        ss << "\n ";
+        vnl_vector<double> p;
+        ss >> p;
+        TEST("number of values read from stream, just WS", p.size(), 0);
+    }
+    {
+        std::stringstream ss;
+        ss << "1 2 3.0";
+        vnl_vector<double> p;
+        ss >> p;
+        TEST("number of values read from stream, no newline", p, expected);
+    }
+    {
+        std::stringstream ss;
+        ss << "1 2 3.0\n";
+        vnl_vector<double> p;
+        ss >> p;
+        TEST("number of values read from stream, newline", p, expected);
+    }
+    {
+        std::stringstream ss;
+        ss << "1 2 3.0\n ";
+        vnl_vector<double> p;
+        ss >> p;
+        TEST("number of values read from stream, newline + WS", p, expected);
+    }
+    {
+        std::stringstream ss;
+        ss << "5";
+        vnl_vector<double> p;
+        ss >> p;
+        TEST("single value read from stream, no newline or ws", p.size() == 1 && p(0) == 5, true);
+    }
+}
+ */
 
 /*
 
-void
-vnl_vector_test_matrix()
-{
-  int mvalues[] = { 1, 2, 3, 4, 5, 6 }; // product with matrices
-  vnl_matrix<int> m(2, 3, 6, mvalues);
-
-  int v2values[] = { 1, 0 };
-  int v3values[] = { 1, 0, 0 };
-  vnl_vector<int> v, v2(2, 2, v2values), v3(3, 3, v3values);
-  TEST("v.pre_multiply(m)", ((v = v3), (v.pre_multiply(m)), (v.size() == 2 && v(0) == 1 && v(1) == 4)), true);
-  TEST("v.post_multiply(m)",
-       ((v = v2), (v.post_multiply(m)), (v.size() == 3 && v(0) == 1 && v(1) == 2 && v(2) == 3)),
-       true);
-  TEST("v*=m", ((v = v2), (v *= m), (v.size() == 3 && v(0) == 1 && v(1) == 2 && v(2) == 3)), true);
-  TEST("v2*m", ((v = v2 * m), (v.size() == 3 && v(0) == 1 && v(1) == 2 && v(2) == 3)), true);
-  TEST("m*v3", ((v = m * v3), (v.size() == 2 && v(0) == 1 && v(1) == 4)), true);
-}
-
-void
-vnl_vector_test_conversion()
-{
-  bool check;
-  {
-    // convert from a vnl_vector to a block array:
-    int v1values[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-    vnl_vector<int> v1(12, 12, v1values);
-    const int * data = v1.data_block();
-    {
-      check = true;
-      for (int d = 0; d < 12; d++)
-        if (data[d] != d + 1)
-          check = false;
-    }
-    TEST("(const int*) m.data_block", check, true);
-
-    typedef int block[12];
-    const block & v2 = *((const block *)data);
-    {
-      check = true;
-      for (int i = 0; i < 12; i++)
-        if (v1(i) != v2[i])
-          check = false;
-    }
-    TEST("matrix(i)==block[i]", check, true);
-
-    // convert from a block array to a vnl_vector:
-    block b1;
-    for (int i = 0; i < 12; i++)
-      b1[i] = i;
-    data = ((const int *)b1);
-    {
-      check = true;
-      for (int d = 0; d < 12; d++)
-        if (data[d] != d)
-          check = false;
-    }
-    TEST("(const int*) block", check, true);
-    vnl_vector<int> b2(data, 12);
-    {
-      check = true;
-      for (int i = 0; i < 12; i++)
-        if (b1[i] != b2(i))
-          check = false;
-    }
-    TEST("block[i]==matrix(i)", check, true);
-  }
-}
 
 
-static void
-vnl_vector_test_io()
-{
-  double expected_data[] = { 1.0, 2.0, 3.0 };
-  vnl_vector<double> expected(expected_data, 3);
-  {
-    std::stringstream ss;
-    ss << "";
-    vnl_vector<double> p;
-    ss >> p;
-    TEST("number of values read from stream, empty", p.size(), 0);
-  }
-  {
-    std::stringstream ss;
-    ss << "\n ";
-    vnl_vector<double> p;
-    ss >> p;
-    TEST("number of values read from stream, just WS", p.size(), 0);
-  }
-  {
-    std::stringstream ss;
-    ss << "1 2 3.0";
-    vnl_vector<double> p;
-    ss >> p;
-    TEST("number of values read from stream, no newline", p, expected);
-  }
-  {
-    std::stringstream ss;
-    ss << "1 2 3.0\n";
-    vnl_vector<double> p;
-    ss >> p;
-    TEST("number of values read from stream, newline", p, expected);
-  }
-  {
-    std::stringstream ss;
-    ss << "1 2 3.0\n ";
-    vnl_vector<double> p;
-    ss >> p;
-    TEST("number of values read from stream, newline + WS", p, expected);
-  }
-  {
-    std::stringstream ss;
-    ss << "5";
-    vnl_vector<double> p;
-    ss >> p;
-    TEST("single value read from stream, no newline or ws", p.size() == 1 && p(0) == 5, true);
-  }
-}
+
 
 #ifndef TIMING
 #  define TIMING 0
@@ -782,24 +782,5 @@ vnl_vector_test_leak() // use top4.1 to watch for memory.
 #  define LEAK 0
 #endif
 
-static void
-test_vector()
-{
-  vnl_vector_test_int();
-  test_common_interface<vnl_vector<int>>();
-  vnl_vector_test_float();
-  test_common_interface<vnl_vector<float>>();
-  vnl_vector_test_matrix();
-  vnl_vector_test_conversion();
-  vnl_vector_test_io();
-#if TIMING
-  vnl_vector_test_timing();
-#endif
-#if LEAK
-  vnl_vector_test_leak();
-#endif
-}
 
-
-TESTMAIN(test_vector);
 */

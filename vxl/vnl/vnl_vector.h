@@ -34,16 +34,14 @@ public:
     }
     
     // Creates a vector of specified length and initialize first n elements with values. O(n).
-    vnl_vector(size_t len, size_t n, const T* data_block):base_class(len)
-    {
+    vnl_vector(size_t len, size_t n, const T* data_block):base_class(len){
         n = std::min(len, n);
         std::copy(data_block, data_block+n, this->data());
     }
     
     //: Construct a fixed-n-vector initialized from \a datablck
     //  The data \e must have enough data. No checks performed.
-    explicit vnl_vector( const T* datablck, size_t n )
-    {
+    explicit vnl_vector( const T* datablck, size_t n ){
         *this = base_class::Zero(n);
         std::memcpy(this->data(), datablck, n*sizeof(T));
     }
@@ -67,12 +65,11 @@ public:
     
     template<typename OtherDrived>
     vnl_vector(const Eigen::MatrixBase<OtherDrived>& other):
-        Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>(other)
-    {}
+    Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>(other){}
+   
     
     template<typename OtherDrived>
-    vnl_vector & operator=(const Eigen::MatrixBase<OtherDrived>& other)
-    {
+    vnl_vector & operator=(const Eigen::MatrixBase<OtherDrived>& other){
         this->Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>::operator=(other);
         return *this;
     }
@@ -103,11 +100,11 @@ public:
     
     //: Sets elements to ptr[i]
     //  Note: ptr[i] must be valid for i=0..size()-1
-    vnl_vector& copy_in(T const * ptr);
+    //vnl_vector& copy_in(T const * ptr);
     
     //: Copy elements to ptr[i]
     //  Note: ptr[i] must be valid for i=0..size()-1
-    void copy_out(T *) const; // from vector to array[].
+    //void copy_out(T *) const; // from vector to array[].
     
     //: Sets elements to ptr[i]
     //  Note: ptr[i] must be valid for i=0..size()-1
@@ -168,7 +165,7 @@ public:
     
     //: *this = (*this)*M where M is a suitable matrix.
     //  this is treated as a row vector
-    //vnl_vector<T>& operator*=(vnl_matrix<T> const& m) { return this->post_multiply(m); }
+    vnl_vector<T>& operator*=(vnl_matrix<T> const& m) { return this->post_multiply(m); }
     
     //: Unary plus operator
     // Return new vector = (*this)
@@ -178,67 +175,20 @@ public:
     // Return new vector = -1*(*this)
     vnl_vector<T> operator-() const;
     
-    vnl_vector<T> operator+(T v) const {
-        vnl_vector<T> result(this->size());
-        std::transform(this->begin(), this->end(), result.begin(),
-                       [v](T d) -> T { return d + v; });
-        return result;
-    }
-    vnl_vector<T> operator-(T v) const {
-        vnl_vector<T> result(this->size());
-        std::transform(this->begin(), this->end(), result.begin(),
-                       [v](T d) -> T { return d - v; });
-        return result;
-    }
-    vnl_vector<T> operator*(T v) const {
-        vnl_vector<T> result(this->size());
-        std::transform(this->begin(), this->end(), result.begin(),
-                       [v](T d) -> T { return d * v; });
-        return result;
-    }
-    vnl_vector<T> operator/(T v) const {
-        vnl_vector<T> result(this->size());
-        std::transform(this->begin(), this->end(), result.begin(),
-                       [v](T d) -> T { return d / v; });
-        return result;
-    }
+    vnl_vector<T> operator+(T v) const;
     
+    vnl_vector<T> operator-(T v) const;
     
-    vnl_vector<T> operator+(vnl_vector<T> const &v) const {
-        assert(this->size() == v.size());
-        vnl_vector<T> result(this->size());
-        for(int i = 0; i<this->size(); ++i) {
-            result[i] = (*this)[i] + v[i];
-        }
-        return result;
-    }
+    vnl_vector<T> operator*(T v) const;
     
-    vnl_vector<T> operator-(vnl_vector<T> const &v) const {
-        assert(this->size() == v.size());
-        vnl_vector<T> result(this->size());
-        for(int i = 0; i<this->size(); ++i) {
-            result[i] = (*this)[i] - v[i];
-        }
-        return result;
-    }
+    vnl_vector<T> operator/(T v) const;
     
-    vnl_vector<T> operator*(vnl_matrix<T> const &M) const {
-        
-        vnl_vector<T> result(M.cols());
-        if (this->size() != M.rows())
-            vnl_error_vector_dimension("vnl_vector<>::operator*(M)", this->size(),
-                                       M.rows());
-        assert(this->size() == M.rows());
-      
-        for(int i = 0; i<result.size(); ++i) {
-            T v = T{0};
-            for(int j = 0; j<this->size(); ++j) {
-                v += (*this)(j) * M(j, i);
-            }
-            result[i] = v;
-        }
-        return result;
-    }
+    vnl_vector<T> operator+(vnl_vector<T> const &v) const;
+    
+    vnl_vector<T> operator-(vnl_vector<T> const &v) const;
+    
+    // as a row vectror
+    vnl_vector<T> operator*(vnl_matrix<T> const &M) const;
     //--------------------------------------------------------------------------------
     
     //: Access the contiguous block storing the elements in the vector. O(1).
@@ -343,14 +293,13 @@ public:
     vnl_vector& roll_inplace(const int &shift);
     
     //: Set this to that and that to this
-    void swap(vnl_vector<T> & that) noexcept;
-    
+    //void swap(vnl_vector<T> & that) noexcept;
     
     //: Return true if it's finite
-    bool is_finite() const;
+    //bool is_finite() const;
     
     //: Return true iff all the entries are zero.
-    bool is_zero() const;
+    //bool is_zero() const;
     
     //: Return true iff the size is zero.
     //bool empty() const { return !data || !num_elmts; }
@@ -359,7 +308,7 @@ public:
     bool is_equal(vnl_vector<T> const& rhs, double tol) const;
     
     //: Return true if *this == v
-    bool operator_eq(vnl_vector<T> const& v) const;
+    //bool operator_eq(vnl_vector<T> const& v) const;
     
     //: Equality test
     //bool operator==(vnl_vector<T> const &that) const { return  this->operator_eq(that); }
@@ -373,7 +322,7 @@ public:
     bool set_size(size_t n);
     
     //: Make the vector as if it had been default-constructed.
-    void clear();
+    //void clear();
     
 };
 
@@ -447,7 +396,7 @@ template<typename T>
 vnl_vector<T>& vnl_vector<T>::pre_multiply(vnl_matrix<T> const& m)
 {
     if(m.cols() != this->size()) {
-        vnl_error_vector_index("pre_multiply", m.cols(), this->size());
+        vnl_error_vector_dimension("pre_multiply", m.cols(), this->size());
     }
     
     vnl_vector<T> v_copy = *this;
@@ -455,7 +404,7 @@ vnl_vector<T>& vnl_vector<T>::pre_multiply(vnl_matrix<T> const& m)
     for(int i = 0; i<m.rows(); ++i) {
         T s = T{0};
         for(int j = 0; j<m.cols(); ++j) {
-            s += m[i][j] * v_copy[j];
+            s += m(i,j) * v_copy[j];
         }
         (*this)[i] = s;
     }
@@ -468,7 +417,7 @@ template<typename T>
 vnl_vector<T>& vnl_vector<T>::post_multiply(vnl_matrix<T> const& m)
 {
     if(m.rows() != this->size()) {
-        vnl_error_vector_index("post_multiply", m.rows(), this->size());
+        vnl_error_vector_dimension("post_multiply", m.rows(), this->size());
     }
     
     vnl_vector<T> v_copy = *this;
@@ -476,7 +425,7 @@ vnl_vector<T>& vnl_vector<T>::post_multiply(vnl_matrix<T> const& m)
     for(int j = 0; j<m.cols(); ++j) {
         T s = T{0};
         for(int i = 0; i<m.rows(); ++i) {
-            s += v_copy[i] * m[i][j];
+            s += v_copy[i] * m(i, j);
         }
         (*this)[j] = s;
     }
@@ -491,6 +440,78 @@ vnl_vector<T> vnl_vector<T>::operator- () const
     vnl_vector<T> result(this->size());
     for (size_t i = 0; i < this->size(); i++)
         result[i] = - (*this)[i];           // negate element
+    return result;
+}
+
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator+(T v) const {
+    vnl_vector<T> result(this->size());
+    std::transform(this->begin(), this->end(), result.begin(),
+                   [v](T d) -> T { return d + v; });
+    return result;
+}
+
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator-(T v) const {
+    vnl_vector<T> result(this->size());
+    std::transform(this->begin(), this->end(), result.begin(),
+                   [v](T d) -> T { return d - v; });
+    return result;
+}
+
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator*(T v) const {
+    vnl_vector<T> result(this->size());
+    std::transform(this->begin(), this->end(), result.begin(),
+                   [v](T d) -> T { return d * v; });
+    return result;
+}
+
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator/(T v) const {
+    vnl_vector<T> result(this->size());
+    std::transform(this->begin(), this->end(), result.begin(),
+                   [v](T d) -> T { return d / v; });
+    return result;
+}
+
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator+(vnl_vector<T> const &v) const {
+    assert(this->size() == v.size());
+    vnl_vector<T> result(this->size());
+    for(int i = 0; i<this->size(); ++i) {
+        result[i] = (*this)[i] + v[i];
+    }
+    return result;
+}
+
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator-(vnl_vector<T> const &v) const {
+    assert(this->size() == v.size());
+    vnl_vector<T> result(this->size());
+    for(int i = 0; i<this->size(); ++i) {
+        result[i] = (*this)[i] - v[i];
+    }
+    return result;
+}
+
+// as a row vectror
+template<typename T>
+vnl_vector<T> vnl_vector<T>::operator*(vnl_matrix<T> const &M) const {
+    
+    vnl_vector<T> result(M.cols());
+    if (this->size() != M.rows())
+        vnl_error_vector_dimension("vnl_vector<>::operator*(M)", this->size(),
+                                   M.rows());
+    assert(this->size() == M.rows());
+    
+    for(int i = 0; i<result.size(); ++i) {
+        T v = T{0};
+        for(int j = 0; j<this->size(); ++j) {
+            v += (*this)(j) * M(j, i);
+        }
+        result[i] = v;
+    }
     return result;
 }
 
