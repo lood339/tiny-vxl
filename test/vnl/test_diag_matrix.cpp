@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 
+
 TEST(vnl_diag_matrix, simple)
 {
     constexpr unsigned int N = 3;
