@@ -125,12 +125,12 @@ public:
    
     //: return pointer to given row
     // No boundary checking here.
-    //T       * operator[](unsigned r) { return this->row(r); }
+    T       * operator[](unsigned r) { return this->row(r).data(); }
     
     //: return pointer to given row
     // No boundary checking here.
-    //T const * operator[](unsigned r) const { return this->row(r); }
-      /**/
+    T const * operator[](unsigned r) const { return this->row(r).data(); }
+    
     
     //: Access an element for reading or writing
     // There are assert style boundary checks - #define NDEBUG to turn them off.
@@ -264,16 +264,16 @@ public:
     ////--------------------------- Additions ----------------------------
     
     //: Make a new matrix by applying function to each element.
-    //vnl_matrix<T> apply(T (*f)(T)) const;
+    vnl_matrix<T> apply(T (*f)(T)) const;
     
     //: Make a new matrix by applying function to each element.
-    //vnl_matrix<T> apply(T (*f)(T const&)) const;
+    vnl_matrix<T> apply(T (*f)(T const&)) const;
     
     //: Make a vector by applying a function across rows.
-    //vnl_vector<T> apply_rowwise(T (*f)(vnl_vector<T> const&)) const;
+    vnl_vector<T> apply_rowwise(T (*f)(vnl_vector<T> const&)) const;
     
     //: Make a vector by applying a function across columns.
-    //vnl_vector<T> apply_columnwise(T (*f)(vnl_vector<T> const&)) const;
+    vnl_vector<T> apply_columnwise(T (*f)(vnl_vector<T> const&)) const;
     
     //: Return transpose
     vnl_matrix<T> transpose() const;
@@ -616,9 +616,8 @@ vnl_matrix<T>& vnl_matrix<T>::set_diagonal(vnl_vector<T> const& diag)
     // the matrix's width & height; that explains the "||" in the assert,
     // and the "&&" in the upper bound for the "for".
     for (unsigned int i = 0; i < this->rows() && i < this->cols(); ++i) {
-        (*this) = diag[i];
+        (*this)(i, i) = diag[i];
     }
-    
     return *this;
 }
 
@@ -811,6 +810,53 @@ vnl_matrix<T> vnl_matrix<T>::operator*(vnl_matrix<T> const& rhs) const
     return result;
 }
 
+//: Return the matrix made by applying "f" to each element.
+template <typename T>
+vnl_matrix<T> vnl_matrix<T>::apply(T (*f)(T const&)) const
+{
+    vnl_matrix<T> ret(this->rows(), this->cols());
+    for(int i = 0; i<this->rows(); ++i) {
+        for(int j = 0; j<this->cols(); ++j) {
+            ret(i, j) = f(this(i, j));
+        }
+    }
+    //vnl_c_vector<T>::apply(this->data[0], num_rows * num_cols, f, ret.data_block());
+    return ret;
+}
+
+//: Return the matrix made by applying "f" to each element.
+template <typename T>
+vnl_matrix<T> vnl_matrix<T>::apply(T (*f)(T)) const
+{
+    vnl_matrix<T> ret(this->rows(), this->cols());
+    for(int i = 0; i<this->rows(); ++i) {
+        for(int j = 0; j<this->cols(); ++j) {
+            ret(i, j) = f((*this)(i, j));
+        }
+    }
+    return ret;
+}
+
+//: Make a vector by applying a function across rows.
+template <typename T>
+vnl_vector<T> vnl_matrix<T>::apply_rowwise(T (*f)(vnl_vector<T> const&)) const
+{
+    vnl_vector<T> v(this->rows());
+    for (unsigned int i = 0; i < this->rows(); ++i)
+        v.put(i,f(this->get_row(i)));
+    return v;
+}
+
+//: Make a vector by applying a function across columns.
+template <typename T>
+vnl_vector<T> vnl_matrix<T>::apply_columnwise(T (*f)(vnl_vector<T> const&)) const
+{
+    vnl_vector<T> v(this->cols());
+    for (unsigned int i = 0; i < this->cols(); ++i)
+        v.put(i,f(this->get_column(i)));
+    return v;
+}
+
 ////--------------------------- Additions------------------------------------
 
 //: Returns new matrix with rows and columns transposed.
@@ -942,6 +988,23 @@ vnl_matrix<T> vnl_matrix<T>::extract(unsigned r, unsigned c,
     return result;
 }
 
+template <class T>
+void vnl_matrix<T>::extract( vnl_matrix<T>& submatrix,
+                            unsigned top, unsigned left) const {
+    unsigned const rowz = submatrix.rows();
+    unsigned const colz = submatrix.cols();
+#ifndef NDEBUG
+    unsigned int bottom = top + rowz;
+    unsigned int right = left + colz;
+    if ((this->rows() < bottom) || (this->cols() < right))
+        vnl_error_matrix_dimension ("extract",
+                                    this->rows(), this->cols(), bottom, right);
+#endif
+    for (unsigned int i = 0; i < rowz; i++)      // actual copy of all elements
+        for (unsigned int j = 0; j < colz; j++)    // in submatrix
+            submatrix(i, j) = (*this)(top+i, left+j);
+}
+
 //: Returns a copy of n rows, starting from "row"
 template <class T>
 vnl_matrix<T> vnl_matrix<T>::get_n_rows (unsigned row, unsigned n) const
@@ -1032,6 +1095,16 @@ vnl_matrix<T> vnl_matrix<T>::get_columns(const vnl_vector<unsigned int>& i) cons
     return m;
 }
 
+template<typename T>
+vnl_vector<T> vnl_matrix<T>::get_diagonal() const
+{
+    size_t n = std::min(this->rows(), this->cols());
+    vnl_vector<T> v(n);
+    for (unsigned int j = 0; j < n; ++j)
+        v[j] = (*this)(j, j);
+    return v;
+}
+
 //: Flatten row-major (C-style)
 template<typename T>
 vnl_vector<T> vnl_matrix<T>::flatten_row_major() const
@@ -1052,6 +1125,51 @@ vnl_vector<T> vnl_matrix<T>::flatten_column_major() const
             v[c*this->rows()+r] = (*this)(r, c);
     return v;
 }
+
+//: Make each row of the matrix have unit norm.
+// All-zero rows are ignored.
+template <typename T>
+vnl_matrix<T>& vnl_matrix<T>::normalize_rows()
+{
+    typedef typename vnl_numeric_traits<T>::abs_t Abs_t;
+    typedef typename vnl_numeric_traits<T>::real_t Real_t;
+    typedef typename vnl_numeric_traits<Real_t>::abs_t abs_real_t;
+    for (unsigned int i = 0; i < this->rows(); ++i) {  // For each row in the Matrix
+        Abs_t norm(0); // double will not do for all types.
+        for (unsigned int j = 0; j < this->cols(); ++j)  // For each element in row
+            norm += vnl_math::squared_magnitude((*this)(i, j));
+        
+        if (norm != 0) {
+            abs_real_t scale = abs_real_t(1)/(std::sqrt((abs_real_t)norm));
+            for (unsigned int j = 0; j < this->cols(); ++j)
+                (*this)(i, j) = T(Real_t((*this)(i, j)) * scale);
+        }
+    }
+    return *this;
+}
+
+//: Make each column of the matrix have unit norm.
+// All-zero columns are ignored.
+template <typename T>
+vnl_matrix<T>& vnl_matrix<T>::normalize_columns()
+{
+    typedef typename vnl_numeric_traits<T>::abs_t Abs_t;
+    typedef typename vnl_numeric_traits<T>::real_t Real_t;
+    typedef typename vnl_numeric_traits<Real_t>::abs_t abs_real_t;
+    for (unsigned int j = 0; j < this->cols(); j++) {  // For each column in the Matrix
+        Abs_t norm(0); // double will not do for all types.
+        for (unsigned int i = 0; i < this->rows(); i++)
+            norm += vnl_math::squared_magnitude((*this)(i, j));
+        
+        if (norm != 0) {
+            abs_real_t scale = abs_real_t(1)/(std::sqrt((abs_real_t)norm));
+            for (unsigned int i = 0; i < this->rows(); i++)
+                (*this)(i, j) = T(Real_t((*this)(i, j)) * scale);
+        }
+    }
+    return *this;
+}
+
 
 //: Return location of minimum value of elements
 template<typename T>

@@ -339,264 +339,263 @@ TEST(vnl_matrix, test_int)
         EXPECT_EQ(m2.rows(), 0)<<"zero-size after clear()\n";
         EXPECT_EQ(m2.cols(), 0)<<"zero-size after clear()";
     }
-
-   /*
-  {
-    vnl_matrix<int> m(5,10,1);
-    vnl_vector<int> vr = m.apply_rowwise(sum_vector);
-    for (unsigned int i = 0; i < vr.size(); ++i)
-        EXPECT_EQ("vr.apply_rowwise(sum_vector)", vr.get(i), 10);
-    vnl_vector<int> vc = m.apply_columnwise(sum_vector);
-    for (unsigned int i = 0; i < vc.size(); ++i)
-        EXPECT_EQ("vc.apply_columnwise(sum_vector)", vc.get(i), 5);
-  }
-    */
-
+    
+    {
+        vnl_matrix<int> m(5,10,1);
+        vnl_vector<int> vr = m.apply_rowwise(sum_vector);
+        for (unsigned int i = 0; i < vr.size(); ++i)
+            EXPECT_EQ(vr.get(i), 10)<<"vr.apply_rowwise(sum_vector)\n";
+        vnl_vector<int> vc = m.apply_columnwise(sum_vector);
+        for (unsigned int i = 0; i < vc.size(); ++i)
+            EXPECT_EQ(vc.get(i), 5)<<"vc.apply_columnwise(sum_vector)\n";
+    }
 }
+
+TEST(vnl_matrix, test_float)
+{
+    std::cout << "*************************\n"
+    << "Testing vnl_matrix<float>\n"
+    << "*************************" << std::endl;
+    vnl_matrix<float> d0(2,2);
+    EXPECT_EQ((d0.rows()==2 && d0.columns()==2), true);
+    vnl_matrix<float> d1(3,4);
+    EXPECT_EQ((d1.rows()==3 && d1.columns()==4), true);
+    vnl_matrix<float> d2(2,2,2.0);
+    EXPECT_EQ(
+         (d2.get(0,0)==2.f && d2.get(0,1)==2.f && d2.get(1,0)==2.f && d2.get(1,1)==2.f), true);
+    EXPECT_EQ((d0=2.f,
+                    (d0.get(0,0)==2.f && d0.get(0,1)==2.f && d0.get(1,0)==2.f && d0.get(1,1)==2.f)), true);
+    EXPECT_EQ((d0 == d2), true);
+    EXPECT_EQ((d0==d2), true);
+    EXPECT_EQ((d2.put(1,1,(float)3.0),d2.get(1,1)), (float)3.0);
+    EXPECT_EQ(d2.get(1,1), (float)3.0);
+    float v2_data[] = {2.f,3.f};
+    EXPECT_EQ(d2.get_diagonal(), vnl_vector<float>(2,2,v2_data));
+    EXPECT_EQ((d0 == d2), false);
+    EXPECT_EQ((d0 != d2), true);
+    EXPECT_EQ((d0==d2), false);
+    EXPECT_EQ(
+         (d1.fill(3.f),
+          (d1.get(0,0)==3.f && d1.get(1,1)==3.f && d1.get(2,2)==3.f && d1.get(2,3)==3.f)), true);
+    EXPECT_EQ(
+         (d2.fill(2.f),
+          (d2.get(0,0)==2.f && d2.get(0,1)==2.f && d2.get(1,0)==2.f && d2.get(1,1)==2.f)), true);
+    EXPECT_EQ(vnl_matrix<float>(2,2).fill(2.f), d2);
+    EXPECT_EQ(
+         (d0.fill_diagonal(3.f),
+          (d0.get(0,0)==3.f && d0.get(1,1)==3.f && d0.get(0,1)==2.f && d0.get(1,0)==2.f)), true);
+    float d0values [] = {7.f,9.f};
+    EXPECT_EQ(
+         (d0.set_diagonal(vnl_vector<float>(2,2,d0values)),
+          (d0.get(0,0)==7.f && d0.get(1,1)==9.f && d0.get(0,1)==2.f && d0.get(1,0)==2.f)), true);
+    float d3values [] = {1.0,2.0,3.0};
+    vnl_matrix<float> d3(1,3,3,d3values);
+    EXPECT_EQ(
+         (d3.get(0,0)==1.0 && d3.get(0,1)==2.0 && d3.get(0,2)==3.0), true);
+    vnl_matrix<float> d4(d3);
+    EXPECT_EQ(d3, d4);
+    EXPECT_EQ((d0=d2,  (d0==d2)), true);
+    EXPECT_EQ(
+         ((d0=d2+(float)3.0),
+          (d0.get(0,0)==5.0 && d0.get(0,1)==5.0 && d0.get(1,0)==5.0 && d0.get(1,1)==5.0)), true);
+    EXPECT_EQ(
+         (d0+=(-3.0),
+          (d0.get(0,0)==2.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0 && d0.get(1,1)==2.0)), true);
+    vnl_matrix<float> d5(2,2);
+    EXPECT_EQ(
+         ((d5=d0+d2),
+          (d5.get(0,0)==4.0 && d5.get(0,1)==4.0 && d5.get(1,0)==4.0 && d5.get(1,1)==4.0)), true);
+    EXPECT_EQ(
+         ((d0+=d2),
+          (d0.get(0,0)==4.0 && d0.get(0,1)==4.0 && d0.get(1,0)==4.0 && d0.get(1,1)==4.0)), true);
+    EXPECT_EQ(((d4=d3*5.0),(d4.get(0,0)==5.0 && d4.get(0,1)==10.0 && d4.get(0,2)==15.0)), true);
+    EXPECT_EQ(((d3*=5.0),  (d3== d4)), true);
+    float d6values [] = {1.0,2.0,
+        3.0,4.0};
+    vnl_matrix<float> d6(2,2,4,d6values);
+    EXPECT_EQ(d6.get(1,1), 4.0);
+    float d7values [] = {5.0,6.0,
+        7.0,8.0};
+    vnl_matrix<float> d7(2,2,4,d7values);
+    EXPECT_EQ(d7.get(1,1), 8.0);
+    EXPECT_EQ(((d5=d6*d7),
+                      (d5.get(0,0)==19.0 && d5.get(0,1)==22.0 && d5.get(1,0)==43.0 && d5.get(1,1)==50.0)), true);
+    EXPECT_EQ(((d6*=d7),
+                    (d6.get(0,0)==19.0 && d6.get(0,1)==22.0 && d6.get(1,0)==43.0 && d6.get(1,1)==50.0)), true);
+    
+    // additional tests
+    vnl_matrix<float> m0, m1, m2;
+    float mvalues [] = {0,-2,2,0};
+    vnl_matrix<float> m(2,2,4,mvalues);
+    m0 = m; m1 = m; m2 = m;
+    EXPECT_EQ(
+         (m(0,0)==0 && m(0,1)==-2 && m(1,0)==2 && m(1,1)==0), true);
+    EXPECT_EQ(
+         ((m1 = m.transpose()),
+          (m1(0,0)==0 && m1(0,1)==2 && m1(1,0)==-2 && m1(1,1)==0)), true);
+    
+    EXPECT_EQ(m.max_value(),  2);
+    EXPECT_EQ(m.min_value(), -2);
+    EXPECT_EQ(m.arg_max(),   2);
+    EXPECT_EQ(m.arg_min(),   1);
+    EXPECT_EQ(
+         ((m1 = element_product(m,m)),
+          (m1(0,0)==0 && m1(0,1)==4 && m1(1,0)==4 && m1(1,1)==0)), true);
+    EXPECT_EQ(
+         ((m2 = 2),
+          (m1 = element_quotient(m,m2)),
+          (m1(0,0)==0 && m1(0,1)==-1 && m1(1,0)==1 && m1(1,1)==0)), true);
+    EXPECT_EQ(
+         ((m1 = m.extract(1,1,1,1)),
+          (m1.rows()==1 && m1.columns()==1 && m1(0,0)==m(1,1))), true);
+    EXPECT_EQ(
+         ((m1=4),
+          (m.update(m1,1,1)),
+          (m(0,0)==0 && m(0,1)==-2 && m(1,0)==2 && m(1,1)==4)), true);
+    
+    float vvalues[] = {1,0,0,0};
+    vnl_matrix<float> v (4,1,4,vvalues);
+    float v1values [] = {1,0,0};
+    float v2values [] = {0,1,0};
+    float v3values [] = {0,0,1};
+    vnl_matrix<float> v1(3,1,3,v1values);
+    vnl_matrix<float> v2(3,1,3,v2values);
+    vnl_matrix<float> v3(3,1,3,v3values);
+    EXPECT_EQ(
+         (dot_product(v1,v2)==0 && dot_product(v1,v3)==0 && dot_product(v2,v3)==0), true);
+    v = v3;
+    EXPECT_EQ( (v.rows()==3 && v.columns()==1 && v==v3), true);
+    
+    v.clear();
+    EXPECT_EQ(v.rows(), 0)<<"zero-size after clear()\n";
+    EXPECT_EQ(v.columns(), 0)<<"zero-size after clear()\n";
+    
+    {
+        vnl_matrix<float> m(5,10,1);
+        vnl_vector<float> vr = m.apply_rowwise(sum_vector);
+        for (unsigned int i = 0; i < vr.size(); ++i)
+            EXPECT_EQ(vr.get(i), 10);
+        vnl_vector<float> vc = m.apply_columnwise(sum_vector);
+        for (unsigned int i = 0; i < vc.size(); ++i)
+            EXPECT_EQ(vc.get(i), 5);
+    }
+
+    
+}
+
+TEST(vnl_matrix, test_double)
+{
+    std::cout << "**************************\n"
+    << "Testing vnl_matrix<double>\n"
+    << "**************************" << std::endl;
+    vnl_matrix<double> d0(2,2);
+    EXPECT_EQ((d0.rows()==2 && d0.columns()==2), true);
+    vnl_matrix<double> d1(3,4);
+    EXPECT_EQ((d1.rows()==3 && d1.columns()==4), true);
+    vnl_matrix<double> d2(2,2,2.0);
+    EXPECT_EQ(
+         (d2.get(0,0)==2.0 && d2.get(0,1)==2.0 && d2.get(1,0)==2.0 && d2.get(1,1)==2.0), true);
+    EXPECT_EQ((d0=2.0,
+                    (d0.get(0,0)==2.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0 && d0.get(1,1)==2.0)), true);
+    EXPECT_EQ((d0 == d2), true);
+    EXPECT_EQ((d0==d2), true);
+    EXPECT_EQ((d2.put(1,1,3.0),d2.get(1,1)), 3.0);
+    EXPECT_EQ(d2.get(1,1), 3.0);
+    double v2_data[] = {2.0,3.0};
+    EXPECT_EQ(d2.get_diagonal(), vnl_vector<double>(2,2,v2_data));
+    EXPECT_EQ((d0 == d2), false);
+    EXPECT_EQ((d0 != d2), true);
+    EXPECT_EQ((d0==d2), false);
+    EXPECT_EQ(
+         (d1.fill(3.0),
+          (d1.get(0,0)==3.0 && d1.get(1,1)==3.0 && d1.get(2,2)==3.0 && d1.get(2,3)==3.0)), true);
+    EXPECT_EQ(
+         (d2.fill(2.0),
+          (d2.get(0,0)==2.0 && d2.get(0,1)==2.0 && d2.get(1,0)==2.0 && d2.get(1,1)==2.0)), true);
+    EXPECT_EQ(vnl_matrix<double>(2,2).fill(2.0), d2);
+    EXPECT_EQ(
+         (d0.fill_diagonal(3.0),
+          (d0.get(0,0)==3.0 && d0.get(1,1)==3.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0)), true);
+    double d0values [] = {7.0,9.0};
+    EXPECT_EQ(
+         (d0.set_diagonal(vnl_vector<double>(2,2,d0values)),
+          (d0.get(0,0)==7.0 && d0.get(1,1)==9.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0)), true);
+    double d3values [] = {1.0,2.0,3.0};
+    vnl_matrix<double> d3(1,3,3,d3values);
+    EXPECT_EQ(
+         (d3.get(0,0)==1.0 && d3.get(0,1)==2.0 && d3.get(0,2)==3.0), true);
+    vnl_matrix<double> d4(d3);
+    EXPECT_EQ((d3 == d4), true);
+    EXPECT_EQ((d0=d2,  (d0==d2)), true);
+    EXPECT_EQ(
+         ((d0=d2+3.0),
+          (d0.get(0,0)==5.0 && d0.get(0,1)==5.0 && d0.get(1,0)==5.0 && d0.get(1,1)==5.0)), true);
+    EXPECT_EQ(
+         (d0+=(-3.0),
+          (d0.get(0,0)==2.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0 && d0.get(1,1)==2.0)), true);
+    vnl_matrix<double> d5(2,2);
+    EXPECT_EQ(
+         ((d5=d0+d2),
+          (d5.get(0,0)==4.0 && d5.get(0,1)==4.0 && d5.get(1,0)==4.0 && d5.get(1,1)==4.0)), true);
+    EXPECT_EQ(
+         ((d0+=d2),
+          (d0.get(0,0)==4.0 && d0.get(0,1)==4.0 && d0.get(1,0)==4.0 && d0.get(1,1)==4.0)), true);
+    EXPECT_EQ(((d4=d3*5.0),(d4.get(0,0)==5.0 && d4.get(0,1)==10.0 && d4.get(0,2)==15.0)), true);
+    EXPECT_EQ(((d3*=5.0),  (d3== d4)), true);
+    double d6values [] = {1.0,2.0,
+        3.0,4.0};
+    vnl_matrix<double> d6(2,2,4,d6values);
+    EXPECT_EQ(d6.get(1,1), 4.0);
+    double d7values [] = {5.0,6.0,
+        7.0,8.0};
+    vnl_matrix<double> d7(2,2,4,d7values);
+    EXPECT_EQ(d7.get(1,1), 8.0);
+    EXPECT_EQ(((d5=d6*d7),
+                      (d5.get(0,0)==19.0 && d5.get(0,1)==22.0 && d5.get(1,0)==43.0 && d5.get(1,1)==50.0)), true);
+    EXPECT_EQ(((d6*=d7),
+                    (d6.get(0,0)==19.0 && d6.get(0,1)==22.0 && d6.get(1,0)==43.0 && d6.get(1,1)==50.0)), true);
+    
+    d0.clear();
+    EXPECT_EQ(d0.rows(), 0);
+    EXPECT_EQ(d0.columns(), 0);
+    
+    // apply sqrt to every element
+    double d8values [] = {0.0, 1.0, 9.0, 16.0};
+    vnl_matrix<double> d8(2,2,4,d8values);
+    d8 = d8.apply(std::sqrt);
+    EXPECT_EQ(d8[0][0]==0 && d8[0][1]==1 && d8[1][0]==3 && d8[1][1]==4, true);
+    
+    // normalizations
+    d8.normalize_rows();
+    EXPECT_EQ(d8[0][0]==0 && d8[0][1]==1, true);
+    ASSERT_NEAR(d8[1][0], 0.6, 1e-12);
+    ASSERT_NEAR(d8[1][1], 0.8, 1e-12);
+    d8.normalize_columns();
+    EXPECT_EQ(d8[0][0]==0 && d8[1][0]==1, true);
+    
+    //vnl_matrix<double> d9(2,2);
+    //vnl_copy(d2, d9);
+    //EXPECT_EQ("vnl_copy(S, S)", d9==d2, true);
+    //vnl_matrix<float> d10(2,2);
+    //vnl_copy(d2, d10);
+    //d9.fill(-15.0);
+    //vnl_copy(d10, d9);
+    //EXPECT_EQ("vnl_copy(T, S)", d9==d2, true);
+    
+    {
+        vnl_matrix<double> m(5,10,1);
+        vnl_vector<double> vr = m.apply_rowwise(sum_vector);
+        for (unsigned int i = 0; i < vr.size(); ++i)
+            EXPECT_EQ(vr.get(i), 10);
+        vnl_vector<double> vc = m.apply_columnwise(sum_vector);
+        for (unsigned int i = 0; i < vc.size(); ++i)
+            EXPECT_EQ(vc.get(i), 5);
+    }
+}
+    
+
 
 /*
-void test_float()
-{
-  std::cout << "*************************\n"
-           << "Testing vnl_matrix<float>\n"
-           << "*************************" << std::endl;
-  vnl_matrix<float> d0(2,2);
-  TEST("vnl_matrix<float> d0(2,2)", (d0.rows()==2 && d0.columns()==2), true);
-  vnl_matrix<float> d1(3,4);
-  TEST("vnl_matrix<float> d1(3,4)", (d1.rows()==3 && d1.columns()==4), true);
-  vnl_matrix<float> d2(2,2,2.0);
-  TEST("vnl_matrix<float> d2(2,2,2.f)",
-       (d2.get(0,0)==2.f && d2.get(0,1)==2.f && d2.get(1,0)==2.f && d2.get(1,1)==2.f), true);
-  TEST("d0=2.f", (d0=2.f,
-                 (d0.get(0,0)==2.f && d0.get(0,1)==2.f && d0.get(1,0)==2.f && d0.get(1,1)==2.f)), true);
-  TEST("d0 == d2", (d0 == d2), true);
-  TEST("(d0 == d2)", (d0==d2), true);
-  TEST("d2.put(1,1,3.0)", (d2.put(1,1,(float)3.0),d2.get(1,1)), (float)3.0);
-  TEST("d2.get(1,1)", d2.get(1,1), (float)3.0);
-  float v2_data[] = {2.f,3.f};
-  TEST("d2.get_diagonal()", d2.get_diagonal(), vnl_vector<float>(2,2,v2_data));
-  TEST("d0 == d2", (d0 == d2), false);
-  TEST("d0 != d2", (d0 != d2), true);
-  TEST("(d0 == d2)", (d0==d2), false);
-  TEST("d1.fill(3.f)",
-       (d1.fill(3.f),
-        (d1.get(0,0)==3.f && d1.get(1,1)==3.f && d1.get(2,2)==3.f && d1.get(2,3)==3.f)), true);
-  TEST("d2.fill(2.f)",
-       (d2.fill(2.f),
-        (d2.get(0,0)==2.f && d2.get(0,1)==2.f && d2.get(1,0)==2.f && d2.get(1,1)==2.f)), true);
-  TEST("vnl_matrix<float>(2,2).fill(2.f)", vnl_matrix<float>(2,2).fill(2.f), d2);
-  TEST("d0.fill_diagonal(3.f)",
-       (d0.fill_diagonal(3.f),
-        (d0.get(0,0)==3.f && d0.get(1,1)==3.f && d0.get(0,1)==2.f && d0.get(1,0)==2.f)), true);
-  float d0values [] = {7.f,9.f};
-  TEST("d0.set_diagonal(vnl_vector<float>))",
-       (d0.set_diagonal(vnl_vector<float>(2,2,d0values)),
-        (d0.get(0,0)==7.f && d0.get(1,1)==9.f && d0.get(0,1)==2.f && d0.get(1,0)==2.f)), true);
-  float d3values [] = {1.0,2.0,3.0};
-  vnl_matrix<float> d3(1,3,3,d3values);
-  TEST("d3(1,3,3,{1.0,2.0,3.0})",
-       (d3.get(0,0)==1.0 && d3.get(0,1)==2.0 && d3.get(0,2)==3.0), true);
-  vnl_matrix<float> d4(d3);
-  TEST("vnl_matrix<float> d4(d3)", d3, d4);
-  TEST("d0=d2", (d0=d2,  (d0==d2)), true);
-  TEST("d0=d2+3.0",
-       ((d0=d2+(float)3.0),
-        (d0.get(0,0)==5.0 && d0.get(0,1)==5.0 && d0.get(1,0)==5.0 && d0.get(1,1)==5.0)), true);
-  TEST("d0+=(-3.0)",
-       (d0+=(-3.0),
-        (d0.get(0,0)==2.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0 && d0.get(1,1)==2.0)), true);
-  vnl_matrix<float> d5(2,2);
-  TEST("d5=d0+d2",
-       ((d5=d0+d2),
-        (d5.get(0,0)==4.0 && d5.get(0,1)==4.0 && d5.get(1,0)==4.0 && d5.get(1,1)==4.0)), true);
-  TEST("d0+=d2",
-       ((d0+=d2),
-        (d0.get(0,0)==4.0 && d0.get(0,1)==4.0 && d0.get(1,0)==4.0 && d0.get(1,1)==4.0)), true);
-  TEST("d4=d3*5.0",((d4=d3*5.0),(d4.get(0,0)==5.0 && d4.get(0,1)==10.0 && d4.get(0,2)==15.0)), true);
-  TEST("d3*=5.0",((d3*=5.0),  (d3== d4)), true);
-  float d6values [] = {1.0,2.0,
-                       3.0,4.0};
-  vnl_matrix<float> d6(2,2,4,d6values);
-  TEST("vnl_matrix<float> d6(2,2,4,{1.0,2.0,3.0,4.0})", d6.get(1,1), 4.0);
-  float d7values [] = {5.0,6.0,
-                       7.0,8.0};
-  vnl_matrix<float> d7(2,2,4,d7values);
-  TEST("vnl_matrix<float> d7(2,2,4,{5.0,6.0,7.0,8.0})", d7.get(1,1), 8.0);
-  TEST("d5=d6*d7", ((d5=d6*d7),
-                    (d5.get(0,0)==19.0 && d5.get(0,1)==22.0 && d5.get(1,0)==43.0 && d5.get(1,1)==50.0)), true);
-  TEST("d6*=d7", ((d6*=d7),
-                  (d6.get(0,0)==19.0 && d6.get(0,1)==22.0 && d6.get(1,0)==43.0 && d6.get(1,1)==50.0)), true);
-
-  // additional tests
-  vnl_matrix<float> m0, m1, m2;
-  float mvalues [] = {0,-2,2,0};
-  vnl_matrix<float> m(2,2,4,mvalues);
-  m0 = m; m1 = m; m2 = m;
-  TEST("m(i,j)",
-       (m(0,0)==0 && m(0,1)==-2 && m(1,0)==2 && m(1,1)==0), true);
-  TEST("m.transpose()",
-       ((m1 = m.transpose()),
-        (m1(0,0)==0 && m1(0,1)==2 && m1(1,0)==-2 && m1(1,1)==0)), true);
-
-  TEST("m.max_value()", m.max_value(),  2);
-  TEST("m.min_value()", m.min_value(), -2);
-  TEST("m.arg_max()",   m.arg_max(),   2);
-  TEST("m.arg_min()",   m.arg_min(),   1);
-  TEST("element_product(m,m)",
-       ((m1 = element_product(m,m)),
-        (m1(0,0)==0 && m1(0,1)==4 && m1(1,0)==4 && m1(1,1)==0)), true);
-  TEST("element_quotient(m,[2])",
-       ((m2 = 2),
-        (m1 = element_quotient(m,m2)),
-        (m1(0,0)==0 && m1(0,1)==-1 && m1(1,0)==1 && m1(1,1)==0)), true);
-  TEST("m.extract(1,1,1,1)",
-       ((m1 = m.extract(1,1,1,1)),
-        (m1.rows()==1 && m1.columns()==1 && m1(0,0)==m(1,1))), true);
-  TEST("m.update([4],1,1)",
-       ((m1=4),
-        (m.update(m1,1,1)),
-        (m(0,0)==0 && m(0,1)==-2 && m(1,0)==2 && m(1,1)==4)), true);
-
-  float vvalues[] = {1,0,0,0};
-  vnl_matrix<float> v (4,1,4,vvalues);
-  float v1values [] = {1,0,0};
-  float v2values [] = {0,1,0};
-  float v3values [] = {0,0,1};
-  vnl_matrix<float> v1(3,1,3,v1values);
-  vnl_matrix<float> v2(3,1,3,v2values);
-  vnl_matrix<float> v3(3,1,3,v3values);
-  TEST("dot_product(v1,v2)",
-       (dot_product(v1,v2)==0 && dot_product(v1,v3)==0 && dot_product(v2,v3)==0), true);
-  v = v3;
-  TEST("4d-v=3d-v", (v.rows()==3 && v.columns()==1 && v==v3), true);
-
-  v.clear();
-  TEST("zero-size after clear()", v.rows(), 0);
-  TEST("zero-size after clear()", v.columns(), 0);
-
-  {
-  vnl_matrix<float> m(5,10,1);
-  vnl_vector<float> vr = m.apply_rowwise(sum_vector);
-  for (unsigned int i = 0; i < vr.size(); ++i)
-    TEST("vr.apply_rowwise(sum_vector)", vr.get(i), 10);
-  vnl_vector<float> vc = m.apply_columnwise(sum_vector);
-  for (unsigned int i = 0; i < vc.size(); ++i)
-    TEST("vc.apply_columnwise(sum_vector)", vc.get(i), 5);
-  }
-
-}
-
-void test_double()
-{
-  std::cout << "**************************\n"
-           << "Testing vnl_matrix<double>\n"
-           << "**************************" << std::endl;
-  vnl_matrix<double> d0(2,2);
-  TEST("vnl_matrix<double> d0(2,2)", (d0.rows()==2 && d0.columns()==2), true);
-  vnl_matrix<double> d1(3,4);
-  TEST("vnl_matrix<double> d1(3,4)", (d1.rows()==3 && d1.columns()==4), true);
-  vnl_matrix<double> d2(2,2,2.0);
-  TEST("vnl_matrix<double> d2(2,2,2.0)",
-       (d2.get(0,0)==2.0 && d2.get(0,1)==2.0 && d2.get(1,0)==2.0 && d2.get(1,1)==2.0), true);
-  TEST("d0=2.0", (d0=2.0,
-                  (d0.get(0,0)==2.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0 && d0.get(1,1)==2.0)), true);
-  TEST("d0 == d2", (d0 == d2), true);
-  TEST("(d0 == d2)", (d0==d2), true);
-  TEST("d2.put(1,1,3.0)", (d2.put(1,1,3.0),d2.get(1,1)), 3.0);
-  TEST("d2.get(1,1)", d2.get(1,1), 3.0);
-  double v2_data[] = {2.0,3.0};
-  TEST("d2.get_diagonal()", d2.get_diagonal(), vnl_vector<double>(2,2,v2_data));
-  TEST("d0 == d2", (d0 == d2), false);
-  TEST("d0 != d2", (d0 != d2), true);
-  TEST("(d0 == d2)", (d0==d2), false);
-  TEST("d1.fill(3.0)",
-       (d1.fill(3.0),
-        (d1.get(0,0)==3.0 && d1.get(1,1)==3.0 && d1.get(2,2)==3.0 && d1.get(2,3)==3.0)), true);
-  TEST("d2.fill(3.0)",
-       (d2.fill(2.0),
-        (d2.get(0,0)==2.0 && d2.get(0,1)==2.0 && d2.get(1,0)==2.0 && d2.get(1,1)==2.0)), true);
-  TEST("vnl_matrix<double>(2,2).fill(2.0)", vnl_matrix<double>(2,2).fill(2.0), d2);
-  TEST("d0.fill_diagonal(3.0)",
-       (d0.fill_diagonal(3.0),
-        (d0.get(0,0)==3.0 && d0.get(1,1)==3.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0)), true);
-  double d0values [] = {7.0,9.0};
-  TEST("d0.set_diagonal(vnl_vector<double>))",
-       (d0.set_diagonal(vnl_vector<double>(2,2,d0values)),
-        (d0.get(0,0)==7.0 && d0.get(1,1)==9.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0)), true);
-  double d3values [] = {1.0,2.0,3.0};
-  vnl_matrix<double> d3(1,3,3,d3values);
-  TEST("d3(1,3,3,{1.0,2.0,3.0})",
-       (d3.get(0,0)==1.0 && d3.get(0,1)==2.0 && d3.get(0,2)==3.0), true);
-  vnl_matrix<double> d4(d3);
-  TEST("vnl_matrix<double> d4(d3)", (d3 == d4), true);
-  TEST("d0=d2", (d0=d2,  (d0==d2)), true);
-  TEST("d0=d2+3.0",
-       ((d0=d2+3.0),
-        (d0.get(0,0)==5.0 && d0.get(0,1)==5.0 && d0.get(1,0)==5.0 && d0.get(1,1)==5.0)), true);
-  TEST("d0+=(-3.0)",
-       (d0+=(-3.0),
-        (d0.get(0,0)==2.0 && d0.get(0,1)==2.0 && d0.get(1,0)==2.0 && d0.get(1,1)==2.0)), true);
-  vnl_matrix<double> d5(2,2);
-  TEST("d5=d0+d2",
-       ((d5=d0+d2),
-        (d5.get(0,0)==4.0 && d5.get(0,1)==4.0 && d5.get(1,0)==4.0 && d5.get(1,1)==4.0)), true);
-  TEST("d0+=d2",
-       ((d0+=d2),
-        (d0.get(0,0)==4.0 && d0.get(0,1)==4.0 && d0.get(1,0)==4.0 && d0.get(1,1)==4.0)), true);
-  TEST("d4=d3*5.0",((d4=d3*5.0),(d4.get(0,0)==5.0 && d4.get(0,1)==10.0 && d4.get(0,2)==15.0)), true);
-  TEST("d3*=5.0",((d3*=5.0),  (d3== d4)), true);
-  double d6values [] = {1.0,2.0,
-                        3.0,4.0};
-  vnl_matrix<double> d6(2,2,4,d6values);
-  TEST("vnl_matrix<double> d6(2,2,4,{1.0,2.0,3.0,4.0})", d6.get(1,1), 4.0);
-  double d7values [] = {5.0,6.0,
-                        7.0,8.0};
-  vnl_matrix<double> d7(2,2,4,d7values);
-  TEST("vnl_matrix<double> d7(2,2,4,{5.0,6.0,7.0,8.0})", d7.get(1,1), 8.0);
-  TEST("d5=d6*d7", ((d5=d6*d7),
-                    (d5.get(0,0)==19.0 && d5.get(0,1)==22.0 && d5.get(1,0)==43.0 && d5.get(1,1)==50.0)), true);
-  TEST("d6*=d7", ((d6*=d7),
-                  (d6.get(0,0)==19.0 && d6.get(0,1)==22.0 && d6.get(1,0)==43.0 && d6.get(1,1)==50.0)), true);
-
-  d0.clear();
-  TEST("zero-size after clear()", d0.rows(), 0);
-  TEST("zero-size after clear()", d0.columns(), 0);
-
-  // apply sqrt to every element
-  double d8values [] = {0.0, 1.0, 9.0, 16.0};
-  vnl_matrix<double> d8(2,2,4,d8values);
-  d8 = d8.apply(std::sqrt);
-  TEST("apply(sqrt)", d8[0][0]==0 && d8[0][1]==1 && d8[1][0]==3 && d8[1][1]==4, true);
-
-  // normalizations
-  d8.normalize_rows();
-  TEST("normalize_rows()", d8[0][0]==0 && d8[0][1]==1, true);
-  TEST_NEAR("normalize_rows()", d8[1][0], 0.6, 1e-12);
-  TEST_NEAR("normalize_rows()", d8[1][1], 0.8, 1e-12);
-  d8.normalize_columns();
-  TEST("normalize_columns()", d8[0][0]==0 && d8[1][0]==1, true);
-
-  vnl_matrix<double> d9(2,2);
-  vnl_copy(d2, d9);
-  TEST("vnl_copy(S, S)", d9==d2, true);
-  vnl_matrix<float> d10(2,2);
-  vnl_copy(d2, d10);
-  d9.fill(-15.0);
-  vnl_copy(d10, d9);
-  TEST("vnl_copy(T, S)", d9==d2, true);
-
-  {
-  vnl_matrix<double> m(5,10,1);
-  vnl_vector<double> vr = m.apply_rowwise(sum_vector);
-  for (unsigned int i = 0; i < vr.size(); ++i)
-    TEST("vr.apply_rowwise(sum_vector)", vr.get(i), 10);
-  vnl_vector<double> vc = m.apply_columnwise(sum_vector);
-  for (unsigned int i = 0; i < vc.size(); ++i)
-    TEST("vc.apply_columnwise(sum_vector)", vc.get(i), 5);
-  }
-
-}
-
 #ifdef LEAK
 static
 void test_leak()   // use top4.1 to watch memory usage.
@@ -607,7 +606,7 @@ void test_leak()   // use top4.1 to watch memory usage.
     test_double();
   }
 }
-#endif
+*/
 
 
 namespace {
@@ -623,22 +622,13 @@ namespace {
     vnl_matrix<T> r( 1, 3 );
     m.extract( r, 1, 2 );
     std::cout << "r=\n" << r << '\n';
-    TEST( "extract into existing matrix", r(0,0)==8 && r(0,1)==9 && r(0,2)==0, true );
+    EXPECT_EQ(r(0,0)==8 && r(0,1)==9 && r(0,2)==0, true );
   }
 } // end anonymous namespace
 
-
-static
-void test_matrix()
+TEST(vnl_matrix, extract)
 {
-  test_int();
-  test_float();
-  test_double();
-#ifdef LEAK
-  test_leak();
-#endif
-  test_extract( (double*)nullptr );
+    test_extract( (double*)nullptr );
 }
 
-TESTMAIN(test_matrix);
- */
+
