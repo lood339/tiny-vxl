@@ -32,7 +32,6 @@ public:
     // Contents are unspecified.
     vnl_matrix(unsigned int r, unsigned int c):base_class(r, c){}
     
-    
     //: Construct a matrix of size r rows by c columns, and all elements equal to v0
     // Complexity $O(r.c)$
     vnl_matrix(unsigned int r, unsigned int c, T const& v0):base_class(r, c){

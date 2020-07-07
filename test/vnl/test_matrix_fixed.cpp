@@ -246,13 +246,12 @@ TEST(vnl_matrix_fixed, test_int)
     EXPECT_EQ(
        ((m6*=m7),
         (m6(0,0)==19 && m6(0,1)==22 && m6(1,0)==43 && m6(1,1)==50)), true)<<"m6*=m7\n";
-    /*
-*/
+    
     /////////////////////////////////////////////////////////////////
     // Test `flatten_row_major` and `flatten_column_major` Methods //
     /////////////////////////////////////////////////////////////////
 
-    /*
+    
     {
         int data[16] = { 0,  1,  2,  3,
                          4,  5,  6,  7,
@@ -265,47 +264,46 @@ TEST(vnl_matrix_fixed, test_int)
         vnl_matrix_fixed<int, 2, 8> lg(data);
         vnl_matrix_fixed<int, 8, 2> wd(data);
 
-        TEST("sq.flatten_row_major", flat.is_equal(sq.flatten_row_major().as_vector(), 10e-6), true);
-        TEST("lg.flatten_row_major", flat.is_equal(lg.flatten_row_major().as_vector(), 10e-6), true);
-        TEST("wd.flatten_row_major", flat.is_equal(wd.flatten_row_major().as_vector(), 10e-6), true);
+        EXPECT_EQ(flat.is_equal(sq.flatten_row_major().as_vector(), 10e-6), true);
+        EXPECT_EQ(flat.is_equal(lg.flatten_row_major().as_vector(), 10e-6), true);
+        EXPECT_EQ(flat.is_equal(wd.flatten_row_major().as_vector(), 10e-6), true);
 
-        TEST("sq.flatten_column_major", flat.is_equal(sq.transpose().flatten_column_major().as_vector(), 10e-6), true);
-        TEST("lg.flatten_column_major", flat.is_equal(lg.transpose().flatten_column_major().as_vector(), 10e-6), true);
-        TEST("wd.flatten_column_major", flat.is_equal(wd.transpose().flatten_column_major().as_vector(), 10e-6), true);
+        EXPECT_EQ(flat.is_equal(sq.transpose().flatten_column_major().as_vector(), 10e-6), true);
+        EXPECT_EQ(flat.is_equal(lg.transpose().flatten_column_major().as_vector(), 10e-6), true);
+        EXPECT_EQ(flat.is_equal(wd.transpose().flatten_column_major().as_vector(), 10e-6), true);
     }
-    
-*/
+ 
 
-    /*
+   
   // additional tests
   int mvalues [] = {0,-2,2,0};
   vnl_int_2x2 m(mvalues); m0 = m;
   vnl_matrix<int> m3;
-  TEST("m(i,j)",
+  EXPECT_EQ(
        (m(0,0)==0 && m(0,1)==-2 && m(1,0)==2 && m(1,1)==0), true);
-  TEST("m.max_value()", m.max_value(),  2);
-  TEST("m.min_value()", m.min_value(), -2);
-  TEST("m.arg_max()",   m.arg_max(),   2);
-  TEST("m.arg_min()",   m.arg_min(),   1);
+  EXPECT_EQ(m.max_value(),  2);
+  EXPECT_EQ(m.min_value(), -2);
+  EXPECT_EQ(m.arg_max(),   2);
+  EXPECT_EQ(m.arg_min(),   1);
     
-  TEST("m.transpose()",
+  EXPECT_EQ(
        ((m0 = m.transpose()),
         (m0(0,0)==0 && m0(0,1)==2 && m0(1,0)==-2 && m0(1,1)==0)), true);
-  TEST("element_product(m,m)",
+  EXPECT_EQ(
        ((m0 = element_product(m,m)),
         (m0(0,0)==0 && m0(0,1)==4 && m0(1,0)==4 && m0(1,1)==0)), true);
-  TEST("element_quotient(m,[2])",
+  EXPECT_EQ(
        ((m2 = 2),
         (m0 = element_quotient(m,m2)),
         (m0(0,0)==0 && m0(0,1)==-1 && m0(1,0)==1 && m0(1,1)==0)), true);
-  TEST("m.extract(1,1,1,1)",
+  EXPECT_EQ(
        ((m3 = m.extract(1,1,1,1)),
         (m3.rows()==1 && m3.columns()==1 && m3(0,0)==m(1,1))), true);
-  TEST("m.update([4],1,1)",
+ 
+    EXPECT_EQ(
        ((m3=4),
         (m.update(m3,1,1)),
-        (m(0,0)==0 && m(0,1)==-2 && m(1,0)==2 && m(1,1)==4)), true);
-     */
+        (m(0,0)==0 && m(0,1)==-2 && m(1,0)==2 && m(1,1)==4)), true)<<"m.update([4],1,1)\n";
 }
 /*
 static
