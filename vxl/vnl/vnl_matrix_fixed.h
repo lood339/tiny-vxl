@@ -226,10 +226,6 @@ public:
     vnl_matrix_fixed& inplace_transpose();
     
     
-    
-    
-    
-    
     // ----------------------- Arithmetic --------------------------------
     // note that these functions should not pass scalar as a const&.
     // Look what would happen to A /= A(0,0).
@@ -274,8 +270,6 @@ public:
         add( data_block(), m.data_block(), data_block() ); return *this;
     }
     
-    
-    
     //:
     vnl_matrix_fixed& operator-= (vnl_matrix_fixed const& m)
     {
@@ -289,8 +283,6 @@ public:
         sub( data_block(), m.data_block(), data_block() );
         return *this;
     }
-    
-    
     
     //: Negate all elements of matrix
     vnl_matrix_fixed operator- () const
@@ -340,8 +332,7 @@ public:
     vnl_matrix_fixed& update(vnl_matrix<T> const&, unsigned top=0, unsigned left=0);
     
     //: Set values of this matrix to those of M, starting at [top,left]
-    vnl_matrix_fixed<T,num_rows,num_cols>& update(
-                                                  vnl_matrix_fixed<T,num_rows,num_cols> const& m,
+    vnl_matrix_fixed<T,num_rows,num_cols>& update(vnl_matrix_fixed<T,num_rows,num_cols> const& m,
                                                   unsigned top=0, unsigned left=0);
     
     //: Set the elements of the i'th column to v[i]  (No bounds checking)
@@ -651,6 +642,15 @@ public:
     
 };
 
+template<class T, unsigned num_rows, unsigned num_cols>
+vnl_matrix_fixed<T, num_rows, num_cols> &
+vnl_matrix_fixed<T, num_rows, num_cols>::operator=(const vnl_matrix<T>& rhs)
+{
+    assert(rhs.rows() == num_rows && rhs.columns() == num_cols);
+    std::memcpy(this->data(), rhs.data_block(), num_rows*num_cols * sizeof(T));
+    return *this;
+}
+
 // fill and copy
 template<typename T, unsigned nrows, unsigned ncols>
 vnl_matrix_fixed<T,nrows,ncols> & vnl_matrix_fixed<T,nrows,ncols>::fill(const T v)
@@ -659,6 +659,60 @@ vnl_matrix_fixed<T,nrows,ncols> & vnl_matrix_fixed<T,nrows,ncols>::fill(const T 
     return *this;
 }
 
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::fill_diagonal (T value)
+{
+    for (unsigned int i = 0; i < nrows && i < ncols; ++i)
+        (*this)(i, i) = value;
+    return *this;
+}
+
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_diagonal(vnl_vector<T> const& diag)
+{
+    assert(diag.size() >= nrows || diag.size() >= ncols);
+    // The length of the diagonal of a non-square matrix is the minimum of
+    // the matrix's width & height; that explains the "||" in the assert,
+    // and the "&&" in the upper bound for the "for".
+    for (unsigned int i = 0; i < nrows && i < ncols; ++i)
+        (*this)(i, i) = diag[i];
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::copy_in(T const *p)
+{
+    T* dp = this->data_block();
+    std::copy( p, p + nrows * ncols, dp );
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+void vnl_matrix_fixed<T,nrows,ncols>::copy_out(T *p) const
+{
+    T const* dp = this->data_block();
+    std::copy( dp, dp + nrows * ncols, p );
+}
+
+//: Transpose square matrix M in place.
+template <class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::inplace_transpose()
+{
+    assert(nrows==ncols); // cannot inplace_transpose non-square fixed size matrix
+    for (unsigned i = 0; i < nrows; ++i)
+        for (unsigned j = i+1; j < ncols; ++j)
+        {
+            T t = this->data_[i][j];
+            this->data_[i][j] = this->data_[j][i];
+            this->data_[j][i] = t;
+        }
+    return *this;
+}
 
 //: Return a vector with the content of the (main) diagonal
 template<typename T, unsigned nrows, unsigned ncols>
@@ -688,6 +742,57 @@ vnl_vector_fixed<T,nrows*ncols> vnl_matrix_fixed<T,nrows,ncols>::flatten_column_
 }
 ////--------------------------- Additions------------------------------------
 
+template <class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>
+vnl_matrix_fixed<T,nrows,ncols>
+::apply(T (*f)(T const&)) const
+{
+    vnl_matrix_fixed<T,nrows,ncols> ret;
+    for(int i = 0; i<this->rows(); ++i) {
+        for(int j = 0; j<this->cols(); ++j) {
+            ret(i, j) = f(this(i, j));
+        }
+    }
+    return ret;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>
+vnl_matrix_fixed<T,nrows,ncols>
+::apply(T (*f)(T)) const
+{
+    vnl_matrix_fixed<T,nrows,ncols> ret;
+    for(int i = 0; i<this->rows(); ++i) {
+        for(int j = 0; j<this->cols(); ++j) {
+            ret(i, j) = f(this(i, j));
+        }
+    }
+    return ret;
+}
+
+//: Make a vector by applying a function across rows.
+template <class T, unsigned nrows, unsigned ncols>
+vnl_vector_fixed<T,nrows>
+vnl_matrix_fixed<T,nrows,ncols>
+::apply_rowwise(T (*f)(vnl_vector_fixed<T,ncols> const&)) const
+{
+    vnl_vector_fixed<T,nrows> v;
+    for (unsigned int i = 0; i < nrows; ++i)
+        v.put(i,f(this->get_row(i)));
+    return v;
+}
+
+//: Make a vector by applying a function across columns.
+template <class T, unsigned nrows, unsigned ncols>
+vnl_vector_fixed<T,ncols>
+vnl_matrix_fixed<T,nrows,ncols>
+::apply_columnwise(T (*f)(vnl_vector_fixed<T,nrows> const&)) const
+{
+    vnl_vector_fixed<T,ncols> v;
+    for (unsigned int i = 0; i < ncols; ++i)
+        v.put(i,f(this->get_column(i)));
+    return v;
+}
 
 template<class T, unsigned nrows, unsigned ncols>
 vnl_matrix_fixed<T,ncols,nrows>
@@ -745,6 +850,95 @@ vnl_matrix_fixed<T,nrows,ncols>::update (vnl_matrix_fixed<T,nrows,ncols> const& 
     return *this;
 }
 
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_column(unsigned column_index, T const *v)
+{
+    for (unsigned int i = 0; i < nrows; ++i)
+        (*this)(i,column_index) = v[i];
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_column(unsigned column_index, vnl_vector<T> const &v)
+{
+    if (v.size() >= nrows)
+        set_column(column_index,v.data_block());
+    else
+        for (unsigned int i = 0; i < v.size(); ++i)
+            (*this)(i,column_index) = v[i];
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_column(unsigned column_index, vnl_vector_fixed<T,nrows> const &v)
+{
+    set_column(column_index,v.data_block());
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_column(unsigned column_index, T v)
+{
+    for (unsigned int j = 0; j < nrows; ++j)
+        (*this)(j, column_index) = v;
+    return *this;
+}
+
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_columns(unsigned starting_column, vnl_matrix<T> const& m)
+{
+    for (unsigned int j = 0; j < m.cols() && starting_column+j < ncols; ++j) // don't go too far right; possibly only use part of m
+        for (unsigned int i = 0; i < nrows && i < m.rows(); ++i) // smallest of the two heights; possibly only use part of m
+            (*this)(i, starting_column + j) = m(i,j);
+    return *this;
+}
+
+//--------------------------------------------------------------------------------
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_row(unsigned row_index, T const *v)
+{
+    for (unsigned int j = 0; j < ncols; ++j)
+        (*this)(row_index,j) = v[j];
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_row(unsigned row_index, vnl_vector<T> const &v)
+{
+    if (v.size() >= ncols)
+        set_row(row_index,v.data_block());
+    else
+        for (unsigned int j = 0; j < v.size(); ++j)
+            (*this)(row_index,j) = v[j];
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_row(unsigned row_index, vnl_vector_fixed<T,ncols> const &v)
+{
+    set_row(row_index,v.data_block());
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_row(unsigned row_index, T v)
+{
+    for (unsigned int j = 0; j < ncols; ++j)
+        (*this)(row_index,j) = v;
+    return *this;
+}
+
 //: Extract a sub-matrix of size r x c, starting at (top,left)
 //  Thus it contains elements  [top,top+r-1][left,left+c-1]
 template<typename T, unsigned nrows, unsigned ncols>
@@ -770,6 +964,101 @@ void vnl_matrix_fixed<T, nrows, ncols>::extract( vnl_matrix<T>& submatrix,
     for (unsigned int i = 0; i < rowz; i++)      // actual copy of all elements
         for (unsigned int j = 0; j < colz; j++)    // in submatrix
             submatrix(i, j) = (*this)(top+i, left+j);
+}
+
+//: Returns a copy of n rows, starting from "row"
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix<T>
+vnl_matrix_fixed<T,nrows,ncols>::get_n_rows (unsigned row, unsigned n) const
+{
+#ifndef NDEBUG
+    if (row + n > nrows)
+        vnl_error_matrix_row_index ("get_n_rows", row);
+#endif
+    
+    // Extract data rowwise.
+    unsigned int i = row;
+    unsigned int j = 0;
+    unsigned int p = n;
+    unsigned int q = this->cols();
+    
+    vnl_matrix<T> result = this->block(i, j, p, q);
+    return result;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix<T>
+vnl_matrix_fixed<T,nrows,ncols>::get_n_columns (unsigned column, unsigned n) const
+{
+#ifndef NDEBUG
+    if (column + n > ncols)
+        vnl_error_matrix_col_index ("get_n_columns", column);
+#endif
+    
+    unsigned int i = 0;
+    unsigned int j = column;
+    unsigned int p = this->rows();
+    unsigned int q = n;
+    
+    vnl_matrix<T> result = this->block(i, j, p, q);
+    //for (unsigned int c = 0; c < n; ++c)
+    //    for (unsigned int r = 0; r < this->num_rows; ++r)
+    //        result(r, c) = data[r][column + c];
+    return result;
+}
+
+//: Create a vector out of row[row_index].
+template<class T, unsigned nrows, unsigned ncols>
+vnl_vector_fixed<T,ncols> vnl_matrix_fixed<T,nrows,ncols>::get_row(unsigned row_index) const
+{
+#ifdef ERROR_CHECKING
+    if (row_index >= nrows)
+        vnl_error_matrix_row_index ("get_row", row_index);
+#endif
+    
+    vnl_vector_fixed<T,ncols> v = this->row(row_index);
+    //for (unsigned int j = 0; j < ncols; ++j)    // For each element in row
+    //    v[j] = this->data_[row_index][j];
+    return v;
+}
+
+//: Create a vector out of column[column_index].
+template<class T, unsigned nrows, unsigned ncols>
+vnl_vector_fixed<T,nrows> vnl_matrix_fixed<T,nrows,ncols>::get_column(unsigned column_index) const
+{
+#ifdef ERROR_CHECKING
+    if (column_index >= ncols)
+        vnl_error_matrix_col_index ("get_column", column_index);
+#endif
+    
+    vnl_vector_fixed<T,nrows> v = this->col(column_index);
+    //for (unsigned int j = 0; j < nrows; ++j)
+    //    v[j] = this->data_[j][column_index];
+    return v;
+}
+
+//: Create a vector out of row[row_index].
+template <class T, unsigned int nrows, unsigned int ncols>
+vnl_matrix<T>
+vnl_matrix_fixed<T,nrows,ncols>
+::get_rows(const vnl_vector<unsigned int> &i) const
+{
+    vnl_matrix<T> m(i.size(), this->cols());
+    for (unsigned int j = 0; j < i.size(); ++j)
+        m.set_row(j, this->get_row(i.get(j)));
+    return m;
+}
+
+//: Create a vector out of column[column_index].
+template <class T, unsigned int nrows, unsigned int ncols>
+vnl_matrix<T>
+vnl_matrix_fixed<T,nrows,ncols>
+::get_columns(const vnl_vector<unsigned int> & i) const
+{
+    vnl_matrix<T> m(this->rows(), i.size());
+    for (unsigned int j = 0; j < i.size(); ++j)
+        m.set_column(j, this->get_column(i.get(j)));
+    return m;
 }
 
 template<typename T, unsigned nrows, unsigned ncols>
