@@ -95,6 +95,26 @@ public:
         return *this;
     }
     
+    //: Put value at given position in vector.
+    inline void put (unsigned int i, T const& v)
+    {
+#if VNL_CONFIG_CHECK_BOUNDS
+        if (i >= this->size())           // If invalid index specified
+            vnl_error_vector_index("put", i); // Raise exception
+#endif
+        (*this)(i) = v;
+    }
+    
+    //: Get value at element i
+    T get(unsigned int i) const {return (*this)(i);}
+    
+    //: Set all values to v
+    vnl_vector_fixed& fill( T const& v )
+    {
+        this->setConstant(v);
+        return *this;
+    }
+    
     //: Access the contiguous block storing the elements in the vector.
     //  O(1).
     //  data_block()[0] is the first element of the vector

@@ -522,11 +522,11 @@ public:
     
     //: Access the contiguous block storing the elements in the matrix row-wise. O(1).
     // 1d array, row-major order.
-    T const* data_block() const;// { return data[0]; }
+    T const* data_block() const {return this->data();}
     
     //: Access the contiguous block storing the elements in the matrix row-wise. O(1).
     // 1d array, row-major order.
-    T      * data_block();// { return data[0]; }
+    T      * data_block() {return this->data();}
     
     //: Access the 2D array, so that elements can be accessed with array[row][col] directly.
     //  2d array, [row][column].

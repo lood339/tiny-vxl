@@ -13,6 +13,7 @@
 #include <vnl/vnl_error.h>
 #include <vnl/vnl_numeric_traits.h>
 #include <vnl/vnl_matrix.h>
+#include <vnl/vnl_math.h>
 
 template <typename T> class vnl_vector;
 template <typename T, unsigned int n> class vnl_vector_fixed;
@@ -498,20 +499,20 @@ public:
     
     //: Return largest absolute value
     abs_t absolute_value_max() const { return array_inf_norm(); }
-     */
+    
     // $ || M ||_1 := \max_j \sum_i | M_{ij} | $
     abs_t operator_one_norm() const;
     
     // $ || M ||_\inf := \max_i \sum_j | M_{ij} | $
     abs_t operator_inf_norm() const;
-    
-    /*
+    */
+   
     //: Return Frobenius norm of matrix (sqrt of sum of squares of its elements)
-    abs_t frobenius_norm() const { return vnl_c_vector<T>::two_norm(begin(), size()); }
+    abs_t frobenius_norm() const { return this->norm(); }
     
     //: Return Frobenius norm of matrix (sqrt of sum of squares of its elements)
     abs_t fro_norm() const { return frobenius_norm(); }
-    */
+    
     
     //: Return RMS of all elements
     //abs_t rms() const { return vnl_c_vector<T>::rms_norm(begin(), size()); }
@@ -740,6 +741,117 @@ vnl_vector_fixed<T,nrows*ncols> vnl_matrix_fixed<T,nrows,ncols>::flatten_column_
             v[c*nrows+r] = (*this)(r,c);
     return v;
 }
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::set_identity()
+{
+    // Two simple loops are generally better than having a branch inside
+    // the loop. Probably worth the O(n) extra writes.
+    this->setConstant(T(0));
+    for (unsigned int i = 0; i < nrows && i < ncols; ++i)
+        (*this)(i, i) = T(1);
+    return *this;
+}
+
+//: Make each row of the matrix have unit norm.
+// All-zero rows are ignored.
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::normalize_rows()
+{
+    /*
+    for (unsigned int i = 0; i < nrows; ++i)
+    {
+        abs_t norm(0); // double will not do for all types.
+        for (unsigned int j = 0; j < ncols; ++j)
+            norm += vnl_math::squared_magnitude( this->data_[i][j] );
+        
+        if (norm != 0)
+        {
+            typedef typename vnl_numeric_traits<abs_t>::real_t real_t;
+            real_t scale = real_t(1)/std::sqrt((real_t)norm);
+            for (unsigned int j = 0; j < ncols; ++j)
+            {
+                // FIXME need correct rounding here
+                // There is e.g. no *standard* operator*=(complex<float>, double), hence the T() cast.
+                (*this)(i, j)[i][j] *= T(scale);
+            }
+        }
+    }
+     */
+    this->rowwise().normalize();
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::normalize_columns()
+{
+    /*
+    for (unsigned int j = 0; j < ncols; ++j) {  // For each column in the Matrix
+        abs_t norm(0); // double will not do for all types.
+        for (unsigned int i = 0; i < nrows; ++i)
+            norm += vnl_math::squared_magnitude( this->data_[i][j] );
+        
+        if (norm != 0)
+        {
+            typedef typename vnl_numeric_traits<abs_t>::real_t real_t;
+            real_t scale = real_t(1)/std::sqrt((real_t)norm);
+            for (unsigned int i = 0; i < nrows; ++i)
+            {
+                // FIXME need correct rounding here
+                // There is e.g. no *standard* operator*=(complex<float>, double), hence the T() cast.
+                this->data_[i][j] *= T(scale);
+            }
+        }
+    }
+     */
+    this->colwise().normalize();
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::scale_row(unsigned row_index, T value)
+{
+#ifndef NDEBUG
+    if (row_index >= nrows)
+        vnl_error_matrix_row_index("scale_row", row_index);
+#endif
+    for (unsigned int j = 0; j < ncols; ++j)
+        (*this)(row_index, j) *= value;
+    return *this;
+}
+
+template<class T, unsigned nrows, unsigned ncols>
+vnl_matrix_fixed<T,nrows,ncols>&
+vnl_matrix_fixed<T,nrows,ncols>::scale_column(unsigned column_index, T value)
+{
+#ifndef NDEBUG
+    if (column_index >= ncols)
+        vnl_error_matrix_col_index("scale_column", column_index);
+#endif
+    for (unsigned int j = 0; j < nrows; ++j)
+        (*this)(j, column_index) *= value;
+    return *this;
+}
+
+template <class T, unsigned int nrows, unsigned int ncols>
+void
+vnl_matrix_fixed<T,nrows,ncols>
+::swap(vnl_matrix_fixed<T,nrows,ncols> &that)
+{
+    for (unsigned int r = 0; r < nrows; ++r)
+    {
+        for (unsigned int c = 0; c < ncols; ++c)
+        {
+            std::swap((*this)(r, c), that(r, c));
+        }
+    }
+}
+
+
 ////--------------------------- Additions------------------------------------
 
 template <class T, unsigned nrows, unsigned ncols>
@@ -764,7 +876,7 @@ vnl_matrix_fixed<T,nrows,ncols>
     vnl_matrix_fixed<T,nrows,ncols> ret;
     for(int i = 0; i<this->rows(); ++i) {
         for(int j = 0; j<this->cols(); ++j) {
-            ret(i, j) = f(this(i, j));
+            ret(i, j) = f((*this)(i, j));
         }
     }
     return ret;
@@ -1090,6 +1202,106 @@ T vnl_matrix_fixed<T,nrows,ncols>::max_value() const {
     unsigned int r, c;
     T max_v = this->maxCoeff(&r, &c);
     return max_v;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+bool
+vnl_matrix_fixed<T,nrows,ncols>::is_identity() const
+{
+    T const zero(0);
+    T const one(1);
+    for (unsigned int i = 0; i < nrows; ++i)
+        for (unsigned int j = 0; j < ncols; ++j)
+        {
+            T xm = (*this)(i, j);
+            if ( !((i == j) ? (xm == one) : (xm == zero)) )
+                return false;
+        }
+    return true;
+}
+
+//: Return true if maximum absolute deviation of M from identity is <= tol.
+template <class T, unsigned nrows, unsigned ncols>
+bool
+vnl_matrix_fixed<T,nrows,ncols>::is_identity(double tol) const
+{
+    T one(1);
+    for (unsigned int i = 0; i < nrows; ++i)
+        for (unsigned int j = 0; j < ncols; ++j)
+        {
+            T xm = (*this)(i, j);
+            abs_t absdev = (i == j) ? vnl_math::abs(xm - one) : vnl_math::abs(xm);
+            if (absdev > tol)
+                return false;
+        }
+    return true;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+bool
+vnl_matrix_fixed<T,nrows,ncols>::is_zero() const
+{
+    T const zero(0);
+    for (unsigned int i = 0; i < nrows; ++i)
+        for (unsigned int j = 0; j < ncols; ++j)
+            if ( !( (*this)(i, j) == zero) )
+                return false;
+    
+    return true;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+bool vnl_matrix_fixed<T,nrows,ncols>
+::is_equal(vnl_matrix_fixed<T,nrows,ncols> const& rhs, double tol) const
+{
+    if (this == &rhs)                                      // same object => equal.
+        return true;
+    
+    if (this->rows() != rhs.rows() || this->cols() != rhs.cols())
+        return false;                                        // different sizes => not equal.
+    
+    for (unsigned int i = 0; i < nrows; ++i)
+        for (unsigned int j = 0; j < ncols; ++j)
+            if (vnl_math::abs((*this)(i, j) - rhs(i, j)) > tol)
+                return false;                                    // difference greater than tol
+    
+    return true;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+bool
+vnl_matrix_fixed<T,nrows,ncols>::is_zero(double tol) const
+{
+    for (unsigned int i = 0; i < nrows; ++i)
+        for (unsigned int j = 0; j < ncols; ++j)
+            if (vnl_math::abs((*this)(i, j)) > tol)
+                return false;
+    
+    return true;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+bool
+vnl_matrix_fixed<T,nrows,ncols>::has_nans() const
+{
+    for (unsigned int i = 0; i < nrows; ++i)
+        for (unsigned int j = 0; j < ncols; ++j)
+            if (vnl_math::isnan((*this)(i, j)))
+                return true;
+    
+    return false;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+bool
+vnl_matrix_fixed<T,nrows,ncols>::is_finite() const
+{
+    for (unsigned int i = 0; i < nrows; ++i)
+        for (unsigned int j = 0; j < ncols; ++j)
+            if (!vnl_math::isfinite((*this)(i, j)))
+                return false;
+    
+    return true;
 }
 
 // implement + - * / and equal
