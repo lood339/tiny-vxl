@@ -8,9 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B08249F1A7D0020843E /* test_main.cpp */; };
-		BF062B2C249F1A7D0020843E /* test_matrix_fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B1A249F1A7D0020843E /* test_matrix_fixed.cpp */; };
 		BF062B31249F1C4C0020843E /* test_vector_fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */; };
-		BFE0232824A30E1700936454 /* test_svd.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFE0232724A30E1700936454 /* test_svd.cpp */; };
+		BF11F70824B81A2B009BBF97 /* test_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF11F70724B81A2B009BBF97 /* test_vector.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,15 +33,14 @@
 		BF062ADE249E99C40020843E /* vnl_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_vector.h; sourceTree = "<group>"; };
 		BF062ADF249E99C40020843E /* vnl_diag_matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_diag_matrix.h; sourceTree = "<group>"; };
 		BF062B08249F1A7D0020843E /* test_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_main.cpp; sourceTree = "<group>"; };
-		BF062B1A249F1A7D0020843E /* test_matrix_fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_matrix_fixed.cpp; sourceTree = "<group>"; };
 		BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_vector_fixed.cpp; sourceTree = "<group>"; };
 		BF0A75D824723D3F00DD8BB6 /* vxl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vxl; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0E22FA24AC3C53003C181C /* vnl_cross.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_cross.h; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
+		BF11F70724B81A2B009BBF97 /* test_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_vector.cpp; sourceTree = "<group>"; };
 		BFCB58BB24AD5D5B00966C69 /* vnl_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_math.h; sourceTree = "<group>"; };
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
 		BFE0232324A3098500936454 /* vnl_numeric_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_numeric_traits.h; sourceTree = "<group>"; };
-		BFE0232724A30E1700936454 /* test_svd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_svd.cpp; sourceTree = "<group>"; };
 		BFE8646424A908CB00FC848F /* vnl_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_error.h; sourceTree = "<group>"; };
 		BFE8646524A9171800FC848F /* vnl_random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_random.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -111,7 +109,7 @@
 			children = (
 				BFE0232624A30E1700936454 /* algo */,
 				BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */,
-				BF062B1A249F1A7D0020843E /* test_matrix_fixed.cpp */,
+				BF11F70724B81A2B009BBF97 /* test_vector.cpp */,
 			);
 			path = vnl;
 			sourceTree = "<group>";
@@ -136,7 +134,6 @@
 		BFE0232624A30E1700936454 /* algo */ = {
 			isa = PBXGroup;
 			children = (
-				BFE0232724A30E1700936454 /* test_svd.cpp */,
 			);
 			path = algo;
 			sourceTree = "<group>";
@@ -197,9 +194,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BF062B2C249F1A7D0020843E /* test_matrix_fixed.cpp in Sources */,
 				BF062B31249F1C4C0020843E /* test_vector_fixed.cpp in Sources */,
-				BFE0232824A30E1700936454 /* test_svd.cpp in Sources */,
+				BF11F70824B81A2B009BBF97 /* test_vector.cpp in Sources */,
 				BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
