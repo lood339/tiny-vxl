@@ -490,10 +490,10 @@ public:
     
     //: Return square root of sum of squared absolute element values
     abs_t array_two_norm() const { return vnl_c_vector<T>::two_norm(begin(), size()); }
-    
+    */
     //: Return largest absolute element value
-    abs_t array_inf_norm() const { return vnl_c_vector<T>::inf_norm(begin(), size()); }
-   
+    abs_t array_inf_norm() const { return this->template lpNorm<Eigen::Infinity>(); }
+   /*
     //: Return sum of absolute values of elements
     abs_t absolute_value_sum() const { return array_one_norm(); }
     
