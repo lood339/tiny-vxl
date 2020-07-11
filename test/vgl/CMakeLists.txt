@@ -14,8 +14,8 @@ add_executable(vgl_test_all
   test_convex.cpp
   test_frustum_3d.cpp
   test_infinite_line_3d.cpp
-  test_line_segment_3d.cpp
   test_line_3d_2_points.cpp
+  test_line_segment_3d.cpp
   test_oriented_box_2d.cpp
   test_plane_3d.cpp
   test_polygon.cpp

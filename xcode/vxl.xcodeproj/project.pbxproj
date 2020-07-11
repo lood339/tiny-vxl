@@ -10,6 +10,9 @@
 		BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B08249F1A7D0020843E /* test_main.cpp */; };
 		BF062B31249F1C4C0020843E /* test_vector_fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */; };
 		BF11F70824B81A2B009BBF97 /* test_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF11F70724B81A2B009BBF97 /* test_vector.cpp */; };
+		BFF406CC24BA690800B8265B /* test_matrix_fixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF406C924BA690700B8265B /* test_matrix_fixed.cpp */; };
+		BFF406CD24BA690800B8265B /* test_matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF406CA24BA690700B8265B /* test_matrix.cpp */; };
+		BFF406CE24BA690800B8265B /* test_diag_matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF406CB24BA690800B8265B /* test_diag_matrix.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,6 +46,9 @@
 		BFE0232324A3098500936454 /* vnl_numeric_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_numeric_traits.h; sourceTree = "<group>"; };
 		BFE8646424A908CB00FC848F /* vnl_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_error.h; sourceTree = "<group>"; };
 		BFE8646524A9171800FC848F /* vnl_random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_random.h; sourceTree = "<group>"; };
+		BFF406C924BA690700B8265B /* test_matrix_fixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_matrix_fixed.cpp; sourceTree = "<group>"; };
+		BFF406CA24BA690700B8265B /* test_matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_matrix.cpp; sourceTree = "<group>"; };
+		BFF406CB24BA690800B8265B /* test_diag_matrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_diag_matrix.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +116,9 @@
 				BFE0232624A30E1700936454 /* algo */,
 				BF062B30249F1C4C0020843E /* test_vector_fixed.cpp */,
 				BF11F70724B81A2B009BBF97 /* test_vector.cpp */,
+				BFF406CB24BA690800B8265B /* test_diag_matrix.cpp */,
+				BFF406C924BA690700B8265B /* test_matrix_fixed.cpp */,
+				BFF406CA24BA690700B8265B /* test_matrix.cpp */,
 			);
 			path = vnl;
 			sourceTree = "<group>";
@@ -194,7 +203,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BFF406CD24BA690800B8265B /* test_matrix.cpp in Sources */,
+				BFF406CE24BA690800B8265B /* test_diag_matrix.cpp in Sources */,
 				BF062B31249F1C4C0020843E /* test_vector_fixed.cpp in Sources */,
+				BFF406CC24BA690800B8265B /* test_matrix_fixed.cpp in Sources */,
 				BF11F70824B81A2B009BBF97 /* test_vector.cpp in Sources */,
 				BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */,
 			);

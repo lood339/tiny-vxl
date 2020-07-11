@@ -40,68 +40,22 @@ public:
     vnl_vector_fixed( vnl_vector_fixed<T,n>&& rhs ) = default;
     //: Copy operator
     vnl_vector_fixed<T,n>& operator=( const vnl_vector_fixed<T,n>& rhs ) = default;
-    /*
-    {
-        std::memcpy( this->data(), rhs.data(), num_bytes);
-        return *this;
-    }
-     */
     vnl_vector_fixed<T,n>& operator=( vnl_vector_fixed<T,n>&& rhs ) = default;
-    
     
     
     //: Construct a fixed-n-vector initialized from \a datablck
     //  The data \e must have enough data. No checks performed.
-    explicit vnl_vector_fixed( const T* datablck )
-    {
-        std::memcpy( this->data(), datablck, num_bytes);
-    }
+    explicit vnl_vector_fixed( const T* datablck ) { std::memcpy( this->data(), datablck, num_bytes);}
     
     //: Convenience constructor for 2-D vectors
-    // While this constructor is sometimes useful, consider using
-    // vnl_double_2 or vnl_float_2 instead.
-    vnl_vector_fixed( const T& x0, const T& x1 )
-    {
-        if ( n != 2 )
-        {
-#ifndef NDEBUG
-            vnl_error_vector_dimension("vnl_vector_fixed()", 2, n);
-#endif
-            return;
-        }
-        T* data = this->data();
-        data[0] = x0; data[1] = x1;
-    }
+    vnl_vector_fixed( const T& x0, const T& x1 );
     
     //: Convenience constructor for 3-D vectors
-    // While this constructor is sometimes useful, consider using
-    // vnl_double_3 or vnl_float_3 instead.
-    vnl_vector_fixed( const T& x0, const T& x1, const T& x2 )
-    {
-        if ( n != 3 )
-        {
-#ifndef NDEBUG
-            vnl_error_vector_dimension("vnl_vector_fixed()", 3, n);
-#endif
-            return;
-        }
-        T* data = this->data();
-        data[0] = x0; data[1] = x1; data[2] = x2;
-    }
+    vnl_vector_fixed( const T& x0, const T& x1, const T& x2 );
     
     //: Convenience constructor for 4-D vectors
-    vnl_vector_fixed( const T& x0, const T& x1, const T& x2, const T& x3 )
-    {
-        if ( n != 4 )
-        {
-#ifndef NDEBUG
-            vnl_error_vector_dimension("vnl_vector_fixed()", 4, n);
-#endif
-            return;
-        }
-        T* data = this->data();
-        data[0] = x0; data[1] = x1; data[2] = x2; data[3] = x3;
-    }
+    vnl_vector_fixed( const T& x0, const T& x1, const T& x2, const T& x3 );
+    
    
     // This constructor allows us to construct vnl_vector_fixed from Eigen expressions
     template<typename OtherDerived>
@@ -349,24 +303,9 @@ public:
     bool empty() const { return n==0; }
     
     //: Return true if *this == v
-    bool operator_eq (vnl_vector_fixed<T,n> const& v) const
-    {
-        for ( unsigned i = 0; i < n; ++i )
-            if ( (*this)[i] != v[i] )
-                return false;
-        return true;
-    }
-    
+    bool operator_eq (vnl_vector_fixed<T,n> const& v) const;
     //: Return true if *this == v
-    bool operator_eq (vnl_vector<T> const& v) const
-    {
-        assert( v.size() == n );
-        for ( unsigned i = 0; i < n; ++i )
-            if ( (*this)[i] != v[i] )
-                return false;
-        return true;
-    }
-
+    bool operator_eq (vnl_vector<T> const& v) const;
     
     // help functions
     inline static void add( const T* a, const T* b, T* r )
@@ -424,6 +363,51 @@ public:
     }
 };
 
+template<class T, unsigned int n>
+vnl_vector_fixed<T,n>::vnl_vector_fixed( const T& x0, const T& x1 )
+{
+    if ( n != 2 )
+    {
+#ifndef NDEBUG
+        vnl_error_vector_dimension("vnl_vector_fixed()", 2, n);
+#endif
+        return;
+    }
+    T* data = this->data();
+    data[0] = x0; data[1] = x1;
+}
+
+//: Convenience constructor for 3-D vectors
+// While this constructor is sometimes useful, consider using
+// vnl_double_3 or vnl_float_3 instead.
+template<class T, unsigned int n>
+vnl_vector_fixed<T,n>::vnl_vector_fixed( const T& x0, const T& x1, const T& x2 )
+{
+    if ( n != 3 )
+    {
+#ifndef NDEBUG
+        vnl_error_vector_dimension("vnl_vector_fixed()", 3, n);
+#endif
+        return;
+    }
+    T* data = this->data();
+    data[0] = x0; data[1] = x1; data[2] = x2;
+}
+
+//: Convenience constructor for 4-D vectors
+template<class T, unsigned int n>
+vnl_vector_fixed<T,n>::vnl_vector_fixed( const T& x0, const T& x1, const T& x2, const T& x3 )
+{
+    if ( n != 4 )
+    {
+#ifndef NDEBUG
+        vnl_error_vector_dimension("vnl_vector_fixed()", 4, n);
+#endif
+        return;
+    }
+    T* data = this->data();
+    data[0] = x0; data[1] = x1; data[2] = x2; data[3] = x3;
+}
 
 template<class T, unsigned int n>
 vnl_vector_fixed<T,n>
@@ -541,6 +525,26 @@ vnl_vector_fixed<T,n>::is_zero() const
         if ( !( (*this)[i] == zero) )
             return false;
     
+    return true;
+}
+
+template <class T, unsigned int n>
+bool vnl_vector_fixed<T,n>::operator_eq (vnl_vector_fixed<T,n> const& v) const
+{
+    for ( unsigned i = 0; i < n; ++i )
+        if ( (*this)[i] != v[i] )
+            return false;
+    return true;
+}
+
+//: Return true if *this == v
+template <class T, unsigned int n>
+bool vnl_vector_fixed<T,n>::operator_eq (vnl_vector<T> const& v) const
+{
+    assert( v.size() == n );
+    for ( unsigned i = 0; i < n; ++i )
+        if ( (*this)[i] != v[i] )
+            return false;
     return true;
 }
 

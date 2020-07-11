@@ -782,5 +782,4 @@ vnl_vector_test_leak() // use top4.1 to watch for memory.
 #  define LEAK 0
 #endif
 
-
 */
