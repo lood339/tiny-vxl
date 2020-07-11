@@ -308,7 +308,7 @@ TEST(vnl_vector, test_int)
     }
 }
 
-bool
+static bool
 float_equal(const float & f1, const float & f2)
 {
     return std::fabs(f1 - f2) < 1.0e-6;

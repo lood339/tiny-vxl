@@ -40,7 +40,15 @@ public:
     vnl_vector_fixed( vnl_vector_fixed<T,n>&& rhs ) = default;
     //: Copy operator
     vnl_vector_fixed<T,n>& operator=( const vnl_vector_fixed<T,n>& rhs ) = default;
+    /*
+    {
+        std::memcpy( this->data(), rhs.data(), num_bytes);
+        return *this;
+    }
+     */
     vnl_vector_fixed<T,n>& operator=( vnl_vector_fixed<T,n>&& rhs ) = default;
+    
+    
     
     //: Construct a fixed-n-vector initialized from \a datablck
     //  The data \e must have enough data. No checks performed.
@@ -94,17 +102,18 @@ public:
         T* data = this->data();
         data[0] = x0; data[1] = x1; data[2] = x2; data[3] = x3;
     }
-    
+   
     // This constructor allows us to construct vnl_vector_fixed from Eigen expressions
     template<typename OtherDerived>
     vnl_vector_fixed(const Eigen::MatrixBase<OtherDerived>& other):
         base_class(other)
-    {}
-    
+    {assert(other.size() == n);}
+     
     // This method allows us to assign Eigen expressions to vnl_vector_fixed
     template<typename OtherDerived>
     vnl_vector_fixed& operator=(const Eigen::MatrixBase<OtherDerived>& other)
     {
+        assert(other.size() == n);
         this->base_class::operator=(other);
         return *this;
     }
