@@ -13,6 +13,8 @@
 #include <vnl/vnl_error.h>
 #include <vnl/vnl_numeric_traits.h>
 #include <vnl/vnl_math.h>
+#include <vnl/vnl_vector.h>
+#include <vnl/vnl_matrix.h>
 
 // fixed length column vector
 
@@ -262,7 +264,7 @@ public:
     vnl_vector_fixed<T,n> operator-() const
     {
         vnl_vector_fixed<T,n> result;
-        this_class::sub( (T)0, this->data(), result->data() );
+        this_class::sub( (T)0, this->data(), result.data() );
         return result;
     }
     
@@ -432,6 +434,24 @@ vnl_vector_fixed<T,n>::apply( T (*f)(const T&) )
     for ( unsigned int i = 0; i < n; ++i )
         ret[i] = f( this->data()[i] );
     return ret;
+}
+
+template<class T, unsigned int n>
+vnl_vector_fixed<T,n>&
+vnl_vector_fixed<T,n>::update( const vnl_vector<T>& v, unsigned int start )
+{
+    unsigned stop = start + v.size();
+    assert( stop <= n );
+    for (unsigned i = start; i < stop; i++)
+        (*this)(i) = v[i-start];
+    return *this;
+}
+
+//: Smallest value
+template<class T, unsigned int n>
+T vnl_vector_fixed<T,n>::min_value() const
+{
+    return this->minCoeff();
 }
 
 //: Largest value
@@ -748,8 +768,12 @@ inline T dot_product( const vnl_vector<T>& a, const vnl_vector_fixed<T,n>& b )
 }
 
 //:
-// \relatesalso vnl_vector
-// \relatesalso vnl_vector_fixed
+template<class T, unsigned int n>
+inline vnl_matrix<T> outer_product( const vnl_vector_fixed<T,n>& a, const vnl_vector_fixed<T,n>& b )
+{
+    return outer_product( a.as_vector(), b.as_vector());
+}
+
 template<class T, unsigned int n>
 inline vnl_matrix<T> outer_product( const vnl_vector<T>& a, const vnl_vector_fixed<T,n>& b )
 {
