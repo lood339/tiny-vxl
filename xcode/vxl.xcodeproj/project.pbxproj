@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B08249F1A7D0020843E /* test_main.cpp */; };
+		BFCF29D824BC174C009727AA /* test_h_matrix_3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFCF29D724BC174C009727AA /* test_h_matrix_3d.cpp */; };
 		BFF4071F24BA714600B8265B /* test_h_matrix_2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF4070F24BA714600B8265B /* test_h_matrix_2d.cpp */; };
-		BFF4072A24BA786E00B8265B /* test_inverse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF4072924BA786E00B8265B /* test_inverse.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +37,7 @@
 		BF0E22FA24AC3C53003C181C /* vnl_cross.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_cross.h; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
 		BFCB58BB24AD5D5B00966C69 /* vnl_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_math.h; sourceTree = "<group>"; };
+		BFCF29D724BC174C009727AA /* test_h_matrix_3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_h_matrix_3d.cpp; sourceTree = "<group>"; };
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
 		BFE0232324A3098500936454 /* vnl_numeric_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_numeric_traits.h; sourceTree = "<group>"; };
 		BFE8646424A908CB00FC848F /* vnl_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_error.h; sourceTree = "<group>"; };
@@ -48,7 +49,6 @@
 		BFF4070F24BA714600B8265B /* test_h_matrix_2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_h_matrix_2d.cpp; sourceTree = "<group>"; };
 		BFF4072724BA774700B8265B /* vnl_det.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_det.h; sourceTree = "<group>"; };
 		BFF4072824BA77C400B8265B /* vnl_inverse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_inverse.h; sourceTree = "<group>"; };
-		BFF4072924BA786E00B8265B /* test_inverse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_inverse.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +117,6 @@
 			isa = PBXGroup;
 			children = (
 				BFE0232624A30E1700936454 /* algo */,
-				BFF4072924BA786E00B8265B /* test_inverse.cpp */,
 			);
 			path = vnl;
 			sourceTree = "<group>";
@@ -188,6 +187,7 @@
 			isa = PBXGroup;
 			children = (
 				BFF4070F24BA714600B8265B /* test_h_matrix_2d.cpp */,
+				BFCF29D724BC174C009727AA /* test_h_matrix_3d.cpp */,
 			);
 			path = algo;
 			sourceTree = "<group>";
@@ -248,8 +248,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFF4072A24BA786E00B8265B /* test_inverse.cpp in Sources */,
 				BFF4071F24BA714600B8265B /* test_h_matrix_2d.cpp in Sources */,
+				BFCF29D824BC174C009727AA /* test_h_matrix_3d.cpp in Sources */,
 				BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
