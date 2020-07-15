@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B08249F1A7D0020843E /* test_main.cpp */; };
+		BF8E3F4D24BEB86100CD293B /* test_quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF8E3F4C24BEB86100CD293B /* test_quaternion.cpp */; };
 		BFCF29D824BC174C009727AA /* test_h_matrix_3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFCF29D724BC174C009727AA /* test_h_matrix_3d.cpp */; };
 		BFF4071F24BA714600B8265B /* test_h_matrix_2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF4070F24BA714600B8265B /* test_h_matrix_2d.cpp */; };
 /* End PBXBuildFile section */
@@ -36,6 +37,10 @@
 		BF0A75D824723D3F00DD8BB6 /* vxl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vxl; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0E22FA24AC3C53003C181C /* vnl_cross.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_cross.h; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
+		BF8E3F4B24BEB66B00CD293B /* vnl_quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_quaternion.h; sourceTree = "<group>"; };
+		BF8E3F4C24BEB86100CD293B /* test_quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_quaternion.cpp; sourceTree = "<group>"; };
+		BF8E3F4E24BEBF2100CD293B /* vgl_point_3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_point_3d.h; sourceTree = "<group>"; };
+		BF8E3F4F24BEBF3600CD293B /* vgl_homg_point_3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_homg_point_3d.h; sourceTree = "<group>"; };
 		BFCB58BB24AD5D5B00966C69 /* vnl_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_math.h; sourceTree = "<group>"; };
 		BFCF29D724BC174C009727AA /* test_h_matrix_3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_h_matrix_3d.cpp; sourceTree = "<group>"; };
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
@@ -88,6 +93,7 @@
 				BFE0232324A3098500936454 /* vnl_numeric_traits.h */,
 				BF115EDF24A59B93007EC319 /* vnl_export.h */,
 				BF0E22FA24AC3C53003C181C /* vnl_cross.h */,
+				BF8E3F4B24BEB66B00CD293B /* vnl_quaternion.h */,
 			);
 			name = vnl;
 			path = ../../vxl/vnl;
@@ -116,6 +122,7 @@
 		BF062B17249F1A7D0020843E /* vnl */ = {
 			isa = PBXGroup;
 			children = (
+				BF8E3F4C24BEB86100CD293B /* test_quaternion.cpp */,
 				BFE0232624A30E1700936454 /* algo */,
 			);
 			path = vnl;
@@ -160,6 +167,8 @@
 		BFF406D224BA707E00B8265B /* vgl */ = {
 			isa = PBXGroup;
 			children = (
+				BF8E3F4E24BEBF2100CD293B /* vgl_point_3d.h */,
+				BF8E3F4F24BEBF3600CD293B /* vgl_homg_point_3d.h */,
 				BFF406E724BA707E00B8265B /* algo */,
 			);
 			name = vgl;
@@ -249,6 +258,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BFF4071F24BA714600B8265B /* test_h_matrix_2d.cpp in Sources */,
+				BF8E3F4D24BEB86100CD293B /* test_quaternion.cpp in Sources */,
 				BFCF29D824BC174C009727AA /* test_h_matrix_3d.cpp in Sources */,
 				BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */,
 			);

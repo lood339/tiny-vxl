@@ -25,7 +25,7 @@
 #include <string>
 #include <iomanip>
 #include <cmath>
-//#include <vgl/vgl_homg_point_3d.h>
+#include <vgl/vgl_homg_point_3d.h>
 //#include <vgl/vgl_plane_3d.h>
 //#include <vgl/vgl_homg_plane_3d.h>
 #include "vgl_tolerance.h"
@@ -52,7 +52,6 @@ class vgl_point_3d
   //: Construct from 3-array.
   inline vgl_point_3d (const Type v[3]) : x_(v[0]), y_(v[1]), z_(v[2]) {}
 
-/*
   //: Construct from homogeneous point
   vgl_point_3d (vgl_homg_point_3d<Type> const& p);
 
@@ -60,8 +59,7 @@ class vgl_point_3d
   vgl_point_3d (vgl_plane_3d<Type> const& pl1,
                 vgl_plane_3d<Type> const& pl2,
                 vgl_plane_3d<Type> const& pl3);
-                */
-
+    
   //: Test for equality
   bool operator==(const vgl_point_3d<Type> &p) const;
   inline bool operator!=(vgl_point_3d<Type>const& p) const { return !operator==(p); }
@@ -95,6 +93,28 @@ class vgl_point_3d
   // \relatesalso vgl_point_3d
   std::istream& read(std::istream& is);
 };
+
+//: Construct from homogeneous point
+template <class Type>
+vgl_point_3d<Type>::vgl_point_3d(vgl_homg_point_3d<Type> const& p)
+: x_(p.x()/p.w()), y_(p.y()/p.w()), z_(p.z()/p.w()) // could be infinite!
+{
+}
+
+//: Construct from 3 planes (intersection).
+template <class Type>
+vgl_point_3d<Type>::vgl_point_3d(vgl_plane_3d<Type> const& pl1,
+                                 vgl_plane_3d<Type> const& pl2,
+                                 vgl_plane_3d<Type> const& pl3)
+{
+    vgl_homg_plane_3d<Type> h1(pl1.nx(), pl1.ny(), pl1.nz(), pl1.d());
+    vgl_homg_plane_3d<Type> h2(pl2.nx(), pl2.ny(), pl2.nz(), pl2.d());
+    vgl_homg_plane_3d<Type> h3(pl3.nx(), pl3.ny(), pl3.nz(), pl3.d());
+    vgl_homg_point_3d<Type> p(h1, h2, h3); // do homogeneous intersection
+    set(p.x()/p.w(), p.y()/p.w(), p.z()/p.w()); // could be infinite!
+}
+
+
 
 //  +-+-+ point_3d simple I/O +-+-+
 

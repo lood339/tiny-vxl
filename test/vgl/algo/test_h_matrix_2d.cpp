@@ -217,8 +217,9 @@ TEST(vgl_h_matrix_2d, norm_trans)
   double error = (sigma_x - 1) * (sigma_y - 1);
   TEST_NEAR("Transformed Variances", error + dg, 0.0, 1e-02);
 }
+ */
 
-
+/*
 static void
 test_compute_linear_points()
 {

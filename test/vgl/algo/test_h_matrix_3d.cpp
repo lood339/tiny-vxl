@@ -91,26 +91,25 @@ TEST(vgl_h_matrix_3d, constructors)
   }
 }
 
-/*
-static void
-test_identity_transform()
+TEST(vgl_h_matrix_3d, identity_transform)
 {
-  std::cout << "Testing identity transform on point\n";
-  vgl_h_matrix_3d<double> Id(vnl_double_4x4().set_identity());
-  vgl_homg_point_3d<double> p(4, 3, 2, 1), pp;
-  pp = Id(p);
-  std::cout << "Id = " << Id << '\n' << "p = " << p << " , Id(p) = " << pp << '\n';
-  vgl_point_3d<double> xp(p), xpp(pp);
-  double distance = std::sqrt((xp.x() - xpp.x()) * (xp.x() - xpp.x()) + (xp.y() - xpp.y()) * (xp.y() - xpp.y()) +
+    std::cout << "Testing identity transform on point\n";
+    vnl_matrix_fixed<double, 4, 4> I;
+    I.set_identity();
+    vgl_h_matrix_3d<double> Id(I);
+    vgl_homg_point_3d<double> p(4, 3, 2, 1), pp;
+    pp = Id(p);
+    std::cout << "Id = " << Id << '\n' << "p = " << p << " , Id(p) = " << pp << '\n';
+    vgl_point_3d<double> xp(p), xpp(pp);
+    double distance = std::sqrt((xp.x() - xpp.x()) * (xp.x() - xpp.x()) + (xp.y() - xpp.y()) * (xp.y() - xpp.y()) +
                               (xp.z() - xpp.z()) * (xp.z() - xpp.z()));
-  TEST_NEAR("identity", distance, 0.0, 1e-06);
+    ASSERT_NEAR(distance, 0.0, 1e-06);
 }
 
-static void
-test_perspective_transform()
+TEST(vgl_h_matrix_3d, perspective_transform)
 {
   std::cout << "Testing perspective transform on point\n";
-  vnl_double_4x4 M;
+  vnl_matrix_fixed<double, 4, 4> M;
   vgl_homg_point_3d<double> p(3, 2, 1), pp, ppp;
   M.put(0, 0, 1);
   M.put(0, 1, 2);
@@ -134,23 +133,15 @@ test_perspective_transform()
   vgl_point_3d<double> xp(p), xppp(ppp);
   double distance = std::sqrt((xp.x() - xppp.x()) * (xp.x() - xppp.x()) + (xp.y() - xppp.y()) * (xp.y() - xppp.y()) +
                               (xp.z() - xppp.z()) * (xp.z() - xppp.z()));
-  TEST_NEAR("perspective", distance, 0.0, 1e-06);
+  ASSERT_NEAR(distance, 0.0, 1e-06);
 }
 
-static void
-test_projective_basis()
-{
-  //
-  // projective basis 3d not yet implemented
-  //
-}
 
-static void
-test_rotation_about_axis()
+TEST(vgl_h_matrix_3d, rotation_about_axis)
 {
   vgl_h_matrix_3d<double> R;
   R.set_identity();
-  vnl_double_3 v(0, 0, 1.0);
+  vnl_vector_fixed<double, 3> v(0, 0, 1.0);
   R.set_rotation_about_axis(v, .785398); // rotate 45 degrees
   std::cout << "Rotation Matrix\n" << R << '\n';
   vgl_homg_point_3d<double> p(1, 0, 0, 1), pp; // point on x axis
@@ -159,9 +150,10 @@ test_rotation_about_axis()
   vgl_point_3d<double> xpp(pp);
   double distance =
     std::sqrt((xpp.x() - 0.707) * (xpp.x() - 0.707) + (xpp.y() - 0.707) * (xpp.y() - 0.707) + xpp.z() * xpp.z());
-  TEST_NEAR("rotation", distance, 0.0, 1e-03);
+  ASSERT_NEAR(distance, 0.0, 1e-03);
 }
 
+/*
 static void
 test_compute_linear_points()
 {
