@@ -136,7 +136,6 @@ TEST(vgl_h_matrix_3d, perspective_transform)
   ASSERT_NEAR(distance, 0.0, 1e-06);
 }
 
-
 TEST(vgl_h_matrix_3d, rotation_about_axis)
 {
   vgl_h_matrix_3d<double> R;
@@ -252,6 +251,8 @@ test_compute_linear_points()
   std::cout << " dist: " << dist << std::endl;
   TEST_NEAR("testing computed H2o", dist, 0.0, 5e-03);
 }
+ */
+/*
 static void
 test_compute_affine_points()
 {
@@ -358,6 +359,8 @@ test_compute_affine_points()
   std::cout << " dist: " << dist << std::endl;
   TEST_NEAR("testing computed H2a", dist, 0.0, 5e-03);
 }
+ */
+/*
 static void
 test_reflection_about_plane()
 {

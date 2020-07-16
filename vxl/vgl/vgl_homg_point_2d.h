@@ -17,10 +17,8 @@
 #include <iostream>
 #include "vgl_vector_2d.h"
 #include "vgl_point_2d.h"
-#include "vgl_fwd.h" // forward declare vgl_homg_line_2d
-#ifdef _MSC_VER
-#  include <vcl_msvc_warnings.h>
-#endif
+//#include "vgl_fwd.h" // forward declare vgl_homg_line_2d
+
 #include <cassert>
 //#include <vgl/vgl_homg_line_2d.h>
 

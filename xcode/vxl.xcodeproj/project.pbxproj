@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B08249F1A7D0020843E /* test_main.cpp */; };
-		BF8E3F4D24BEB86100CD293B /* test_quaternion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF8E3F4C24BEB86100CD293B /* test_quaternion.cpp */; };
+		BF4D971524C009BB007C865C /* test_proj_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF4D971424C009BB007C865C /* test_proj_camera.cpp */; };
 		BFCF29D824BC174C009727AA /* test_h_matrix_3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFCF29D724BC174C009727AA /* test_h_matrix_3d.cpp */; };
 		BFF4071F24BA714600B8265B /* test_h_matrix_2d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BFF4070F24BA714600B8265B /* test_h_matrix_2d.cpp */; };
 /* End PBXBuildFile section */
@@ -37,8 +37,10 @@
 		BF0A75D824723D3F00DD8BB6 /* vxl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vxl; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0E22FA24AC3C53003C181C /* vnl_cross.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_cross.h; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
+		BF4D971424C009BB007C865C /* test_proj_camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_proj_camera.cpp; sourceTree = "<group>"; };
+		BF4D971624C00CB9007C865C /* vgl_point_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_point_2d.h; sourceTree = "<group>"; };
+		BF4D971724C00CB9007C865C /* vgl_homg_point_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_homg_point_2d.h; sourceTree = "<group>"; };
 		BF8E3F4B24BEB66B00CD293B /* vnl_quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_quaternion.h; sourceTree = "<group>"; };
-		BF8E3F4C24BEB86100CD293B /* test_quaternion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_quaternion.cpp; sourceTree = "<group>"; };
 		BF8E3F4E24BEBF2100CD293B /* vgl_point_3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_point_3d.h; sourceTree = "<group>"; };
 		BF8E3F4F24BEBF3600CD293B /* vgl_homg_point_3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_homg_point_3d.h; sourceTree = "<group>"; };
 		BFCB58BB24AD5D5B00966C69 /* vnl_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_math.h; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 		BF062B07249F1A7D0020843E /* test */ = {
 			isa = PBXGroup;
 			children = (
+				BF4D971224C009BB007C865C /* vpgl */,
 				BFF4070424BA714600B8265B /* vgl */,
 				BF062B08249F1A7D0020843E /* test_main.cpp */,
 				BF062B17249F1A7D0020843E /* vnl */,
@@ -122,7 +125,6 @@
 		BF062B17249F1A7D0020843E /* vnl */ = {
 			isa = PBXGroup;
 			children = (
-				BF8E3F4C24BEB86100CD293B /* test_quaternion.cpp */,
 				BFE0232624A30E1700936454 /* algo */,
 			);
 			path = vnl;
@@ -147,6 +149,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		BF4D971224C009BB007C865C /* vpgl */ = {
+			isa = PBXGroup;
+			children = (
+				BF4D971424C009BB007C865C /* test_proj_camera.cpp */,
+			);
+			path = vpgl;
+			sourceTree = "<group>";
+		};
 		BFE0232624A30E1700936454 /* algo */ = {
 			isa = PBXGroup;
 			children = (
@@ -169,6 +179,8 @@
 			children = (
 				BF8E3F4E24BEBF2100CD293B /* vgl_point_3d.h */,
 				BF8E3F4F24BEBF3600CD293B /* vgl_homg_point_3d.h */,
+				BF4D971624C00CB9007C865C /* vgl_point_2d.h */,
+				BF4D971724C00CB9007C865C /* vgl_homg_point_2d.h */,
 				BFF406E724BA707E00B8265B /* algo */,
 			);
 			name = vgl;
@@ -258,7 +270,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BFF4071F24BA714600B8265B /* test_h_matrix_2d.cpp in Sources */,
-				BF8E3F4D24BEB86100CD293B /* test_quaternion.cpp in Sources */,
+				BF4D971524C009BB007C865C /* test_proj_camera.cpp in Sources */,
 				BFCF29D824BC174C009727AA /* test_h_matrix_3d.cpp in Sources */,
 				BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */,
 			);

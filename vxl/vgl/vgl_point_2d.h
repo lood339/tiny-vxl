@@ -15,12 +15,15 @@
 
 #include <iosfwd>
 #include <vector>
-#ifdef _MSC_VER
-#  include <vcl_msvc_warnings.h>
-#endif
-#include "vgl_fwd.h" // declare vgl_homg_point_2d and vgl_line_2d
-//#include "vgl_vector_2d.h"
 #include <cassert>
+#include <iostream>
+#include <iomanip>
+#include <string>
+
+#include <vgl/vgl_homg_point_2d.h>
+#include <vgl/vgl_line_2d.h>
+//#include "vgl_fwd.h" // declare vgl_homg_point_2d and vgl_line_2d
+//#include "vgl_vector_2d.h"
 
 //: Represents a cartesian 2D point
 template <class Type>
@@ -43,15 +46,12 @@ class vgl_point_2d
   //: Construct from 2-array.
   inline vgl_point_2d (Type const v[2]) : x_(v[0]), y_(v[1]) {}
 
-/*
   //: Construct from homogeneous point
   vgl_point_2d (vgl_homg_point_2d<Type> const& p);
 
   //: Construct from 2 lines (intersection).
   vgl_point_2d (vgl_line_2d<Type> const& l1,
                 vgl_line_2d<Type> const& l2);
-*/
-
 
 
   //: Test for equality
@@ -266,6 +266,24 @@ double cross_ratio(vgl_point_2d<T>const& p1, vgl_point_2d<T>const& p2,
   else return (Den_x*Num_x+Den_y*Num_y)/(Den_x*Den_x+Den_y*Den_y);
 }
 
+
+//: Construct from homogeneous point
+template <class Type>
+vgl_point_2d<Type>::vgl_point_2d(vgl_homg_point_2d<Type> const& p)
+: x_(p.x()/p.w()), y_(p.y()/p.w()) // could be infinite!
+{
+}
+
+//: Construct from 2 lines (intersection).
+template <class Type>
+vgl_point_2d<Type>::vgl_point_2d(vgl_line_2d<Type> const& l1,
+                                 vgl_line_2d<Type> const& l2)
+{
+    vgl_homg_line_2d<Type> h1(l1.a(), l1.b(), l1.c());
+    vgl_homg_line_2d<Type> h2(l2.a(), l2.b(), l2.c());
+    vgl_homg_point_2d<Type> p(h1, h2); // do homogeneous intersection
+    set(p.x()/p.w(), p.y()/p.w()); // could be infinite!
+}
 
 
 

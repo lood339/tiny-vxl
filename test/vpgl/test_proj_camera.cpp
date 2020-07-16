@@ -13,7 +13,7 @@
 #include <vgl/vgl_line_segment_3d.h>
 #include <vgl/vgl_homg_line_3d_2_points.h>
 #include <vgl/vgl_homg_plane_3d.h>
-//#include <vgl/algo/vgl_h_matrix_3d.h>
+#include <vgl/algo/vgl_h_matrix_3d.h>
 #include <vgl/vgl_ray_3d.h>
 
 #include <gtest/gtest.h>
@@ -22,91 +22,97 @@ TEST(project_camera, simple)
 {
     
   // Some matrices for testing.
-    Eigen::Matrix<double,3,4> identity_camera;
+    vnl_matrix_fixed<double,3,4> identity_camera;
     identity_camera.setZero();
     
     identity_camera(0,0) = identity_camera(1,1) = identity_camera(2,2) = 1;
     double random_list[12] = { 1, 15, 9, -1, 2, -6, -9, 7, -5, 6, 10, 0 };
-    Eigen::Matrix<double,3,4> random_matrix( random_list );
+    vnl_matrix_fixed<double,3,4> random_matrix( random_list );
     double random_list2[12] = { 10.6, 1.009, .676, .5, -13, -10, 8, 5, 88, -2, -100, 11 };
-    Eigen::Matrix<double,3,4> random_matrix2( random_list2 );
+    vnl_matrix_fixed<double,3,4> random_matrix2( random_list2 );
     double random_list3[12] = { 8.6, 66, -.8, 14, -.8, -100, 9.9, 2.4, 7, -1, -18, 90 };
-    Eigen::Matrix<double,3,4> random_matrix3( random_list3 );
+    vnl_matrix_fixed<double,3,4> random_matrix3( random_list3 );
     
-    
-   
     // Default constructor.
     vpgl_proj_camera<double> P1;
     EXPECT_EQ(true, identity_camera.isApprox(P1.get_matrix()) )<<"Default constructor\n";
-    /*
-  // Construct from array and vnl_fixed_matrix.
-  vpgl_proj_camera<double> P2( random_list );
-  EXPECT_EQ(P2.get_matrix(), random_matrix )<<"Array constructor\n";
+    
+    // Construct from array and vnl_fixed_matrix.
+    vpgl_proj_camera<double> P2( random_list );
+    EXPECT_EQ(P2.get_matrix(), random_matrix )<<"Array constructor\n";
 
-  vpgl_proj_camera<double> P3( random_matrix2 );
-  EXPECT_EQ(P3.get_matrix(), random_matrix2 )<< "vnl_fixed_matrix constructor\n";
-    */
+   
+    vpgl_proj_camera<double> P3( random_matrix2 );
+    EXPECT_EQ(P3.get_matrix(), random_matrix2 )<< "vnl_fixed_matrix constructor\n";
+ 
+    // Copy constructor and assignment.
+    vpgl_proj_camera<double> P4( P2 );
+    EXPECT_EQ( P4.get_matrix(), P2.get_matrix() )<<"Copy constructor\n";
 
-    /*
-  // Copy constructor and assignment.
-  vpgl_proj_camera<double> P4( P2 );
-  TEST( "Copy constructor", P4.get_matrix(), P2.get_matrix() );
+    vpgl_proj_camera<double> P5; P5 = P2;
+    EXPECT_EQ( P5.get_matrix(), P2.get_matrix() )<<"Assignment operator\n";
 
-  vpgl_proj_camera<double> P5; P5 = P2;
-  TEST( "Assignment operator", P5.get_matrix(), P2.get_matrix() );
+    P2 = P3;
+    EXPECT_EQ( P5.get_matrix() != P3.get_matrix(), true )<<"Assignment makes deep copy\n";
 
-  P2 = P3;
-  TEST( "Assignment makes deep copy", P5.get_matrix() != P3.get_matrix(), true );
+    // Setters.
+    P1.set_matrix( random_matrix );
+    EXPECT_EQ( P1.get_matrix(), random_matrix )<<"set_matrix from vnl\n";
+    P2.set_matrix( random_matrix2 );
+    EXPECT_EQ( P2.get_matrix(), random_matrix2 )<<"set_matrix from array\n";
 
-  // Setters.
-  P1.set_matrix( random_matrix );
-  TEST( "set_matrix from vnl", P1.get_matrix(), random_matrix );
-  P2.set_matrix( random_matrix2 );
-  TEST( "set_matrix from array", P2.get_matrix(), random_matrix2 );
+    // Point projection.
+    vgl_homg_point_3d<double> x1( 1, 4, 5 );
+    vgl_homg_point_2d<double> y1 = P1.project( x1 );
+    vnl_vector_fixed<double,3> y2 = random_matrix*vnl_vector_fixed<double,4>(1,4,5,1);
+    EXPECT_EQ(y2(0)/y1.x() - y2(1)/y1.y(), 0.0 )<<"point projection\n";
 
-  // Point projection.
-  vgl_homg_point_3d<double> x1( 1, 4, 5 );
-  vgl_homg_point_2d<double> y1 = P1.project( x1 );
-  vnl_vector_fixed<double,3> y2 = random_matrix*vnl_vector_fixed<double,4>(1,4,5,1);
-  TEST( "point projection", y2(0)/y1.x() - y2(1)/y1.y(), 0.0 );
-
-  // Line projection.
-  vgl_homg_point_3d<double> x2( 4, 3, -10 );
-  vgl_line_segment_3d<double> l1w( x1, x2 );
-  vgl_line_segment_2d<double> l1i = P1.project( l1w );
-  vgl_line_segment_2d<double> l1ib( P1.project( x1 ), P1.project( x2 ) );
-  TEST_NEAR( "line projection", l1i.b() * l1ib.c(), l1ib.b() * l1i.c(), 1e-06 );
-
-  // Point backprojection.
-  vgl_homg_point_2d<double> y3( 100, 12 );
-  vgl_homg_line_3d_2_points<double> l3 = P1.backproject( y3 );
-  vgl_homg_point_2d<double> y3b = P1.project( l3.point_finite() );
-  TEST_NEAR( "point backprojection", y3.x() * y3b.w(), y3b.x() * y3.w(), 1e-06 );
-  vgl_ray_3d<double> r = P1.backproject_ray( y3);
-  vgl_point_3d<double> c(P1.camera_center());
-  bool org = c==r.origin();
-  vgl_vector_3d<double> dirr = r.direction();
-  double dp = dot_product(l3.direction(), dirr);
-  TEST("Ray Origin", org, true);
-  TEST_NEAR("backprojected ray direction", dp, 1.0, 0.001);
-  //Point backprojection - ray direction
-  double actual_cam_list[12] ={437.5, 128.5575, -153.20889, 20153.20898,
+    // Line projection.
+    vgl_homg_point_3d<double> x2( 4, 3, -10 );
+    vgl_line_segment_3d<double> l1w( x1, x2 );
+    vgl_line_segment_2d<double> l1i = P1.project( l1w );
+    vgl_line_segment_2d<double> l1ib( P1.project( x1 ), P1.project( x2 ) );
+    ASSERT_NEAR(l1i.b() * l1ib.c(), l1ib.b() * l1i.c(), 1e-06 )<<"line projection\n";
+    
+    
+    // Point backprojection.
+    vgl_homg_point_2d<double> y3( 100, 12 );
+    vgl_homg_line_3d_2_points<double> l3 = P1.backproject( y3 );
+    vgl_homg_point_2d<double> y3b = P1.project( l3.point_finite() );
+    ASSERT_NEAR(y3.x() * y3b.w(), y3b.x() * y3.w(), 1e-06 )<<"point backprojection\n";
+    vgl_ray_3d<double> r = P1.backproject_ray( y3);
+    vgl_point_3d<double> c(P1.camera_center());
+    bool org = (c==r.origin());
+    std::cout<<"debug: "<<c<<std::endl;
+    std::cout<<"debug: "<<r.origin()<<std::endl;
+    std::cout<<"debug: "<<P1.camera_center()<<std::endl;
+    
+    vgl_vector_3d<double> dirr = r.direction();
+    double dp = dot_product(l3.direction(), dirr);
+    EXPECT_EQ(org, true)<<"Ray Origin";
+    ASSERT_NEAR(dp, 1.0, 0.001)<<"backprojected ray direction\n";
+    
+    //Point backprojection - ray direction
+    double actual_cam_list[12] ={437.5, 128.5575, -153.20889, 20153.20898,
                                0.0,  -206.5869, -434.42847, 20434.42968,
                                0.0,     0.642787, -0.76604,   100.7660};
-  vnl_matrix_fixed<double,3,4> act_cam_matrix(actual_cam_list);
-  vpgl_proj_camera<double> Pact(act_cam_matrix);
-  vgl_homg_point_3d<double> xc = Pact.camera_center();
-  double u=0, v=0;
-  Pact.project(0.0, 0.0, 0.0, u, v);
-  vgl_homg_point_2d<double> img_pt(u, v, 1.0);
-  vgl_homg_line_3d_2_points<double> line = Pact.backproject(img_pt);
-  vgl_homg_point_3d<double> inf_pt = line.point_infinite();
-  vgl_vector_3d<double> dir(inf_pt.x(), inf_pt.y(), inf_pt.z());
-  normalize(dir);
-  vgl_vector_3d<double> act_dir(-xc.x(), -xc.y(), -xc.z());
-  normalize(act_dir);
-  double er = (dir-act_dir).length();
-  TEST_NEAR("Ray direction actual", er, 0.0, 1.0e-6);
+    vnl_matrix_fixed<double,3,4> act_cam_matrix(actual_cam_list);
+    vpgl_proj_camera<double> Pact(act_cam_matrix);
+    vgl_homg_point_3d<double> xc = Pact.camera_center();
+    double u=0, v=0;
+    Pact.project(0.0, 0.0, 0.0, u, v);
+    vgl_homg_point_2d<double> img_pt(u, v, 1.0);
+    vgl_homg_line_3d_2_points<double> line = Pact.backproject(img_pt);
+    vgl_homg_point_3d<double> inf_pt = line.point_infinite();
+    vgl_vector_3d<double> dir(inf_pt.x(), inf_pt.y(), inf_pt.z());
+    normalize(dir);
+    vgl_vector_3d<double> act_dir(-xc.x(), -xc.y(), -xc.z());
+    normalize(act_dir);
+    double er = (dir-act_dir).length();
+    ASSERT_NEAR(er, 0.0, 1.0e-6)<<"Ray direction actual\n";
+    
+    
+    /*
   // Plane backprojection.
   P2.set_matrix( random_matrix );
   vgl_homg_line_2d<double> l4(1,-2,3);
