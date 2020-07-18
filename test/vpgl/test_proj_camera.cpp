@@ -86,6 +86,7 @@ TEST(project_camera, simple)
     std::cout<<"debug: "<<c<<std::endl;
     std::cout<<"debug: "<<r.origin()<<std::endl;
     std::cout<<"debug: "<<P1.camera_center()<<std::endl;
+    std::cout<<"The problem is in (NaN, NaN, NaN) != (NaN, NaN, NaN)"<<std::endl;
     
     vgl_vector_3d<double> dirr = r.direction();
     double dp = dot_product(l3.direction(), dirr);
@@ -110,124 +111,120 @@ TEST(project_camera, simple)
     normalize(act_dir);
     double er = (dir-act_dir).length();
     ASSERT_NEAR(er, 0.0, 1.0e-6)<<"Ray direction actual\n";
-    
-    
-    /*
-  // Plane backprojection.
-  P2.set_matrix( random_matrix );
-  vgl_homg_line_2d<double> l4(1,-2,3);
-  vgl_homg_plane_3d<double> plane4 = P2.backproject( l4 );
-  vgl_homg_point_3d<double> q1( 1, 0, 0, -plane4.a()/plane4.d() );
-  vgl_homg_point_3d<double> q2( 0, 1, 0, -plane4.b()/plane4.d() );
-  vgl_homg_point_3d<double> q3( 0, 0, 1, -plane4.c()/plane4.d() );
-  vgl_homg_point_2d<double> q1i = P2.project(q1);
-  vgl_homg_point_2d<double> q2i = P2.project(q2);
-  vgl_homg_point_2d<double> q3i = P2.project(q3);
-  TEST_NEAR( "plane backprojection1",
-             vgl_distance(l4,q1i)*vgl_distance(l4,q2i)*vgl_distance(l4,q3i), 0, 1e-06 );
+  
+   
+    // Plane backprojection.
+    P2.set_matrix( random_matrix );
+    vgl_homg_line_2d<double> l4(1,-2,3);
+    vgl_homg_plane_3d<double> plane4 = P2.backproject( l4 );
+    vgl_homg_point_3d<double> q1( 1, 0, 0, -plane4.a()/plane4.d() );
+    vgl_homg_point_3d<double> q2( 0, 1, 0, -plane4.b()/plane4.d() );
+    vgl_homg_point_3d<double> q3( 0, 0, 1, -plane4.c()/plane4.d() );
+    vgl_homg_point_2d<double> q1i = P2.project(q1);
+    vgl_homg_point_2d<double> q2i = P2.project(q2);
+    vgl_homg_point_2d<double> q3i = P2.project(q3);
+    ASSERT_NEAR(vgl_distance(l4,q1i)*vgl_distance(l4,q2i)*vgl_distance(l4,q3i), 0, 1e-06 )<<"plane backprojection1\n";
 
-  vgl_homg_line_2d<double> l5(-10,13,40);
-  l5.get_two_points(q1i, q2i);
-  vgl_homg_plane_3d<double> plane5a = P2.backproject( l5 );
-  vgl_homg_plane_3d<double> plane5b( P2.backproject(q2i).point_finite(),
+    vgl_homg_line_2d<double> l5(-10,13,40);
+    l5.get_two_points(q1i, q2i);
+    vgl_homg_plane_3d<double> plane5a = P2.backproject( l5 );
+    vgl_homg_plane_3d<double> plane5b( P2.backproject(q2i).point_finite(),
                                      P2.backproject(q1i).point_infinite(),
                                      P2.backproject(q2i).point_infinite() );
-  TEST_NEAR( "plane backprojection2",
-             plane5a.a()*plane5b.d(), plane5b.a()*plane5a.d(), 1e-06 );
+    ASSERT_NEAR(plane5a.a()*plane5b.d(), plane5b.a()*plane5a.d(), 1e-06 )<<"plane backprojection2\n";
 
-  // Test automatic SVD computation
-  P1.svd();
-  P1.set_matrix( random_matrix2 );
-  TEST_NEAR( "automatic svd computation", random_matrix2(2,3),
-             P1.svd()->recompose()(2,3), 1e-06 );
+    // Test automatic SVD computation
+    P1.svd();
+    P1.set_matrix( random_matrix2 );
+    ASSERT_NEAR(random_matrix2(2,3),
+             P1.svd()->recompose()(2,3), 1e-06 )<<"automatic svd computation\n";
 
-  // Test get_canonical_h
-  vpgl_proj_camera<double> P6( random_matrix );
-  vgl_h_matrix_3d<double> H = get_canonical_h( P6 );
-  vnl_matrix_fixed<double,3,4> I6 = P6.get_matrix() * H.get_matrix();
-  TEST( "get_canonical_h",
+    // Test get_canonical_h
+    vpgl_proj_camera<double> P6( random_matrix );
+    vgl_h_matrix_3d<double> H = get_canonical_h( P6 );
+    vnl_matrix_fixed<double,3,4> I6 = P6.get_matrix() * H.get_matrix();
+    EXPECT_EQ(
         std::fabs(I6(0,0)*I6(1,1)*I6(2,2)-1) < 1e-06 &&
         std::fabs(I6(1,0)*I6(2,0)*I6(0,1)*I6(2,1)*I6(0,2)*I6(1,2)*I6(0,3)*I6(1,3)*I6(2,3))< 1e-06,
-        true );
+        true )<< "get_canonical_h\n";
 
-  // Test camera center
-  vgl_homg_point_2d<double> q6 = P6.project( P6.camera_center() );
-  TEST_NEAR( "camera center computation", q6.x()*q6.y()*q6.w(), 0, 1e-06 );
+    // Test camera center
+    vgl_homg_point_2d<double> q6 = P6.project( P6.camera_center() );
+    ASSERT_NEAR(q6.x()*q6.y()*q6.w(), 0, 1e-06 )<< "camera center computation\n";
+    
+    // Test pre-multiply
+    double T1array[9] = {1,2,3,4,5,6,7,8,9};
+    vnl_matrix_fixed<double,3,3> T1( T1array );
+    P1.set_matrix( random_matrix3 );
+    P1 = premultiply( P1, T1 );
+    ASSERT_NEAR(P1.get_matrix()(1,2), (T1*random_matrix3)(1,2), 1e-06 )<<"pre-multiply\n";
 
-  // Test pre-multiply
-  double T1array[9] = {1,2,3,4,5,6,7,8,9};
-  vnl_matrix_fixed<double,3,3> T1( T1array );
-  P1.set_matrix( random_matrix3 );
-  P1 = premultiply( P1, T1 );
-  TEST_NEAR( "pre-multiply", P1.get_matrix()(1,2), (T1*random_matrix3)(1,2), 1e-06 );
+    // Test post-multiply
+    double T2array[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    vnl_matrix_fixed<double,4,4> T2( T2array );
+    P1.set_matrix( random_matrix2 );
+    P1 = postmultiply( P1, T2 );
+    ASSERT_NEAR(P1.get_matrix()(1,0), (random_matrix2*T2)(1,0), 1e-06 )<<"post-multiply\n";
 
-  // Test post-multiply
-  double T2array[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-  vnl_matrix_fixed<double,4,4> T2( T2array );
-  P1.set_matrix( random_matrix2 );
-  P1 = postmultiply( P1, T2 );
-  TEST_NEAR( "post-multiply", P1.get_matrix()(1,0), (random_matrix2*T2)(1,0), 1e-06 );
+    // Test automatic SVD computation
+    P1.set_matrix( random_matrix2 );
+    P1.svd();
+    P1.set_matrix( random_matrix3 );
+    ASSERT_NEAR(random_matrix3(2,3),
+             P1.svd()->recompose()(2,3), 1e-06 )<<"automatic svd computation\n";
 
-  // Test automatic SVD computation
-  P1.set_matrix( random_matrix2 );
-  P1.svd();
-  P1.set_matrix( random_matrix3 );
-  TEST_NEAR( "automatic svd computation", random_matrix3(2,3),
-             P1.svd()->recompose()(2,3), 1e-06 );
+    // Test basic projection method
+    vpgl_proj_camera<double> Pb;
+    Pb.set_matrix( random_matrix );
+    u = 0, v = 0;
+    double X = x1.x(), Y = x1.y(), Z = x1.z();
+    Pb.project(X, Y, Z, u, v);
+    ASSERT_NEAR(y2(0)/u - y2(1)/v, 0.0, 0.001)<<"base class point projection\n";
+    // Test ray intersection
+    vnl_matrix_fixed<double,3,4> identity, trans;
+    identity.set_identity();
+    trans.set_identity().put(0,3, -10);
+    vpgl_proj_camera<double> Pi(identity), Pt(trans);
+    vgl_point_3d<double> p3d;
+    vgl_point_2d<double> pi2d(0,0), pt2d(-1,0);
+    p3d = triangulate_3d_point(Pi, pi2d, Pt, pt2d);
+    ASSERT_NEAR(p3d.z(), 10, 1.0e-6)<<"test triangulate_3d\n";
 
-  // Test basic projection method
-  vpgl_proj_camera<double> Pb;
-  Pb.set_matrix( random_matrix );
-  u = 0, v = 0;
-  double X = x1.x(), Y = x1.y(), Z = x1.z();
-  Pb.project(X, Y, Z, u, v);
-  TEST_NEAR( "base class point projection", y2(0)/u - y2(1)/v, 0.0, 0.001);
-  // Test ray intersection
-  vnl_matrix_fixed<double,3,4> identity, trans;
-  identity.set_identity();
-  trans.set_identity().put(0,3, -10);
-  vpgl_proj_camera<double> Pi(identity), Pt(trans);
-  vgl_point_3d<double> p3d;
-  vgl_point_2d<double> pi2d(0,0), pt2d(-1,0);
-  p3d = triangulate_3d_point(Pi, pi2d, Pt, pt2d);
-  TEST_NEAR("test triangulate_3d", p3d.z(), 10, 1.0e-6);
+    P1.set_matrix( random_matrix );
+    std::vector<vgl_point_3d<double> > pts;
+    pts.emplace_back(29,-3, 8);
+    pts.emplace_back(-0.2,4.1,1.0);
+    std::vector<vnl_matrix_fixed<double,2,3> > Jac = image_jacobians(P1,pts);
+    double eps = 1e-6;
+    bool valid = true;
+    for(unsigned int i=0; i<pts.size(); ++i)
+    {
+        vgl_point_3d<double> p = pts[i];
+        vgl_point_3d<double> pdx(p.x()+eps, p.y(), p.z());
+        vgl_point_3d<double> pdy(p.x(), p.y()+eps, p.z());
+        vgl_point_3d<double> pdz(p.x(), p.y(), p.z()+eps);
 
-  P1.set_matrix( random_matrix );
-  std::vector<vgl_point_3d<double> > pts;
-  pts.emplace_back(29,-3, 8);
-  pts.emplace_back(-0.2,4.1,1.0);
-  std::vector<vnl_matrix_fixed<double,2,3> > Jac = image_jacobians(P1,pts);
-  double eps = 1e-6;
-  bool valid = true;
-  for(unsigned int i=0; i<pts.size(); ++i)
-  {
-    vgl_point_3d<double> p = pts[i];
-    vgl_point_3d<double> pdx(p.x()+eps, p.y(), p.z());
-    vgl_point_3d<double> pdy(p.x(), p.y()+eps, p.z());
-    vgl_point_3d<double> pdz(p.x(), p.y(), p.z()+eps);
+        vgl_point_2d<double> pi = P1.project(p);
+        vgl_point_2d<double> pidx = P1.project(pdx);
+        vgl_point_2d<double> pidy = P1.project(pdy);
+        vgl_point_2d<double> pidz = P1.project(pdz);
 
-    vgl_point_2d<double> pi = P1.project(p);
-    vgl_point_2d<double> pidx = P1.project(pdx);
-    vgl_point_2d<double> pidy = P1.project(pdy);
-    vgl_point_2d<double> pidz = P1.project(pdz);
+        vnl_matrix_fixed<double,2,3> J_diff;
+        J_diff(0,0) = (pidx.x() - pi.x())/eps;
+        J_diff(1,0) = (pidx.y() - pi.y())/eps;
+        J_diff(0,1) = (pidy.x() - pi.x())/eps;
+        J_diff(1,1) = (pidy.y() - pi.y())/eps;
+        J_diff(0,2) = (pidz.x() - pi.x())/eps;
+        J_diff(1,2) = (pidz.y() - pi.y())/eps;
 
-    vnl_matrix_fixed<double,2,3> J_diff;
-    J_diff(0,0) = (pidx.x() - pi.x())/eps;
-    J_diff(1,0) = (pidx.y() - pi.y())/eps;
-    J_diff(0,1) = (pidy.x() - pi.x())/eps;
-    J_diff(1,1) = (pidy.y() - pi.y())/eps;
-    J_diff(0,2) = (pidz.x() - pi.x())/eps;
-    J_diff(1,2) = (pidz.y() - pi.y())/eps;
-
-    double err = (J_diff - Jac[i]).array_inf_norm();
-    if(err > eps){
-      std::cerr << "Jacobian\n"<<J_diff<<"\nshould be\n"<<Jac[i]<<std::endl;
-      valid = false;
-      break;
+        double err = (J_diff - Jac[i]).array_inf_norm();
+        if(err > eps){
+          std::cerr << "Jacobian\n"<<J_diff<<"\nshould be\n"<<Jac[i]<<std::endl;
+          valid = false;
+          break;
+        }
     }
-  }
-  TEST("test image Jacobians", valid, true);
-     */
+    EXPECT_EQ(valid, true)<<"test image Jacobians\n";
 }
 
 

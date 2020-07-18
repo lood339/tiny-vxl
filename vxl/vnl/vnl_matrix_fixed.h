@@ -496,10 +496,11 @@ public:
    /*
     //: Return sum of absolute values of elements
     abs_t absolute_value_sum() const { return array_one_norm(); }
-    
+    */
     //: Return largest absolute value
     abs_t absolute_value_max() const { return array_inf_norm(); }
     
+    /*
     // $ || M ||_1 := \max_j \sum_i | M_{ij} | $
     abs_t operator_one_norm() const;
     

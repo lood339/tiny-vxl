@@ -34,6 +34,9 @@ public:
     //: Construct an uninitialized n-vector
     vnl_vector_fixed() = default;
     
+    //: Constructs n-vector with all elements initialised to \a v
+    explicit vnl_vector_fixed( const T& v ) { fill( v ); }
+    
     //: Copy constructor
     //  The dimensions must match.
     vnl_vector_fixed( const vnl_vector_fixed<T,n>& rhs ) = default;

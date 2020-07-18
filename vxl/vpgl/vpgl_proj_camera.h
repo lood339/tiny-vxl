@@ -487,9 +487,6 @@ bool vpgl_proj_camera<T>::set_matrix( const T* new_camera_matrix )
     return true;
 }
 
-
-
-
 // EXTERNAL FUNCTIONS:------------------------------------------------
 
 //: Write vpgl_perspective_camera to stream
@@ -647,8 +644,8 @@ image_jacobians(const vpgl_proj_camera<T>& camera,
         
         T d = dot_product(denom,hpt);
         d *= d;
-        J.set_row(0,Du*hpt);
-        J.set_row(1,Dv*hpt);
+        J.set_row(0,vnl_vector_fixed<double, 3>(Du*hpt));
+        J.set_row(1,vnl_vector_fixed<double, 3>(Dv*hpt));
         J /= d;
     }
     
