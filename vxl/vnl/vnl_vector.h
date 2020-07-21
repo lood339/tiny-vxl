@@ -100,15 +100,15 @@ public:
     
     //: Sets elements to ptr[i]
     //  Note: ptr[i] must be valid for i=0..size()-1
-    //vnl_vector& copy_in(T const * ptr);
+    vnl_vector& copy_in(T const * ptr);
     
     //: Copy elements to ptr[i]
     //  Note: ptr[i] must be valid for i=0..size()-1
-    //void copy_out(T *) const; // from vector to array[].
+    void copy_out(T *) const; // from vector to array[].
     
     //: Sets elements to ptr[i]
     //  Note: ptr[i] must be valid for i=0..size()-1
-    //vnl_vector& set(T const *ptr) { return copy_in(ptr); }
+    vnl_vector& set(T const *ptr) { return copy_in(ptr); }
     
     
     //: Return reference to the element at specified index.
@@ -250,7 +250,7 @@ public:
     // really proper functions on a vector in a philosophical sense.
     
     //: Root Mean Squares of values
-    //abs_t rms() const { return vnl_c_vector<T>::rms_norm(begin(), size()); }
+    abs_t rms() const { return std::sqrt(base_class::squaredNorm()/this->size()); }
     
     //: Smallest value
     T min_value() const;
@@ -265,10 +265,10 @@ public:
     size_t arg_max() const;
     
     //: Mean of values in vector
-    T mean() const;
+    T mean() const {return base_class::mean();}
     
     //: Sum of values in a vector
-    T sum() const;
+    T sum() const {return base_class::sum();}
     
     //: Reverse the order of the elements
     //  Element i swaps with element size()-1-i
@@ -296,25 +296,25 @@ public:
     //void swap(vnl_vector<T> & that) noexcept;
     
     //: Return true if it's finite
-    //bool is_finite() const;
+    bool is_finite() const;
     
     //: Return true iff all the entries are zero.
-    //bool is_zero() const;
+    bool is_zero() const;
     
     //: Return true iff the size is zero.
-    //bool empty() const { return !data || !num_elmts; }
+    bool empty() const { return base_class::Size() == 0; }
     
     //:  Return true if all elements of vectors are equal, within given tolerance
     bool is_equal(vnl_vector<T> const& rhs, double tol) const;
     
     //: Return true if *this == v
-    //bool operator_eq(vnl_vector<T> const& v) const;
+    bool operator_eq(vnl_vector<T> const& v) const;
     
     //: Equality test
-    //bool operator==(vnl_vector<T> const &that) const { return  this->operator_eq(that); }
+    bool operator==(vnl_vector<T> const &that) const { return  this->operator_eq(that); }
     
     //: Inequality test
-    //bool operator!=(vnl_vector<T> const &that) const { return !this->operator_eq(that); }
+    bool operator!=(vnl_vector<T> const &that) const { return !this->operator_eq(that); }
     
     //: Resize to n elements.
     // This is a destructive resize, in that the old data is lost if size() != \a n before the call.
@@ -325,6 +325,22 @@ public:
     //void clear();
     
 };
+
+template<class T>
+vnl_vector<T>&
+vnl_vector<T>::copy_in (T const *ptr)
+{
+    std::copy( ptr, ptr + this->size(), this->data() );
+    return *this;
+}
+
+//: Sets elements of an array to those in vector. O(n).
+
+template<class T>
+void vnl_vector<T>::copy_out (T *ptr) const
+{
+    std::copy( this->data(), this->data() + this->size(), ptr );
+}
 
 //: Add scalar value to all elements
 template<typename T>
@@ -569,29 +585,6 @@ size_t vnl_vector<T>::arg_max() const
     return index;
 }
 
-//: Mean of values in vector
-template<typename T>
-T vnl_vector<T>::mean() const
-{
-    if(this->size() == 0) return T{0};
-    T sum = T{0};
-    for(int i = 0; i<this->size(); ++i) {
-        sum += (*this)[i];
-    }
-    return sum/this->size();
-}
-
-//: Sum of values in a vector
-template<typename T>
-T vnl_vector<T>::sum() const
-{
-    T sum = T{0};
-    for(int i = 0; i<this->size(); ++i) {
-        sum += (*this)[i];
-    }
-    return sum;
-}
-
 //: Reverse the order of the elements
 //  Element i swaps with element size()-1-i
 template<typename T>
@@ -653,6 +646,42 @@ vnl_vector<T>& vnl_vector<T>::roll_inplace(const int &shift)
     if (0 == wrapped_shift)
         return *this;
     return this->flip().flip(0,wrapped_shift).flip(wrapped_shift,this->size());
+}
+
+template <class T>
+bool vnl_vector<T>::is_finite() const
+{
+    for (size_t i = 0; i < this->size();++i)
+        if (!vnl_math::isfinite( (*this)[i] ))
+            return false;
+    
+    return true;
+}
+
+template <class T>
+bool vnl_vector<T>::is_zero() const
+{
+    T const zero(0);
+    for (size_t i = 0; i < this->size();++i)
+        if ( !( (*this)[i] == zero) )
+            return false;
+    
+    return true;
+}
+
+template<class T>
+bool vnl_vector<T>::operator_eq (vnl_vector<T> const& rhs) const
+{
+    if (this == &rhs)                               // same object => equal.
+        return true;
+    
+    if (this->size() != rhs.size())                 // Size different ?
+        return false;                                 // Then not equal.
+    for (size_t i = 0; i < this->size(); i++)           // For each index
+        if (!((*this)(i) == rhs[i]))          // Element different ?
+            return false;                               // Then not equal.
+    
+    return true;                                    // Else same; return true.
 }
 
 //:  Return true if all elements of vectors are equal, within given tolerance

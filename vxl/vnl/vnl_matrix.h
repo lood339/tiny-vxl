@@ -188,16 +188,16 @@ public:
     //  \code
     //     f(vnl_matrix<double>(3,3).copy_in(array));
     //  \endcode
-    //vnl_matrix& copy_in(T const *);
+    vnl_matrix& copy_in(T const *);
     
     //: Fills (laminates) this matrix with the given data, then returns it.
     // A synonym for copy_in()
-    //vnl_matrix& set(T const *d) { return copy_in(d); }
+    vnl_matrix& set(T const *d) { return copy_in(d); }
     
     //: Fills the given array with this matrix.
     //  We assume that the argument points to a contiguous rows*cols array, stored rowwise.
     // No bounds checking on the array.
-    //void copy_out(T *) const;
+    void copy_out(T *) const;
     
     //: Set all elements to value v
     // Complexity $O(r.c)$
@@ -434,28 +434,28 @@ public:
     
     //: Type def for norms.
     //typedef typename vnl_c_vector<T>::abs_t abs_t;
-    /*
+   
     //: Return sum of absolute values of elements
-    abs_t array_one_norm() const { return vnl_c_vector<T>::one_norm(begin(), size()); }
+    abs_t array_one_norm() const { return this->template lpNorm<1>(); }
     
     //: Return square root of sum of squared absolute element values
-    abs_t array_two_norm() const { return vnl_c_vector<T>::two_norm(begin(), size()); }
-    */
+    abs_t array_two_norm() const { return base_class::norm(); }
+    
     //: Return largest absolute element value
     abs_t array_inf_norm() const { return this->template lpNorm<Eigen::Infinity>(); }
-    /*
+    
     //: Return sum of absolute values of elements
     abs_t absolute_value_sum() const { return array_one_norm(); }
     
     //: Return largest absolute value
     abs_t absolute_value_max() const { return array_inf_norm(); }
-    
+   
     // $ || M ||_1 := \max_j \sum_i | M_{ij} | $
     abs_t operator_one_norm() const;
     
     // $ || M ||_\inf := \max_i \sum_j | M_{ij} | $
     abs_t operator_inf_norm() const;
-    */
+   
     //: Return Frobenius norm of matrix (sqrt of sum of squares of its elements)
     abs_t frobenius_norm() const { return this->norm(); }
     
@@ -480,14 +480,12 @@ public:
     //{ return vnl_c_vector<T>::arg_max(begin(), size()); }
     
     //: Return mean of all matrix elements
-    T mean() const;
-    //{ return vnl_c_vector<T>::mean(begin(), size()); }
+    T mean() const {return base_class::mean();}
     
     // predicates
     
     //: Return true iff the size is zero.
-    bool empty() const;
-    //{ return !data || !num_rows || !num_cols; }
+    bool empty() const {return size() == 0;}
     
     //:  Return true if all elements equal to identity.
     bool is_identity() const;
@@ -512,14 +510,6 @@ public:
     
     ////----------------------- Input/Output ----------------------------
     
-    //: Read a vnl_matrix from an ascii std::istream, automatically determining file size if the input matrix has zero size.
-    static vnl_matrix<T> read(std::istream& s);
-    
-    // : Read a vnl_matrix from an ascii std::istream, automatically determining file size if the input matrix has zero size.
-    bool read_ascii(std::istream& s);
-    
-    //--------------------------------------------------------------------------------
-    
     //: Access the contiguous block storing the elements in the matrix row-wise. O(1).
     // 1d array, row-major order.
     T const* data_block() const {return this->data();}
@@ -530,11 +520,11 @@ public:
     
     //: Access the 2D array, so that elements can be accessed with array[row][col] directly.
     //  2d array, [row][column].
-    T const* const* data_array() const;// { return data; }
+    //T const* const* data_array() const;// { return data; }
     
     //: Access the 2D array, so that elements can be accessed with array[row][col] directly.
     //  2d array, [row][column].
-    T      *      * data_array();// { return data; }
+    //T      *      * data_array();// { return data; }
     
     
     //typedef T element_type;
@@ -618,6 +608,23 @@ vnl_matrix<T>& vnl_matrix<T>::set_diagonal(vnl_vector<T> const& diag)
         (*this)(i, i) = diag[i];
     }
     return *this;
+}
+
+//: Fill this matrix with the given data.
+//  We assume that p points to a contiguous rows*cols array, stored rowwise.
+template <class T>
+vnl_matrix<T>& vnl_matrix<T>::copy_in(T const *p)
+{
+    std::copy( p, p + this->num_rows * this->num_cols, this->data() );
+    return *this;
+}
+
+//: Fill the given array with this matrix.
+//  We assume that p points to a contiguous rows*cols array, stored rowwise.
+template <class T>
+void vnl_matrix<T>::copy_out(T *p) const
+{
+    std::copy( this->data(), this->data() + this->num_rows * this->num_cols, p );
 }
 
 //: Add rhs to each element of lhs matrix in situ
@@ -1170,6 +1177,39 @@ vnl_matrix<T>& vnl_matrix<T>::normalize_columns()
 }
 
 
+// || M ||  = \max \sum | M   |
+//        1     j    i     ij
+template <class T>
+typename vnl_matrix<T>::abs_t vnl_matrix<T>::operator_one_norm() const
+{
+    abs_t max = 0;
+    for (unsigned int j=0; j<this->cols(); ++j) {
+        abs_t tmp = 0;
+        for (unsigned int i=0; i<this->rows(); ++i)
+            tmp += vnl_math::abs((*this)(i, j));
+        if (tmp > max)
+            max = tmp;
+    }
+    return max;
+}
+
+// || M ||   = \max \sum | M   |
+//        oo     i    j     ij
+template <class T>
+typename vnl_matrix<T>::abs_t vnl_matrix<T>::operator_inf_norm() const
+{
+    abs_t max = 0;
+    for (unsigned int i=0; i<this->rows(); ++i) {
+        abs_t tmp = 0;
+        for (unsigned int j=0; j<this->cols(); ++j)
+            tmp += vnl_math::abs((*this)(i, j));
+        if (tmp > max)
+            max = tmp;
+    }
+    return max;
+}
+
+
 //: Return location of minimum value of elements
 template<typename T>
 unsigned int vnl_matrix<T>::arg_min() const {
@@ -1200,6 +1240,83 @@ T vnl_matrix<T>::max_value() const {
     unsigned int r, c;
     T max_v = this->maxCoeff(&r, &c);
     return max_v;
+}
+
+template <class T>
+bool vnl_matrix<T>::is_identity() const
+{
+    T const zero(0);
+    T const one(1);
+    for (unsigned int i = 0; i < this->rows(); ++i)
+        for (unsigned int j = 0; j < this->columns(); ++j) {
+            T xm = (*this)(i,j);
+            if ( !((i == j) ? (xm == one) : (xm == zero)) )
+                return false;
+        }
+    return true;
+}
+
+//: Return true if maximum absolute deviation of M from identity is <= tol.
+template <class T>
+bool vnl_matrix<T>::is_identity(double tol) const
+{
+    T one(1);
+    for (unsigned int i = 0; i < this->rows(); ++i)
+        for (unsigned int j = 0; j < this->columns(); ++j) {
+            T xm = (*this)(i,j);
+            abs_t absdev = (i == j) ? vnl_math::abs(xm - one) : vnl_math::abs(xm);
+            if (absdev > tol)
+                return false;
+        }
+    return true;
+}
+
+template <class T>
+bool vnl_matrix<T>::is_zero() const
+{
+    T const zero(0);
+    for (unsigned int i = 0; i < this->rows(); ++i)
+        for (unsigned int j = 0; j < this->columns(); ++j)
+            if ( !( (*this)(i, j) == zero) )
+                return false;
+    
+    return true;
+}
+
+//: Return true if max(abs((*this))) <= tol.
+template <class T>
+bool vnl_matrix<T>::is_zero(double tol) const
+{
+    for (unsigned int i = 0; i < this->rows(); ++i)
+        for (unsigned int j = 0; j < this->columns(); ++j)
+            if (vnl_math::abs((*this)(i,j)) > tol)
+                return false;
+    
+    return true;
+}
+
+//: Return true if any element of (*this) is nan
+template <class T>
+bool vnl_matrix<T>::has_nans() const
+{
+    for (unsigned int i = 0; i < this->rows(); ++i)
+        for (unsigned int j = 0; j < this->columns(); ++j)
+            if (vnl_math::isnan((*this)(i,j)))
+                return true;
+    
+    return false;
+}
+
+//: Return false if any element of (*this) is inf or nan
+template <class T>
+bool vnl_matrix<T>::is_finite() const
+{
+    for (unsigned int i = 0; i < this->rows(); ++i)
+        for (unsigned int j = 0; j < this->columns(); ++j)
+            if (!vnl_math::isfinite((*this)(i,j)))
+                return false;
+    
+    return true;
 }
 
 //: Make the matrix as if it had been default-constructed.

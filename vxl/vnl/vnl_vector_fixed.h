@@ -244,9 +244,6 @@ public:
     //: Replaces elements with index beginning at start, by values of v. O(n).
     vnl_vector_fixed& update(vnl_vector<T> const&, unsigned int start=0);
     
-    // norms etc
-    //typedef typename vnl_c_vector<T>::abs_t abs_t;
-    
     //: Return sum of squares of elements
     abs_t squared_magnitude() const { return this->squaredNorm(); }
     
@@ -272,7 +269,7 @@ public:
     // really proper functions on a vector in a philosophical sense.
     
     //: Root Mean Squares of values
-    //abs_t rms     () const { return vnl_c_vector<T>::rms_norm(begin(), size()); }
+    abs_t rms     () const { return std::sqrt((abs_t)base_class::squaredNorm()/size());; }
     
     //: Smallest value
     T min_value () const;

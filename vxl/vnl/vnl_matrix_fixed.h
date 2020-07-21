@@ -484,29 +484,28 @@ public:
     
     //: Type def for norms.
     //typedef typename vnl_c_vector<T>::abs_t abs_t;
-    /*
+    
     //: Return sum of absolute values of elements
-    abs_t array_one_norm() const { return vnl_c_vector<T>::one_norm(begin(), size()); }
+    abs_t array_one_norm() const { return this->template lpNorm<1>(); }
     
     //: Return square root of sum of squared absolute element values
-    abs_t array_two_norm() const { return vnl_c_vector<T>::two_norm(begin(), size()); }
-    */
+    abs_t array_two_norm() const { return this->norm(); }
+    
     //: Return largest absolute element value
     abs_t array_inf_norm() const { return this->template lpNorm<Eigen::Infinity>(); }
-   /*
+   
     //: Return sum of absolute values of elements
     abs_t absolute_value_sum() const { return array_one_norm(); }
-    */
+    
     //: Return largest absolute value
     abs_t absolute_value_max() const { return array_inf_norm(); }
     
-    /*
+    
     // $ || M ||_1 := \max_j \sum_i | M_{ij} | $
     abs_t operator_one_norm() const;
     
     // $ || M ||_\inf := \max_i \sum_j | M_{ij} | $
     abs_t operator_inf_norm() const;
-    */
    
     //: Return Frobenius norm of matrix (sqrt of sum of squares of its elements)
     abs_t frobenius_norm() const { return this->norm(); }
@@ -516,7 +515,7 @@ public:
     
     
     //: Return RMS of all elements
-    //abs_t rms() const { return vnl_c_vector<T>::rms_norm(begin(), size()); }
+    abs_t rms() const { return std::sqrt(base_class::squaredNorm()/size()); }
     
     //: Return minimum value of elements
     T min_value() const;
@@ -530,10 +529,9 @@ public:
     //: Return location of maximum value of elements
     unsigned arg_max() const;
     
-    /*
     //: Return mean of all matrix elements
-    T mean() const { return vnl_c_vector<T>::mean(begin(), size()); }
-    */
+    T mean() const { return base_class::mean(); }
+    
     // predicates
     
     //: Return true iff the size is zero.
@@ -753,6 +751,38 @@ vnl_matrix_fixed<T,nrows,ncols>::set_identity()
     for (unsigned int i = 0; i < nrows && i < ncols; ++i)
         (*this)(i, i) = T(1);
     return *this;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+typename vnl_matrix_fixed<T,nrows,ncols>::abs_t
+vnl_matrix_fixed<T,nrows,ncols>::operator_one_norm() const
+{
+    abs_t m(0);
+    for (unsigned int j=0; j<ncols; ++j)
+    {
+        abs_t t(0);
+        for (unsigned int i=0; i<nrows; ++i)
+            t += vnl_math::abs( (*this)(i,j) );
+        if (t > m)
+            m = t;
+    }
+    return m;
+}
+
+template <class T, unsigned nrows, unsigned ncols>
+typename vnl_matrix_fixed<T,nrows,ncols>::abs_t
+vnl_matrix_fixed<T,nrows,ncols>::operator_inf_norm() const
+{
+    abs_t m(0);
+    for (unsigned int i=0; i<nrows; ++i)
+    {
+        abs_t t(0);
+        for (unsigned int j=0; j<ncols; ++j)
+            t += vnl_math::abs((*this)(i,j));
+        if (t > m)
+            m = t;
+    }
+    return m;
 }
 
 //: Make each row of the matrix have unit norm.
