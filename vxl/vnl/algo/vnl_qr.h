@@ -70,17 +70,18 @@ class vnl_qr
   // |Q| is (-1)^n as it is a product of Householder reflections.
   // So det = -prod(-r_ii).
   T determinant() const;
-  //: Unpack and return unitary part Q.
-  vnl_matrix<T> const& Q() const;
-  //: Unpack and return R.
-  vnl_matrix<T> const& R() const;
+  
   //: Return residual vector d of M x = b -> d = Q'b
   vnl_vector<T> QtB(const vnl_vector<T>& b) const;
 
-  void extract_q_and_r(vnl_matrix<T>* q, vnl_matrix<T>* r) const { *q = Q(); *r = R(); }
-
+    //: Unpack and return unitary part Q.
+    vnl_matrix<T> const& Q() const;
+    //: Unpack and return R.
+    vnl_matrix<T> const& R() const;
+    void extract_q_and_r(vnl_matrix<T>* q, vnl_matrix<T>* r) const { *q = Q(); *r = R(); }
+    
  private:
-    Eigen::ColPivHouseholderQR<RowMajorMatrix> qr_;
+    Eigen::HouseholderQR<RowMajorMatrix> qr_;
   vnl_matrix<T> qrdc_out_;
   vnl_vector<T> qraux_;
   vnl_vector<long> jpvt_;
@@ -113,11 +114,15 @@ R_(nullptr)
 {
     assert(! M.empty());
     
-    const int m = M.rows();
-    const int n = M.cols();
-    
     RowMajorMatrix M_copy = M;
-    qr_ = Eigen::ColPivHouseholderQR<RowMajorMatrix>(M_copy);
+    qr_ = Eigen::HouseholderQR<RowMajorMatrix>(M_copy);
+    
+    //Eigen::ComputationInfo info = qr_.info();
+    //if(info != Eigen::Success) {
+    //    std::cerr <<"Error: QR decomposition failed\n";
+    //}
+    
+    //std::cout<<"column permutation: \n"<<qr_.colsPermutation()<<std::endl;
     
     /*
     // Fill transposed O/P matrix
@@ -155,13 +160,16 @@ vnl_qr<T>::~vnl_qr()
 template <class T>
 T vnl_qr<T>::determinant() const
 {
-    int m = std::min((int)qrdc_out_.columns(), (int)qrdc_out_.rows());
-    T det = qrdc_out_(0,0);
+    vnl_matrix<T> R = this->R();
     
+    int m = std::min((int)qraux_.size(), (int)jpvt_.size());
+    T det = R(0,0);
+
     for (int i = 1; i < m; ++i)
-        det *= -qrdc_out_(i,i);
-    
+        det *= -R(i,i);
+
     return det;
+    
 }
 
 //: Unpack and return unitary part Q.
@@ -259,34 +267,11 @@ vnl_matrix<T> const& vnl_qr<T>::R() const
         assert(R.cols() == n);
         
         R_ = new vnl_matrix<T>(m, n);
-        
         for(int i = 0; i<m; ++i) {
             for(int j = 0; j<n; ++j) {
                 (*R_)(i, j) = R(i, j);
             }
         }
-        
-       
-        /*
-        
-        
-        auto r = qr_.matrixR();
-        assert(r.rows() == m);
-        assert(r.cols() == n);
-        
-        for(int i = 0; i<m; ++i) {
-            for(int j = 0; j<n; ++j) {
-                if(i > j) {
-                    (*R_) = T(0);
-                    
-                }
-                else {
-                    (*R_) = r(i, j);
-                }
-            }
-        }
-         */
-        
         /*
         int m = qrdc_out_.columns(); // column-major storage
         int n = qrdc_out_.rows();
@@ -321,13 +306,17 @@ vnl_matrix<T> vnl_qr<T>::recompose() const
 template <class T>
 vnl_vector<T> vnl_qr<T>::solve(const vnl_vector<T>& b) const
 {
-    long n = qrdc_out_.columns();
-    long p = qrdc_out_.rows();
-    const T* b_data = b.data_block();
-    vnl_vector<T> Qt_B(n);
-    vnl_vector<T> x(p);
+    vnl_vector<T> x = qr_.solve(b);
+    return x;
+    
     
     /*
+     long n = qrdc_out_.columns();
+     long p = qrdc_out_.rows();
+     const T* b_data = b.data_block();
+     vnl_vector<T> Qt_B(n);
+     vnl_vector<T> x(p);
+     
     // see comment above
     long JOB = 100;
     

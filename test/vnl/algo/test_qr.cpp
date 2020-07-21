@@ -14,17 +14,24 @@
 void
 test_matrix(char const * name, const vnl_matrix<double> & A, double det = 0)
 {
-  vnl_qr<double> qr(A);
+    vnl_qr<double> qr(A);
 
-  std::string n(name);
-  n += ": ";
-  ASSERT_NEAR((qr.Q() * qr.R() - A).fro_norm(), 0.0, 1e-12)<<(n + "Q * R residual").c_str();
-  EXPECT_EQ((qr.Q().transpose() * qr.Q()).is_identity(1e-12), true)<<(n + "Q * Q = I").c_str();
+    std::string n(name);
+    n += ": ";
+    /*
+    std::cout<<"Q: \n"<<qr.Q()<<std::endl;
+    std::cout<<"R: \n"<<qr.R()<<std::endl;
+    std::cout<<"Debug: Q*R \n"<<qr.Q()*qr.R()<<std::endl;
+    std::cout<<"A \n"<<A<<std::endl;
+     */
+    ASSERT_NEAR((qr.Q() * qr.R() - A).fro_norm(), 0.0, 1e-12)<<(n + "Q * R residual").c_str();
+    //ASSERT_NEAR((qr.recompose() - A).fro_norm(), 0.0, 1e-12)<<(n + "Q * R residual").c_str();
+    EXPECT_EQ((qr.Q().transpose() * qr.Q()).is_identity(1e-12), true)<<(n + "Q * Q = I").c_str();
 
-  if (det)
-  {
-    ASSERT_NEAR(qr.determinant(), det, 1e-9)<<(n + "Determinant").c_str();
-  }
+    if (det)
+    {
+        ASSERT_NEAR(qr.determinant(), det, 1e-9)<<(n + "Determinant").c_str();
+    }
 }
 
 
@@ -39,16 +46,13 @@ TEST(vnl_qr, double_test)
   vnl_matrix<double> A(A_data, 4, 3);
 
   test_matrix("A", A);
-    /*
   test_matrix("AT", A.transpose());
 
   test_matrix("A-102", A - 102);
   test_matrix("AT-12", A.transpose() - 12);
-
   test_matrix("AA'*1e-3 - 1", A * A.transpose() * 1e-3 - 1, -2.77433958399998);
-
+ 
   double b_data[] = { 68, 39, 39, 50 };
-
   vnl_vector<double> b(b_data, 4);
   vnl_qr<double> qr(A);
 
@@ -61,15 +65,14 @@ TEST(vnl_qr, double_test)
 
   ASSERT_NEAR(res, 37.8841, 1e-3)<<"Solve residual\n";
 
-  {
-    double S_data[] = {
-      89, 21, 27, 62, 71, 0, 84, 13, 41,
-    };
-    vnl_matrix<double> S(S_data, 3, 3);
-    test_matrix("S", S, 66431);
-    test_matrix("S-100", S - 100, -79869);
-  }
-     */
+    {
+        double S_data[] = {
+          89, 21, 27, 62, 71, 0, 84, 13, 41,
+        };
+        vnl_matrix<double> S(S_data, 3, 3);
+        test_matrix("S", S, 66431);
+        test_matrix("S-100", S - 100, -79869);
+    }
 }
 
 /*
