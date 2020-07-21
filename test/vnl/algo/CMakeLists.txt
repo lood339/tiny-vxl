@@ -8,6 +8,7 @@ include_directories(${VXL_SRC_DIR})
 include_directories(${Eigen_SRC_DIR})
 
 add_executable(vnl_algo_test_all
+  test_qr.cpp
   test_svd.cpp
 )
 
