@@ -8,16 +8,7 @@
 #include <vnl/vnl_vector_fixed.h>
 #include <vnl/vnl_vector.h>
 #include <gtest/gtest.h>
-/*
-#include <vnl/vnl_double_3x3.h>
-#include <vnl/vnl_double_3.h>
-#include <vnl/vnl_double_2x2.h>
-#include <vnl/vnl_float_2x2.h>
-#include <vnl/vnl_int_2x2.h>
-*/
 
-
-#undef printf // to work around a bug in libintl.h
 
 bool verbose_malloc = false;
 int malloc_count = 0;
