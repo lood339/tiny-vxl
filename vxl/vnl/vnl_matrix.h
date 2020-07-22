@@ -1132,6 +1132,14 @@ vnl_vector<T> vnl_matrix<T>::flatten_column_major() const
     return v;
 }
 
+//: Fill this matrix with a matrix having 1s on the main diagonal and 0s elsewhere.
+template <class T>
+vnl_matrix<T>& vnl_matrix<T>::set_identity()
+{
+    base_class::setIdentity();
+    return *this;
+}
+
 //: Make each row of the matrix have unit norm.
 // All-zero rows are ignored.
 template <typename T>

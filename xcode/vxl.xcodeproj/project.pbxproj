@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF062B08249F1A7D0020843E /* test_main.cpp */; };
-		BF0B5FED24C743E800964957 /* test_qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF0B5FEC24C743E800964957 /* test_qr.cpp */; };
+		BF608DB824C7F1510092E425 /* test_perspective_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BF608DB724C7F1500092E425 /* test_perspective_camera.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,11 +34,12 @@
 		BF0A75D824723D3F00DD8BB6 /* vxl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vxl; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF0B5FEA24C7254300964957 /* vnl_trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_trace.h; sourceTree = "<group>"; };
 		BF0B5FEB24C7263C00964957 /* vnl_qr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_qr.h; sourceTree = "<group>"; };
-		BF0B5FEC24C743E800964957 /* test_qr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_qr.cpp; sourceTree = "<group>"; };
 		BF0E22FA24AC3C53003C181C /* vnl_cross.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_cross.h; sourceTree = "<group>"; };
 		BF115EDF24A59B93007EC319 /* vnl_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_export.h; sourceTree = "<group>"; };
 		BF4D971624C00CB9007C865C /* vgl_point_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_point_2d.h; sourceTree = "<group>"; };
 		BF4D971724C00CB9007C865C /* vgl_homg_point_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_homg_point_2d.h; sourceTree = "<group>"; };
+		BF608DB724C7F1500092E425 /* test_perspective_camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_perspective_camera.cpp; sourceTree = "<group>"; };
+		BF608DB924C7F15F0092E425 /* vpgl_perspective_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vpgl_perspective_camera.h; sourceTree = "<group>"; };
 		BF7B3F9D24C3B8440011C27C /* vnl_rational.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_rational.h; sourceTree = "<group>"; };
 		BF8E3F4B24BEB66B00CD293B /* vnl_quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_quaternion.h; sourceTree = "<group>"; };
 		BF8E3F4E24BEBF2100CD293B /* vgl_point_3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_point_3d.h; sourceTree = "<group>"; };
@@ -154,6 +155,7 @@
 		BF4D971224C009BB007C865C /* vpgl */ = {
 			isa = PBXGroup;
 			children = (
+				BF608DB724C7F1500092E425 /* test_perspective_camera.cpp */,
 			);
 			path = vpgl;
 			sourceTree = "<group>";
@@ -161,7 +163,6 @@
 		BFE0232624A30E1700936454 /* algo */ = {
 			isa = PBXGroup;
 			children = (
-				BF0B5FEC24C743E800964957 /* test_qr.cpp */,
 			);
 			path = algo;
 			sourceTree = "<group>";
@@ -171,6 +172,7 @@
 			children = (
 				BFF406D024BA6BC300B8265B /* vpgl_proj_camera.h */,
 				BFA932FA24C69EC300B33928 /* vpgl_calibration_matrix.h */,
+				BF608DB924C7F15F0092E425 /* vpgl_perspective_camera.h */,
 				BFF406D124BA6BC300B8265B /* vpgl_camera.h */,
 			);
 			name = vpgl;
@@ -271,7 +273,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BF0B5FED24C743E800964957 /* test_qr.cpp in Sources */,
+				BF608DB824C7F1510092E425 /* test_perspective_camera.cpp in Sources */,
 				BF062B1D249F1A7D0020843E /* test_main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

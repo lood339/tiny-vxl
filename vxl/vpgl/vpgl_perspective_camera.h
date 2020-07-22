@@ -33,9 +33,9 @@
 #include <vgl/algo/vgl_rotation_3d.h>
 #include <vgl/algo/vgl_h_matrix_3d.h>
 #include <vnl/vnl_det.h>
-//#include <vnl/algo/vnl_qr.h>
+#include <vnl/algo/vnl_qr.h>
 #include <vnl/vnl_matrix_fixed.h>
-//#include <vnl/vnl_trace.h>
+#include <vnl/vnl_trace.h>
 
 #include <vpgl/vpgl_proj_camera.h>
 #include <vpgl/vpgl_calibration_matrix.h>
@@ -229,8 +229,8 @@ postmultiply( const vpgl_perspective_camera<T>& in_cam,
 }
 
 //: Return a list of camera's, loaded from the (name sorted) files from the given directory
-template <class T>
-std::vector<vpgl_perspective_camera<T> > cameras_from_directory(std::string dir, T);
+//template <class T>
+//std::vector<vpgl_perspective_camera<T> > cameras_from_directory(std::string dir, T);
 
 //: compute the frustrum of the camera view cone. The near plane
 //  the far plane distances are user defined.
@@ -300,8 +300,7 @@ vgl_homg_line_3d_2_points<T> vpgl_perspective_camera<T>::backproject(
                                                                      const vgl_homg_point_2d<T>& image_point ) const
 {
     // First find a point that projects to "image_point".
-    vnl_vector_fixed<T,4> vnl_wp = this->svd()->solve(
-                                                      vnl_vector_fixed<T,3>( image_point.x(), image_point.y(), image_point.w() ).as_ref() );
+    vnl_vector_fixed<T,4> vnl_wp = this->svd()->solve(vnl_vector_fixed<T,3>( image_point.x(), image_point.y(),      image_point.w() ).as_vector() );
     vgl_homg_point_3d<T> wp( vnl_wp[0], vnl_wp[1], vnl_wp[2], vnl_wp[3] );
     // The ray is then defined by that point and the camera center.
     return vgl_homg_line_3d_2_points<T>( vgl_homg_point_3d<T>(camera_center_), wp );
@@ -309,12 +308,10 @@ vgl_homg_line_3d_2_points<T> vpgl_perspective_camera<T>::backproject(
 
 //------------------------------------
 template <class T>
-vgl_line_3d_2_points<T> vpgl_perspective_camera<T>::backproject(
-                                                                const vgl_point_2d<T>& image_point ) const
+vgl_line_3d_2_points<T> vpgl_perspective_camera<T>::backproject(const vgl_point_2d<T>& image_point ) const
 {
     // First find a point in front of the camera that projects to "image_point".
-    vnl_vector_fixed<T,4> vnl_wp = this->svd()->solve(
-                                                      vnl_vector_fixed<T,3>( image_point.x(), image_point.y(), 1.0 ).as_ref() );
+    vnl_vector_fixed<T,4> vnl_wp = this->svd()->solve(vnl_vector_fixed<T,3>( image_point.x(), image_point.y(), 1.0 ).as_vector() );
     vgl_homg_point_3d<T> wp_homg( vnl_wp[0], vnl_wp[1], vnl_wp[2], vnl_wp[3] );
     vgl_point_3d<T> wp;
     if ( !wp_homg.ideal() )
@@ -505,7 +502,7 @@ bool vpgl_perspective_decomposition( const vnl_matrix_fixed<T,3,4>& camera_matri
     for ( int i = 0; i < 3; i++ )
         for ( int j = 0; j < 3; j++ )
             Hf(i,j) = H(2-j,2-i);
-    vnl_qr<T> QR( Hf.as_ref() );
+    vnl_qr<T> QR( Hf.as_matrix() );
     vnl_matrix_fixed<T,3,3> q,r,Qf,Rf;
     q = QR.Q();
     r = QR.R();
@@ -647,24 +644,7 @@ std::ostream&  operator<<(std::ostream& s,
     return s ;
 }
 
-//: Read camera from stream
-template <class Type>
-std::istream&  operator >>(std::istream& s,
-                           vpgl_perspective_camera<Type>& p)
-{
-    vnl_matrix_fixed<Type, 3, 3> k, Rm;
-    vnl_vector_fixed<Type, 3> tv;
-    s >> k;
-    s >> Rm;
-    s >> tv;
-    vpgl_calibration_matrix<Type> K(k);
-    vgl_rotation_3d<Type> rot(Rm);
-    vgl_vector_3d<Type> t(tv[0], tv[1], tv[2]);
-    p.set_calibration(K);
-    p.set_rotation(rot);
-    p.set_translation(t);
-    return s ;
-}
+
 
 //: Save in ascii format
 template <class Type>
@@ -734,44 +714,6 @@ void vrml_write(std::ostream& str, vpgl_perspective_camera<Type> const& p, doubl
     << " }\n"
     << "]\n"
     << "}\n";
-}
-
-
-//: Return a list of camera's, loaded from the (name sorted) files from the given directory
-template <class T>
-std::vector<vpgl_perspective_camera<T> > cameras_from_directory(std::string dir, T)
-{
-    std::vector<vpgl_perspective_camera<T> > camlist;
-    if (!vul_file::is_directory(dir.c_str()) ) {
-        std::cerr << "cameras_from_directory: " << dir << " is not a directory\n";
-        return camlist;
-    }
-    
-    //get all of the cam and image files, sort them
-    std::string camglob=dir+"/*";
-    vul_file_iterator file_it(camglob.c_str());
-    std::vector<std::string> cam_files;
-    while (file_it) {
-        std::string camName(file_it());
-        cam_files.push_back(camName);
-        ++file_it;
-    }
-    std::sort(cam_files.begin(), cam_files.end());
-    
-    //take sorted lists and load from file
-    for (auto & cam_file : cam_files)
-    {
-        std::ifstream ifs(cam_file.c_str());
-        vpgl_perspective_camera<T> pcam;
-        if (!ifs.is_open()) {
-            std::cerr << "Failed to open file " << cam_file << '\n';
-        }
-        else  {
-            ifs >> pcam;
-            camlist.push_back(pcam);
-        }
-    }
-    return camlist;
 }
 
 template <class T>

@@ -75,7 +75,7 @@ TEST(vnl_qr, double_test)
     }
 }
 
-/*
+
 //--------------------------------------------------------------------------------
 
 inline float
@@ -100,6 +100,22 @@ eps(std::complex<double> *)
 }
 #define rounding_epsilon(T) ::eps((T *)0)
 
+template <typename T>
+static
+void test_util_fill_random(T * b, T * e, vnl_random & rng)
+{
+    for (T * p = b; p < e; ++p)
+        *p = (T)rng.drand64(-1.0, +1.0);
+}
+
+template <typename T>
+static
+void test_util_fill_random(std::complex<T> * b, std::complex<T> * e, vnl_random & rng)
+{
+    for (std::complex<T> * p = b; p < e; ++p)
+        *p = std::complex<T>((T)rng.drand64(-1.0, +1.0), (T)rng.drand64(-1.0, +1.0));
+}
+
 template <class T>
 void
 new_test(T *)
@@ -110,30 +126,31 @@ new_test(T *)
 
   vnl_matrix<T> A(m, n);
   test_util_fill_random(A.begin(), A.end(), rng);
-  vnl_matlab_print(std::cout, A, "A");
+  //vnl_matlab_print(std::cout, A, "A");
 
   vnl_vector<T> b(m);
   test_util_fill_random(b.begin(), b.end(), rng);
-  vnl_matlab_print(std::cout, b, "b");
+  //vnl_matlab_print(std::cout, b, "b");
 
   vnl_qr<T> qr(A);
   vnl_matrix<T> const & Q = qr.Q();
   vnl_matrix<T> const & R = qr.R();
   vnl_vector<T> x = qr.solve(b);
 
-  vnl_matlab_print(std::cout, Q, "Q");
-  vnl_matlab_print(std::cout, R, "R");
-  vnl_matlab_print(std::cout, x, "x");
+  //vnl_matlab_print(std::cout, Q, "Q");
+  //vnl_matlab_print(std::cout, R, "R");
+  //vnl_matlab_print(std::cout, x, "x");
 
   vnl_matrix<T> QR(Q * R);
-  vnl_matlab_print(std::cout, QR, "QR");
+  //vnl_matlab_print(std::cout, QR, "QR");
 
   vnl_matrix<T> I(m, m);
   I.set_identity();
-  TEST_NEAR("||Q'Q - 1||", (Q.conjugate_transpose() * Q - I).fro_norm(), 0, rounding_epsilon(T));
-  TEST_NEAR("||A - QR||", (A - QR).fro_norm(), 0, rounding_epsilon(T));
-  TEST_NEAR("||Ax - b||", (A * x - b).two_norm(), 0, rounding_epsilon(T));
+  ASSERT_NEAR((Q.conjugate_transpose() * Q - I).fro_norm(), 0, rounding_epsilon(T))<<"||Q'Q - 1||\n";
+  ASSERT_NEAR((A - QR).fro_norm(), 0, rounding_epsilon(T))<<"||A - QR||\n";
+  ASSERT_NEAR((A * x - b).two_norm(), 0, rounding_epsilon(T))<<"||Ax - b||\n";
 }
+
 
 #define inst(T) template void new_test(T *);
 inst(float);
@@ -142,8 +159,8 @@ inst(std::complex<float>);
 inst(std::complex<double>);
 #undef inst
 
-void
-complex_test()
+
+TEST(vnl_qr, complex_test)
 {
   using ct = std::complex<double>;
 
@@ -176,28 +193,20 @@ complex_test()
   b(2) = ct(-0.2385, 0.4884);
   b(3) = ct(0.0538, 0.0402);
   b(4) = ct(1.8634, .64558);
-  vnl_matlab_print(std::cout, b, "b");
+  //vnl_matlab_print(std::cout, b, "b");
   vnl_qr<ct> qr(A);
-  vnl_matlab_print(std::cout, A, "A");
+  //vnl_matlab_print(std::cout, A, "A");
   const vnl_matrix<ct> & Q = qr.Q();
-  vnl_matlab_print(std::cout, Q, "Q");
+  //vnl_matlab_print(std::cout, Q, "Q");
   const vnl_matrix<ct> & R = qr.R();
-  vnl_matlab_print(std::cout, R, "R");
+  //vnl_matlab_print(std::cout, R, "R");
   vnl_vector<ct> x = qr.solve(b);
-  vnl_matlab_print(std::cout, x, "solve");
-  TEST_NEAR("||Ax - b||", (A * x - b).two_norm(), 0, 1e-5);
+  //vnl_matlab_print(std::cout, x, "solve");
+  ASSERT_NEAR((A * x - b).two_norm(), 0, 1e-5)<<"||Ax - b||\n";
 }
 
-//--------------------------------------------------------------------------------
-
-extern "C" void
-test_qr()
+TEST(vnl_qr, test_qr)
 {
-  std::cout << "-------------------- double_complex\n";
-  complex_test();
-  std::cout << "-------------------- double\n";
-  double_test();
-
   std::cout << "-------------------- float\n";
   new_test((float *)nullptr);
   std::cout << "-------------------- double\n";
@@ -208,5 +217,3 @@ test_qr()
   new_test((std::complex<double> *)nullptr);
 }
 
-TESTMAIN(test_qr);
-*/
