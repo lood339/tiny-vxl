@@ -1,10 +1,6 @@
 #include <iostream>
 #include <fstream>
 
-//#include "vpl/vpl.h"
-//#include "vnl/vnl_fwd.h"
-//#include "vnl/vnl_double_3.h"
-
 #include <vpgl/vpgl_perspective_camera.h>
 #include <vnl/vnl_math.h>
 #include <vgl/vgl_point_2d.h>

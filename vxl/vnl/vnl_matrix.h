@@ -1333,6 +1333,28 @@ void vnl_matrix<T>::clear()
 {
     *this = vnl_matrix<T>();
 }
+
+// Resizes the data arrays of THIS matrix to (rows x cols). O(m*n).
+// Elements are not initialized, existing data is not preserved.
+// Returns true if size is changed.
+
+template <class T>
+bool vnl_matrix<T>::set_size (unsigned rowz, unsigned colz)
+{
+    if (!this->empty()) {
+        // if no change in size, do not reallocate.
+        if (this->rows() == rowz && this->cols() == colz)
+            return false;
+        
+        base_class::resize(rowz, colz);
+    }
+    else {
+        // This happens if the matrix is default constructed.
+        base_class::resize(rowz, colz);
+    }
+    return true;
+}
+
 //:
 // \relatesalso vnl_matrix
 template<class T>

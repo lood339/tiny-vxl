@@ -302,7 +302,7 @@ public:
     bool is_zero() const;
     
     //: Return true iff the size is zero.
-    bool empty() const { return base_class::Size() == 0; }
+    bool empty() const { return base_class::size() == 0; }
     
     //:  Return true if all elements of vectors are equal, within given tolerance
     bool is_equal(vnl_vector<T> const& rhs, double tol) const;
@@ -322,7 +322,7 @@ public:
     bool set_size(size_t n);
     
     //: Make the vector as if it had been default-constructed.
-    //void clear();
+    void clear();
     
 };
 
@@ -696,6 +696,28 @@ bool vnl_vector<T>::is_equal(vnl_vector<T> const& rhs, double tol) const
     for (size_t i = 0; i < this->size(); i++)
         if (std::abs(this->data()[i] - rhs.data()[i]) > tol)    //Element different ?
             return false;
+    return true;
+}
+
+template<class T>
+void vnl_vector<T>::clear()
+{
+    base_class::resize(0);
+}
+
+template<class T>
+bool vnl_vector<T>::set_size(size_t n)
+{
+    if (!this->empty()) {
+        // if no change in size, do not reallocate.
+        if (this->size() == n)
+            return false;
+        base_class::resize(0);
+    }
+    else {
+        // this happens if the vector is default constructed.
+        base_class::resize(0);
+    }
     return true;
 }
 
