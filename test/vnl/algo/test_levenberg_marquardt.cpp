@@ -11,20 +11,22 @@
 
 using vnl_double_2 = vnl_vector_fixed<double, 2>;
 
-struct vnl_rosenbrock : public vnl_least_squares_function
+class vnl_rosenbrock : public vnl_least_squares_function
 {
+public:
   vnl_rosenbrock(bool with_grad)
     : vnl_least_squares_function(2, 2, with_grad ? use_gradient : no_gradient)
   {}
+    
 
-  void
-  f(vnl_vector<double> const & x, vnl_vector<double> & y) const override
-  {
-    EXPECT_EQ(x.size(), 2);
-    EXPECT_EQ(y.size(), 2);
-    y[0] = 10 * (x[1] - x[0] * x[0]);
-    y[1] = 1 - x[0];
-  }
+    void
+    f(vnl_vector<double> const & x, vnl_vector<double> & y) const override
+    {
+        EXPECT_EQ(x.size(), 2);
+        EXPECT_EQ(y.size(), 2);
+        y[0] = 10 * (x[1] - x[0] * x[0]);
+        y[1] = 1 - x[0];
+    }
 
   void
   gradf(vnl_vector<double> const & x, vnl_matrix<double> & J) override
@@ -37,7 +39,7 @@ struct vnl_rosenbrock : public vnl_least_squares_function
     J[1][1] = 0;
   }
 };
-
+/*
 struct linear_est : public vnl_least_squares_function
 {
   linear_est(vnl_matrix<double> const &A, vnl_vector<double> b, bool with_grad)
@@ -56,7 +58,7 @@ struct linear_est : public vnl_least_squares_function
   }
 
   void
-  gradf(vnl_vector<double> const & /*x*/, vnl_matrix<double> & J) override
+  gradf(vnl_vector<double> const & x, vnl_matrix<double> & J) override
   {
     J = A_;
   }
@@ -64,7 +66,7 @@ struct linear_est : public vnl_least_squares_function
   vnl_matrix<double> A_;
   vnl_vector<double> b_;
 };
-
+*/
 static void
 do_rosenbrock_test(bool with_grad)
 {
@@ -74,13 +76,15 @@ do_rosenbrock_test(bool with_grad)
     vnl_double_2 x0(2.7, -1.3);
     std::cout << "x0 = " << x0 << std::endl;
 
-    vnl_levenberg_marquardt lm(f);
+    vnl_levenberg_marquardt<vnl_rosenbrock> lm(f);
 
     vnl_vector<double> x1 = x0.as_vector();
+    /*
     if (f.has_gradient())
         lm.minimize_using_gradient(x1);
     else
-        lm.minimize_without_gradient(x1);
+     */
+    lm.minimize_without_gradient(x1);
     lm.diagnose_outcome(std::cout);
     std::cout << "x1 = " << x1 << std::endl;
 

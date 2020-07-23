@@ -37,13 +37,26 @@
 //    computation.  For the moment it's non-const, but we'll see...
 class VNL_EXPORT vnl_least_squares_function
 {
-    using RowVectorXd = Eigen::Matrix<double, Eigen::Dynamic, 1, Eigen::ColMajor>;
- public:
-  enum  UseGradient {
-    no_gradient,
-    use_gradient
-  };
-  bool failure;
+public:
+    typedef double Scalar;
+    using ColVectorXd = Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Eigen::ColMajor>;
+    using ColMatrixD = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>; // ? why RowMajor not work?
+    
+    typedef ColVectorXd InputType;
+    typedef ColVectorXd ValueType;
+    typedef ColMatrixD JacobianType;
+    
+    enum {
+        InputsAtCompileTime = Eigen::Dynamic,
+        ValuesAtCompileTime = Eigen::Dynamic
+    };
+    
+public:
+    enum  UseGradient {
+            no_gradient,
+            use_gradient
+        };
+    bool failure;
 
   //: Construct vnl_least_squares_function.
   // Passing number of parameters (unknowns, domain dimension) and number of
@@ -64,32 +77,33 @@ class VNL_EXPORT vnl_least_squares_function
   void clear_failure() { failure = false; }
     
     // Interface for LevenbergMarquardt Functor
-    int inputs() const {return p_;}
-    int values() const {return n_;}
     
+    int inputs() const { return p_;}
+    int values() const { return n_;}
     
-    int operator()(const RowVectorXd &x, RowVectorXd &fvec) const
+    int operator()(const ColVectorXd &x, ColVectorXd &fvec) const
     {
-        
-        //Eigen::Map<vnl_vector<double>> v_x(x.data(), x.size());
-        //Eigen::Map<vnl_vector<double>&> v_fvec(fvec.data(), fvec.size());
+        // @this is slow because it copies data in each iteration
         vnl_vector<double> v_x = x;
         vnl_vector<double> v_fvec = fvec;
         this->f(v_x, v_fvec);
         for(int i = 0; i<fvec.size(); ++i) {
             fvec[i] = v_fvec[i];
         }
-     
         return 0;
     }
-     /**/
+    
     //int df(const RowVectorXd &x, RowVectorXd &fjac) const;
+    
     
 
   //: The main function.
   //  Given the parameter vector x, compute the vector of residuals fx.
   //  Fx has been sized appropriately before the call.
-  virtual void f(vnl_vector<double> const& x, vnl_vector<double>& fx) const = 0;
+    virtual void f(vnl_vector<double> const& x, vnl_vector<double>& fx) const
+    {
+        assert(0); // not not be called
+    }
 
   //: Calculate the Jacobian, given the parameter vector x.
   virtual void gradf(vnl_vector<double> const& x, vnl_matrix<double>& jacobian);

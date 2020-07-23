@@ -28,6 +28,9 @@
 #include <vnl/vnl_least_squares_function.h>
 #include <vnl/algo/vnl_algo_export.h>
 
+#include <unsupported/Eigen/NonLinearOptimization>
+#include <unsupported/Eigen/NumericalDiff>
+
 //#include "vnl/vnl_fastops.h"
 //#include "vnl/vnl_matrix_ref.h"
 //#include <vnl/algo/vnl_netlib.h> // lmdif_()
@@ -44,55 +47,72 @@ class vnl_least_squares_function;
 //  (See Hartley in ``Applications of Invariance in Computer Vision''
 //  for example).
 
+template <typename T>
 class VNL_ALGO_EXPORT vnl_levenberg_marquardt : public vnl_nonlinear_minimizer
 {
+    // T is derived from vnl_least_squares_function
+    using NumericalDiffFunctor = Eigen::NumericalDiff<T>;
+    
+protected:
+    // from Eigen
+    NumericalDiffFunctor num_dif_functor_;
+    Eigen::LevenbergMarquardt<NumericalDiffFunctor, double> lmq_;
  public:
 
-  //: Initialize with the function object that is to be minimized.
-  vnl_levenberg_marquardt(vnl_least_squares_function& f) { init(&f); }
+    //: Initialize with the function object that is to be minimized.
+    vnl_levenberg_marquardt(T& f):
+    num_dif_functor_(&f),
+    lmq_(num_dif_functor_)
+    {
+        //assert(std::is_base_of<vnl_least_squares_function, T>::value);//
+        init(&f);
+    }
+   
 
-  ~vnl_levenberg_marquardt() override;
+    ~vnl_levenberg_marquardt() override;
 
-  //: Minimize the function supplied in the constructor until convergence or failure.
-  //  On return, x is such that f(x) is the lowest value achieved.
-  //  Returns true for convergence, false for failure.
-  //  Does not use the gradient even if the cost function provides one.
-  bool minimize_without_gradient(vnl_vector<double>& x);
+    //: Minimize the function supplied in the constructor until convergence or failure.
+    //  On return, x is such that f(x) is the lowest value achieved.
+    //  Returns true for convergence, false for failure.
+    //  Does not use the gradient even if the cost function provides one.
+    bool minimize_without_gradient(vnl_vector<double>& x);
 
-  //: Minimize the function supplied in the constructor until convergence or failure.
-  //  On return, x is such that f(x) is the lowest value achieved.
-  //  Returns true for convergence, false for failure.
-  //  The cost function must provide a gradient.
-  bool minimize_using_gradient  (vnl_vector<double>& x);
+    //: Minimize the function supplied in the constructor until convergence or failure.
+    //  On return, x is such that f(x) is the lowest value achieved.
+    //  Returns true for convergence, false for failure.
+    //  The cost function must provide a gradient.
+    bool minimize_using_gradient  (vnl_vector<double>& x);
 
-  //: Calls minimize_using_gradient() or minimize_without_gradient(),
-  // depending on whether the cost function provides a gradient.
-  bool minimize(vnl_vector<double>& x);
-  bool minimize(vnl_vector_fixed<double,1>& x) { vnl_vector<double> y=x.extract(1); bool b=minimize(y); x=y; return b; }
-  bool minimize(vnl_vector_fixed<double,2>& x) { vnl_vector<double> y=x.extract(2); bool b=minimize(y); x=y; return b; }
-  bool minimize(vnl_vector_fixed<double,3>& x) { vnl_vector<double> y=x.extract(3); bool b=minimize(y); x=y; return b; }
-  bool minimize(vnl_vector_fixed<double,4>& x) { vnl_vector<double> y=x.extract(4); bool b=minimize(y); x=y; return b; }
+    //: Calls minimize_using_gradient() or minimize_without_gradient(),
+    // depending on whether the cost function provides a gradient.
+    bool minimize(vnl_vector<double>& x);
+    bool minimize(vnl_vector_fixed<double,1>& x) { vnl_vector<double> y=x.extract(1); bool b=minimize(y); x=y; return b; }
+    bool minimize(vnl_vector_fixed<double,2>& x) { vnl_vector<double> y=x.extract(2); bool b=minimize(y); x=y; return b; }
+    bool minimize(vnl_vector_fixed<double,3>& x) { vnl_vector<double> y=x.extract(3); bool b=minimize(y); x=y; return b; }
+    bool minimize(vnl_vector_fixed<double,4>& x) { vnl_vector<double> y=x.extract(4); bool b=minimize(y); x=y; return b; }
 
-  // Coping with failure-------------------------------------------------------
+    // Coping with failure-------------------------------------------------------
 
-  //: Provide an ASCII diagnosis of the last minimization on std::ostream.
-  void diagnose_outcome(/*std::cerr*/) const;
-  void diagnose_outcome(std::ostream&) const;
+    //: Provide an ASCII diagnosis of the last minimization on std::ostream.
+    void diagnose_outcome(/*std::cerr*/) const;
+    void diagnose_outcome(std::ostream&) const;
 
-  //: Return J'*J computed at last minimum.
-  //  it is an approximation of inverse of covariance
-  vnl_matrix<double> const& get_JtJ();
+    //: Return J'*J computed at last minimum.
+    //  it is an approximation of inverse of covariance
+    vnl_matrix<double> const& get_JtJ();
 
  protected:
+    // From Eigen
+   
 
-  vnl_least_squares_function* f_;
-  vnl_matrix<double> fdjac_; // Computed during lmdif/lmder
-  vnl_vector<long>    ipvt_; // Also computed, both needed to get J'*J at end.
+    T* f_;
+    vnl_matrix<double> fdjac_; // Computed during lmdif/lmder
+    vnl_vector<long>    ipvt_; // Also computed, both needed to get J'*J at end.
 
-  vnl_matrix<double> inv_covar_;
-  bool set_covariance_; // Set if covariance_ holds J'*J
+    vnl_matrix<double> inv_covar_;
+    bool set_covariance_; // Set if covariance_ holds J'*J
 
-  void init(vnl_least_squares_function* f);
+    void init(T* f);
 
     /*
   // Communication with callback
@@ -110,6 +130,7 @@ vnl_vector<double> vnl_levenberg_marquardt_minimize(vnl_least_squares_function& 
 
 // copy from .cpp
 // see header
+/*
 vnl_vector<double>
 vnl_levenberg_marquardt_minimize(vnl_least_squares_function & f, vnl_vector<double> const & initial_estimate)
 {
@@ -118,11 +139,14 @@ vnl_levenberg_marquardt_minimize(vnl_least_squares_function & f, vnl_vector<doub
     lm.minimize(x);
     return x;
 }
+ */
 
 // ctor
-void
-vnl_levenberg_marquardt::init(vnl_least_squares_function * f)
+template <typename T>
+void vnl_levenberg_marquardt<T>::init(T * f)
 {
+   // lmq_ = Eigen::LevenbergMarquardt<Eigen::NumericalDiff<vnl_least_squares_function>, double>(*f);
+    
     f_ = f;
     
     // If changing these defaults, check the help comments in vnl_levenberg_marquardt.h,
@@ -146,9 +170,12 @@ vnl_levenberg_marquardt::init(vnl_least_squares_function * f)
     // fdjac_ = new vnl_matrix<double>(n,m);
     // ipvt_ = new vnl_vector<int>(n);
     // covariance_ = new vnl_matrix<double>(n,n);
+    
+    
 }
 
-vnl_levenberg_marquardt::~vnl_levenberg_marquardt()
+template <typename T>
+vnl_levenberg_marquardt<T>::~vnl_levenberg_marquardt()
 {
     // delete covariance_;
     // delete fdjac_;
@@ -205,8 +232,9 @@ vnl_levenberg_marquardt::lmdif_lsqfun(long * n,     // I   Number of residuals
 // performing the minimisation, so the inline doesn't gain you
 // anything.
 //
+template <typename T>
 bool
-vnl_levenberg_marquardt::minimize(vnl_vector<double> & x)
+vnl_levenberg_marquardt<T>::minimize(vnl_vector<double> & x)
 {
     if (f_->has_gradient())
         return minimize_using_gradient(x);
@@ -215,9 +243,11 @@ vnl_levenberg_marquardt::minimize(vnl_vector<double> & x)
 }
 
 //
+template <typename T>
 bool
-vnl_levenberg_marquardt::minimize_without_gradient(vnl_vector<double> & x)
+vnl_levenberg_marquardt<T>::minimize_without_gradient(vnl_vector<double> & x)
 {
+    
     // fsm
     if (f_->has_gradient())
     {
@@ -234,6 +264,7 @@ vnl_levenberg_marquardt::minimize_without_gradient(vnl_vector<double> & x)
         failure_code_ = ERROR_DODGY_INPUT;
         return false;
     }
+     
     
     if (int(x.size()) != n)
     {
@@ -243,77 +274,13 @@ vnl_levenberg_marquardt::minimize_without_gradient(vnl_vector<double> & x)
         return false;
     }
     
-    vnl_vector<double> fx(m, 0.0);        // W m   Storage for target vector
-    vnl_vector<double> diag(n, 0);        // I     Multiplicative scale factors for variables
-    long user_provided_scale_factors = 1; // 1 is no, 2 is yes
-    double factor = 100;
-    long nprint = 1;
+    vnl_least_squares_function::InputType v_x = x;
     
-    vnl_vector<double> qtf(n, 0);
-    vnl_vector<double> wa1(n, 0);
-    vnl_vector<double> wa2(n, 0);
-    vnl_vector<double> wa3(n, 0);
-    vnl_vector<double> wa4(m, 0);
-    
-#ifdef DEBUG
-    std::cerr << "STATUS: " << failure_code_ << '\n';
-#endif
-    
-    num_iterations_ = 0;
-    set_covariance_ = false;
-    long info;
-    start_error_ = 0; // Set to 0 so first call to lmdif_lsqfun will know to set it.
-    /*
-    v3p_netlib_lmdif_(lmdif_lsqfun,
-                      &m,
-                      &n,
-                      x.data_block(),
-                      fx.data_block(),
-                      &ftol,
-                      &xtol,
-                      &gtol,
-                      &maxfev,
-                      &epsfcn,
-                      &diag[0],
-                      &user_provided_scale_factors,
-                      &factor,
-                      &nprint,
-                      &info,
-                      &num_evaluations_,
-                      fdjac_.data_block(),
-                      &m,
-                      ipvt_.data_block(),
-                      &qtf[0],
-                      &wa1[0],
-                      &wa2[0],
-                      &wa3[0],
-                      &wa4[0],
-                      this);
-     */
-    failure_code_ = (ReturnCodes)info;
-    
-    /*
-    // One more call to compute final error.
-    lmdif_lsqfun(&m,              // I    Number of residuals
-                 &n,              // I    Number of unknowns
-                 x.data_block(),  // I    Solution vector, size n
-                 fx.data_block(), // O    Residual vector f(x)
-                 &info,
-                 this);
-     */
-    end_error_ = fx.rms();
-    
-    // Translate status code
-    switch ((int)failure_code_)
-    {
-        case 1: // ftol
-        case 2: // xtol
-        case 3: // both
-        case 4: // gtol
-            return true;
-        default:
-            return false;
-    }
+    Eigen::LevenbergMarquardtSpace::Status status = lmq_.minimize(v_x);
+    std::cout<<"Debug ...... LMQ status: "<<status<<std::endl;
+    x = v_x;
+    return true;
+
 }
 
 //--------------------------------------------------------------------------------
@@ -403,8 +370,9 @@ vnl_levenberg_marquardt::lmder_lsqfun(long * n,    // I   Number of residuals
 */
 
 //
+template <typename T>
 bool
-vnl_levenberg_marquardt::minimize_using_gradient(vnl_vector<double> & x)
+vnl_levenberg_marquardt<T>::minimize_using_gradient(vnl_vector<double> & x)
 {
     // fsm
     if (!f_->has_gradient())
@@ -492,16 +460,18 @@ vnl_levenberg_marquardt::minimize_using_gradient(vnl_vector<double> & x)
 
 //--------------------------------------------------------------------------------
 
+template <typename T>
 void
-vnl_levenberg_marquardt::diagnose_outcome() const
+vnl_levenberg_marquardt<T>::diagnose_outcome() const
 {
     diagnose_outcome(std::cerr);
 }
 
 // fsm: should this function be a method on vnl_nonlinear_minimizer?
 // if not, the return codes should be moved into LM.
+template <typename T>
 void
-vnl_levenberg_marquardt::diagnose_outcome(std::ostream & s) const
+vnl_levenberg_marquardt<T>::diagnose_outcome(std::ostream & s) const
 {
 #define whoami "vnl_levenberg_marquardt"
     // if (!verbose_) return;
@@ -567,8 +537,9 @@ vnl_levenberg_marquardt::diagnose_outcome(std::ostream & s) const
 
 //: Get INVERSE of covariance at last minimum.
 // Code thanks to Joss Knight (joss@robots.ox.ac.uk)
+template <typename T>
 vnl_matrix<double> const &
-vnl_levenberg_marquardt::get_JtJ()
+vnl_levenberg_marquardt<T>::get_JtJ()
 {
     /*
     if (!set_covariance_)
