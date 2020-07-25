@@ -45,9 +45,9 @@ public:
         *this = base_class::Zero(n);
         std::memcpy(this->data(), datablck, n*sizeof(T));
     }
-    
+   
     //: Copy constructor.
-    //vnl_vector(vnl_vector<T> const&);
+    vnl_vector(const vnl_vector<T> &)=default;
     
     // NOTE: move-assignment must be allowed to throw an exception, because we need to maintain
     //       backwards compatibility and the move-construction & move-aasignment

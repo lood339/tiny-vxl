@@ -31,10 +31,6 @@
 #include <unsupported/Eigen/NonLinearOptimization>
 #include <unsupported/Eigen/NumericalDiff>
 
-//#include "vnl/vnl_fastops.h"
-//#include "vnl/vnl_matrix_ref.h"
-//#include <vnl/algo/vnl_netlib.h> // lmdif_()
-
 class vnl_least_squares_function;
 
 //: Levenberg Marquardt nonlinear least squares
@@ -52,6 +48,7 @@ class VNL_ALGO_EXPORT vnl_levenberg_marquardt : public vnl_nonlinear_minimizer
 {
     // T is derived from vnl_least_squares_function
     using NumericalDiffFunctor = Eigen::NumericalDiff<T>;
+    using JacobianType = vnl_least_squares_function::JacobianType;
     
 protected:
     // from Eigen
@@ -61,7 +58,7 @@ protected:
 
     //: Initialize with the function object that is to be minimized.
     vnl_levenberg_marquardt(T& f):
-    num_dif_functor_(&f),
+    num_dif_functor_(std::ref(f)), // @why need std::ref
     lmq_(num_dif_functor_)
     {
         //assert(std::is_base_of<vnl_least_squares_function, T>::value);//
@@ -284,92 +281,6 @@ vnl_levenberg_marquardt<T>::minimize_without_gradient(vnl_vector<double> & x)
 }
 
 //--------------------------------------------------------------------------------
-
-/*
-void
-vnl_levenberg_marquardt::lmder_lsqfun(long * n,    // I   Number of residuals
-                                      long * p,    // I   Number of unknowns
-                                      double * x,  // I   Solution vector, size n
-                                      double * fx, // O   Residual vector f(x)
-                                      double * fJ, // O   m * n Jacobian f(x)
-                                      long *,
-                                      long * iflag, // I   1 -> calc fx, 2 -> calc fjac
-                                      void * userdata)
-{
-    auto * self = static_cast<vnl_levenberg_marquardt *>(userdata);
-    vnl_least_squares_function * f = self->f_;
-    assert(*p == (int)f->get_number_of_unknowns());
-    assert(*n == (int)f->get_number_of_residuals());
-    vnl_vector_ref<double> ref_x(*p, (double *)x); // const violation!
-    vnl_vector_ref<double> ref_fx(*n, fx);
-    vnl_matrix_ref<double> ref_fJ(*n, *p, fJ);
-    
-    if (*iflag == 0)
-    {
-        if (self->trace)
-            std::cerr << "lmder: iter " << self->num_iterations_ << " err [" << x[0] << ", " << x[1] << ", " << x[2] << ", "
-            << x[3] << ", " << x[4] << ", ... ] = " << ref_fx.magnitude() << '\n';
-        f->trace(self->num_iterations_, ref_x, ref_fx);
-    }
-    else if (*iflag == 1)
-    {
-        f->f(ref_x, ref_fx);
-        if (self->start_error_ == 0)
-            self->start_error_ = ref_fx.rms();
-        ++(self->num_iterations_);
-    }
-    else if (*iflag == 2)
-    {
-        f->gradf(ref_x, ref_fJ);
-        ref_fJ.inplace_transpose();
-        
-        // check derivative?
-        if (self->check_derivatives_ > 0)
-        {
-            self->check_derivatives_--;
-            
-            // use finite difference to compute Jacobian
-            vnl_vector<double> feval(*n);
-            vnl_matrix<double> finite_jac(*p, *n, 0.0);
-            vnl_vector<double> wa1(*n);
-            long info = 1;
-            double diff;
-            f->f(ref_x, feval);
-            v3p_netlib_fdjac2_(lmdif_lsqfun,
-                               n,
-                               p,
-                               x,
-                               feval.data_block(),
-                               finite_jac.data_block(),
-                               n,
-                               &info,
-                               &(self->epsfcn),
-                               wa1.data_block(),
-                               self);
-            // compute difference
-            for (unsigned i = 0; i < ref_fJ.cols(); ++i)
-                for (unsigned j = 0; j < ref_fJ.rows(); ++j)
-                {
-                    diff = ref_fJ(j, i) - finite_jac(j, i);
-                    diff = diff * diff;
-                    if (diff > self->epsfcn)
-                    {
-                        std::cout << "Jac(" << i << ", " << j << ") diff: " << ref_fJ(j, i) << "  " << finite_jac(j, i) << "  "
-                        << ref_fJ(j, i) - finite_jac(j, i) << '\n';
-                    }
-                }
-        }
-    }
-    
-    if (f->failure)
-    {
-        f->clear_failure();
-        *iflag = -1; // fsm
-    }
-}
-*/
-
-//
 template <typename T>
 bool
 vnl_levenberg_marquardt<T>::minimize_using_gradient(vnl_vector<double> & x)
@@ -390,7 +301,13 @@ vnl_levenberg_marquardt<T>::minimize_using_gradient(vnl_vector<double> & x)
         failure_code_ = ERROR_DODGY_INPUT;
         return false;
     }
+    vnl_least_squares_function::InputType v_x = x;
+    Eigen::LevenbergMarquardtSpace::Status status = lmq_.minimize(v_x);
+    std::cout<<"Debug ...... LMQ status: "<<status<<std::endl;
+    x = v_x;
+    return true;
     
+    /*
     vnl_vector<double> fx(m, 0.0); // W m   Explicitly set target to 0.0
     
     num_iterations_ = 0;
@@ -409,6 +326,8 @@ vnl_levenberg_marquardt<T>::minimize_using_gradient(vnl_vector<double> & x)
     vnl_vector<double> wa2(n, 0);
     vnl_vector<double> wa3(n, 0);
     vnl_vector<double> wa4(m, 0);
+    */
+    
     
     /*
     v3p_netlib_lmder_(lmder_lsqfun,
@@ -440,6 +359,7 @@ vnl_levenberg_marquardt<T>::minimize_using_gradient(vnl_vector<double> & x)
     
     
     num_evaluations_ = num_iterations_; // for lmder, these are the same.
+    /*
     if (info < 0)
         info = ERROR_FAILURE;
     failure_code_ = (ReturnCodes)info;
@@ -456,6 +376,7 @@ vnl_levenberg_marquardt<T>::minimize_using_gradient(vnl_vector<double> & x)
         default:
             return false;
     }
+     */
 }
 
 //--------------------------------------------------------------------------------
@@ -541,6 +462,12 @@ template <typename T>
 vnl_matrix<double> const &
 vnl_levenberg_marquardt<T>::get_JtJ()
 {
+    std::cerr<<"Error  vnl_levenberg_marquardt<T>::get_JtJ() is not supported \n";
+    JacobianType J = lmq_.fjac;
+    JacobianType JtJ = J.transpose()*J;
+    inv_covar_ = JtJ;
+    return inv_covar_;
+    
     /*
     if (!set_covariance_)
     {
@@ -587,8 +514,8 @@ vnl_levenberg_marquardt<T>::get_JtJ()
         
         set_covariance_ = true;
     }
+     return inv_covar_;
      */
-    return inv_covar_;
 }
 
 #endif // vnl_levenberg_marquardt_h_

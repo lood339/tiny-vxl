@@ -28,63 +28,70 @@ public:
         y[1] = 1 - x[0];
     }
 
-  void
-  gradf(vnl_vector<double> const & x, vnl_matrix<double> & J) override
-  {
-    EXPECT_EQ(x.size(), 2);
-    EXPECT_EQ(J.rows() == 2 && J.cols() == 2, true);
-    J[0][0] = -20 * x[0];
-    J[0][1] = 10;
-    J[1][0] = -1;
-    J[1][1] = 0;
-  }
+    void
+    gradf(vnl_vector<double> const & x, vnl_matrix<double> & J) const override
+    {
+        EXPECT_EQ(x.size(), 2);
+        EXPECT_EQ(J.rows() == 2 && J.cols() == 2, true);
+        J[0][0] = -20 * x[0];
+        J[0][1] = 10;
+        J[1][0] = -1;
+        J[1][1] = 0;
+    }
 };
-/*
-struct linear_est : public vnl_least_squares_function
+
+class linear_est : public vnl_least_squares_function
 {
-  linear_est(vnl_matrix<double> const &A, vnl_vector<double> b, bool with_grad)
-      : vnl_least_squares_function(A.cols(), A.rows(),
-                                   with_grad ? use_gradient : no_gradient)
-      , A_(A)
-      , b_(std::move(b))
+public:
+    linear_est(vnl_matrix<double> const &A, vnl_vector<double> b, bool with_grad)
+    : vnl_least_squares_function(A.cols(), A.rows(),
+                                 with_grad ? use_gradient : no_gradient)
+    , A_(A)
+    , b_(b)
   {
-    assert(A_.rows() == b_.size());
+      assert(A_.rows() == b_.size());
   }
+    
+    void set_data(const vnl_matrix<double> &A, const vnl_vector<double>& b)
+    {
+        A_ = A;
+        b_ = b;
+        assert(A_.rows() == b_.size());
+    }
+    
+    void
+    f(vnl_vector<double> const & x, vnl_vector<double> & y) const override
+    {
+        y = A_ * x - b_;
+    }
+    
+    void
+    gradf(vnl_vector<double> const & x, vnl_matrix<double> & J) const override
+    {
+        J = A_;
+    }
 
-  void
-  f(vnl_vector<double> const & x, vnl_vector<double> & y) const override
-  {
-    y = A_ * x - b_;
-  }
-
-  void
-  gradf(vnl_vector<double> const & x, vnl_matrix<double> & J) override
-  {
-    J = A_;
-  }
-
-  vnl_matrix<double> A_;
-  vnl_vector<double> b_;
+    vnl_matrix<double> A_;
+    vnl_vector<double> b_;
 };
-*/
+
+
 static void
 do_rosenbrock_test(bool with_grad)
 {
-    
     vnl_rosenbrock f(with_grad);
 
     vnl_double_2 x0(2.7, -1.3);
     std::cout << "x0 = " << x0 << std::endl;
 
     vnl_levenberg_marquardt<vnl_rosenbrock> lm(f);
-
     vnl_vector<double> x1 = x0.as_vector();
-    /*
+    
     if (f.has_gradient())
         lm.minimize_using_gradient(x1);
     else
-     */
-    lm.minimize_without_gradient(x1);
+        lm.minimize_without_gradient(x1);
+    
     lm.diagnose_outcome(std::cout);
     std::cout << "x1 = " << x1 << std::endl;
 
@@ -97,7 +104,7 @@ do_rosenbrock_test(bool with_grad)
 static void
 do_linear_test(bool with_grad)
 {
-    /*
+    
   vnl_matrix<double> A(6, 2, 1.0);
   vnl_vector<double> b(6);
 
@@ -115,8 +122,10 @@ do_linear_test(bool with_grad)
   b(4) = 1;
   b(5) = 24.3;
 
+    
   linear_est f(A, b, with_grad);
-  vnl_levenberg_marquardt lm(f);
+  vnl_levenberg_marquardt<linear_est> lm(f);
+    
   vnl_vector<double> x(2, -1000.0); // init can be far off
   // since obj function is linear
   // high precision can be achieved
@@ -129,41 +138,43 @@ do_linear_test(bool with_grad)
   else
     lm.minimize_without_gradient(x);
   lm.diagnose_outcome(std::cout);
-  std::cout << "x = " << x << std::endl;
+    
 
-  vnl_vector<double> true_x(2);
-  true_x[1] = 0.969684757298943;
-  true_x[0] = 0.595607200429874;
+    vnl_vector<double> true_x(2);
+    true_x[0] = 0.595607200429874;
+    true_x[1] = 0.969684757298943;
+    std::cout << "true      x = \n" << true_x << std::endl;
+    std::cout << "estiamted x = \n" << x << std::endl;
+    ASSERT_NEAR((true_x - x).two_norm(), 0, 1e-6)<<"converged to true estimate\n";
+    
+    /*
+    // now check (inverse of) covariance approximation
+    vnl_matrix<double> true_cov(2, 2);
+    true_cov(0, 0) = 6;
+    true_cov(1, 0) = 75;
+    true_cov(0, 1) = 75;
+    true_cov(1, 1) = 1384.14;
 
-  ASSERT_NEAR((true_x - x).two_norm(), 0, 1e-6)<<"converged to true estimate\n";
-
-  // now check (inverse of) covariance approximation
-  vnl_matrix<double> true_cov(2, 2);
-  true_cov(0, 0) = 6;
-  true_cov(1, 0) = 75;
-  true_cov(0, 1) = 75;
-  true_cov(1, 1) = 1384.14;
-
-  vnl_matrix<double> covar = lm.get_JtJ();
-  std::cout << "Cov(x) =\n" << covar << std::endl;
-  ASSERT_NEAR((true_cov - covar).array_two_norm(), 0, 1e-5)<<"covariance approximation\n";
+    vnl_matrix<double> covar = lm.get_JtJ();
+    std::cout << "true      cov(x) =\n" << true_cov << std::endl;
+    std::cout << "Estiamted cov(x) =\n" << covar << std::endl;
+    ASSERT_NEAR((true_cov - covar).array_two_norm(), 0, 1e-5)<<"covariance approximation\n";
      */
 }
+
 
 TEST(levenberg_marquardt, rosenbrock)
 {
     do_rosenbrock_test(false);
+    do_rosenbrock_test(true);
 }
 
-static
-void test_levenberg_marquardt()
+TEST(levenberg_marquardt, linear_test)
 {
-    //do_rosenbrock_test(false);
-
-    //do_linear_test(true);
-    //do_linear_test(false);
+    do_linear_test(true);
+    do_linear_test(false);
 }
 
-/*
-TESTMAIN(test_levenberg_marquardt);
- */
+
+
+

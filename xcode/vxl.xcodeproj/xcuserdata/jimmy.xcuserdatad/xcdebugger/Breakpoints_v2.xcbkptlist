@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../vxl/vnl/algo/vnl_levenberg_marquardt.h"
-            timestampString = "617240931.634099"
+            timestampString = "617408688.320564"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "280"
-            endingLineNumber = "280"
+            startingLineNumber = "277"
+            endingLineNumber = "277"
             landmarkName = "minimize_without_gradient(vnl_vector&lt;double&gt; &amp; x)"
             landmarkType = "9">
          </BreakpointContent>
@@ -74,23 +74,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../test/vnl/algo/test_levenberg_marquardt.cpp"
-            timestampString = "617240931.63455"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
-            landmarkName = "do_rosenbrock_test(bool with_grad)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../test/vnl/algo/test_levenberg_marquardt.cpp"
-            timestampString = "617240931.6346281"
+            timestampString = "617408688.3209341"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "18"
@@ -106,13 +90,141 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../test/vnl/algo/test_levenberg_marquardt.cpp"
-            timestampString = "617240931.634706"
+            timestampString = "617408688.321189"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "79"
-            endingLineNumber = "79"
+            startingLineNumber = "82"
+            endingLineNumber = "82"
             landmarkName = "do_rosenbrock_test(bool with_grad)"
             landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../vxl/vnl/vnl_least_squares_function.h"
+            timestampString = "617320815.082822"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "90"
+            endingLineNumber = "90"
+            landmarkName = "operator()(const ColVectorXd &amp;x, ColVectorXd &amp;fvec)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../vxl/vnl/vnl_least_squares_function.h"
+            timestampString = "617320815.082876"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "88"
+            endingLineNumber = "88"
+            landmarkName = "operator()(const ColVectorXd &amp;x, ColVectorXd &amp;fvec)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../vxl/vnl/vnl_least_squares_function.h"
+            timestampString = "617320815.0829231"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "operator()(const ColVectorXd &amp;x, ColVectorXd &amp;fvec)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../test/vnl/algo/test_levenberg_marquardt.cpp"
+            timestampString = "617408688.321449"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "122"
+            endingLineNumber = "122"
+            landmarkName = "do_linear_test(bool with_grad)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../test/vnl/algo/test_levenberg_marquardt.cpp"
+            timestampString = "617408688.321668"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "set_data(const vnl_matrix&lt;double&gt; &amp;A, const vnl_vector&lt;double&gt;&amp; b)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../third_part/eigen-3.3.7/unsupported/Eigen/src/NumericalDiff/NumericalDiff.h"
+            timestampString = "617394889.670158"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "NumericalDiff"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Eigen::NumericalDiff&lt;linear_est, (Eigen::NumericalDiffMode)0&gt;::NumericalDiff&lt;std::__1::reference_wrapper&lt;linear_est&gt; &gt;(std::__1::reference_wrapper&lt;linear_est&gt; const&amp;)"
+                  moduleName = "vxl"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jimmy/Code/tiny-vxl/third_part/eigen-3.3.7/unsupported/Eigen/src/NumericalDiff/NumericalDiff.h"
+                  timestampString = "617394882.763201"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "50"
+                  endingLineNumber = "50"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Eigen::NumericalDiff&lt;linear_est, (Eigen::NumericalDiffMode)0&gt;::NumericalDiff&lt;std::__1::reference_wrapper&lt;linear_est&gt; &gt;(std::__1::reference_wrapper&lt;linear_est&gt; const&amp;)"
+                  moduleName = "vxl"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jimmy/Code/tiny-vxl/third_part/eigen-3.3.7/unsupported/Eigen/src/NumericalDiff/NumericalDiff.h"
+                  timestampString = "617394882.765934"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "50"
+                  endingLineNumber = "50"
+                  offsetFromSymbolStart = "20">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

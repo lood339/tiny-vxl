@@ -74,7 +74,8 @@ public:
     
     //: Copy construct a matrix
     // Complexity $O(r.c)$
-    vnl_matrix(vnl_matrix<T> const& other) = default;    // from another matrix.
+    vnl_matrix(const vnl_matrix<T> & other) = default;    // from another matrix.
+    
     
     /*
     // NOTE: move-assignment must be allowed to throw an exception, because we need to maintain
