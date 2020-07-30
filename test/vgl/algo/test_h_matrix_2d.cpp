@@ -14,10 +14,9 @@
 #include <vnl/vnl_math.h>
 #include <vnl/vnl_matrix_fixed.h>
 #include <vgl/algo/vgl_h_matrix_2d.h>
-
-/*
 #include <vgl/algo/vgl_norm_trans_2d.h>
 #include <vgl/algo/vgl_h_matrix_2d_compute_linear.h>
+/*
 #include <vgl/algo/vgl_h_matrix_2d_compute_4point.h>
 #include <vgl/algo/vgl_h_matrix_2d_compute_rigid_body.h>
 #include <vgl/algo/vgl_h_matrix_2d_optimize_lmq.h>
@@ -174,7 +173,7 @@ TEST(vgl_h_matrix_2d, projective_basis_from_lines)
   EXPECT_EQ(concurrent_basis.projective_basis(concurrent_lines), false)<<"concurrent degeneracy\n";
 }
 
-/*
+
 TEST(vgl_h_matrix_2d, norm_trans)
 {
   std::cout << "\n=== Test the computation of normalizing transform\n";
@@ -215,57 +214,58 @@ TEST(vgl_h_matrix_2d, norm_trans)
 
   double sigma_x = std::sqrt(Sxx / 5.0), sigma_y = std::sqrt(Syy / 5.0);
   double error = (sigma_x - 1) * (sigma_y - 1);
-  TEST_NEAR("Transformed Variances", error + dg, 0.0, 1e-02);
+  ASSERT_NEAR(error + dg, 0.0, 1e-02)<<"Transformed Variances\n";
 }
- */
+
+TEST(vgl_h_matrix_2d, test_compute_linear_points)
+{
+    std::cout << "\n=== Test the recovery of a 2x scale transform using the "
+            << "linear algorithm ===\n";
+    std::vector<vgl_homg_point_2d<double>> points1, points2;
+    // setup points in frame 1
+    vgl_homg_point_2d<double> p10(0.0, 0.0, 1.0), p11(1.0, 0.0, 1.0);
+    vgl_homg_point_2d<double> p12(0.0, 1.0, 1.0), p13(1.0, 1.0, 1.0);
+    vgl_homg_point_2d<double> p14(0.5, 0.5, 1.0), p15(0.75, 0.75, 1.0);
+    points1.push_back(p10);
+    points1.push_back(p11);
+    points1.push_back(p12);
+    points1.push_back(p13);
+    points1.push_back(p14);
+    points1.push_back(p15);
+
+    // setup points in frame 2
+    vgl_homg_point_2d<double> p20(0.0, 0.0, 1.0), p21(2.0, 0.0, 1.0);
+    vgl_homg_point_2d<double> p22(0.0, 2.0, 1.0), p23(2.0, 2.0, 1.0);
+    vgl_homg_point_2d<double> p24(1.0, 1.0, 1.0), p25(1.5, 1.5, 1.0);
+    points2.push_back(p20);
+    points2.push_back(p21);
+    points2.push_back(p22);
+    points2.push_back(p23);
+    points2.push_back(p24);
+    points2.push_back(p25);
+
+    vgl_h_matrix_2d_compute_linear hmcl;
+    vgl_h_matrix_2d<double> H = hmcl.compute(points1, points2);
+    std::cout << "The resulting transform\n" << H << '\n';
+    vnl_matrix_fixed<double, 3, 3> M = H.get_matrix();
+    vgl_homg_point_2d<double> hdiag(M[0][0], M[1][1], M[2][2]);
+    std::cout << "The normalized upper diagonal " << hdiag << '\n';
+    ASSERT_NEAR(length(hdiag - p23), 0.0, 1e-06)<<"recover 2x scale matrix\n";
+    
+    /*
+    // Test if optimization converges
+    vgl_h_matrix_2d<double> h_init, h_opt;
+    M[0][0] += 0.1; // perturb the initial guess
+    h_init.set(M);
+    vgl_h_matrix_2d_optimize_lmq lmq(h_init);
+    lmq.optimize(points1, points2, h_opt);
+    std::cout << "The optimized transform\n" << h_opt << '\n';
+    vnl_matrix_fixed<double, 3, 3> Mop = h_opt.get_matrix();
+    ASSERT_NEAR(Mop[0][0] / Mop[2][2], 2.0, 5e-03)<<"Optimized Scale Factor\n";
+     */
+}
 
 /*
-static void
-test_compute_linear_points()
-{
-  std::cout << "\n=== Test the recovery of a 2x scale transform using the "
-            << "linear algorithm ===\n";
-  std::vector<vgl_homg_point_2d<double>> points1, points2;
-  // setup points in frame 1
-  vgl_homg_point_2d<double> p10(0.0, 0.0, 1.0), p11(1.0, 0.0, 1.0);
-  vgl_homg_point_2d<double> p12(0.0, 1.0, 1.0), p13(1.0, 1.0, 1.0);
-  vgl_homg_point_2d<double> p14(0.5, 0.5, 1.0), p15(0.75, 0.75, 1.0);
-  points1.push_back(p10);
-  points1.push_back(p11);
-  points1.push_back(p12);
-  points1.push_back(p13);
-  points1.push_back(p14);
-  points1.push_back(p15);
-
-  // setup points in frame 2
-  vgl_homg_point_2d<double> p20(0.0, 0.0, 1.0), p21(2.0, 0.0, 1.0);
-  vgl_homg_point_2d<double> p22(0.0, 2.0, 1.0), p23(2.0, 2.0, 1.0);
-  vgl_homg_point_2d<double> p24(1.0, 1.0, 1.0), p25(1.5, 1.5, 1.0);
-  points2.push_back(p20);
-  points2.push_back(p21);
-  points2.push_back(p22);
-  points2.push_back(p23);
-  points2.push_back(p24);
-  points2.push_back(p25);
-
-  vgl_h_matrix_2d_compute_linear hmcl;
-  vgl_h_matrix_2d<double> H = hmcl.compute(points1, points2);
-  std::cout << "The resulting transform\n" << H << '\n';
-  vnl_matrix_fixed<double, 3, 3> M = H.get_matrix();
-  vgl_homg_point_2d<double> hdiag(M[0][0], M[1][1], M[2][2]);
-  std::cout << "The normalized upper diagonal " << hdiag << '\n';
-  TEST_NEAR("recover 2x scale matrix", length(hdiag - p23), 0.0, 1e-06);
-  // Test if optimization converges
-  vgl_h_matrix_2d<double> h_init, h_opt;
-  M[0][0] += 0.1; // perturb the initial guess
-  h_init.set(M);
-  vgl_h_matrix_2d_optimize_lmq lmq(h_init);
-  lmq.optimize(points1, points2, h_opt);
-  std::cout << "The optimized transform\n" << h_opt << '\n';
-  vnl_matrix_fixed<double, 3, 3> Mop = h_opt.get_matrix();
-  TEST_NEAR("Optimized Scale Factor", Mop[0][0] / Mop[2][2], 2.0, 5e-03);
-}
-
 static void
 test_compute_linear_lines()
 {

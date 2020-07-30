@@ -41,7 +41,7 @@ public:
     //: Construct a diagonal matrix from a vnl_vector.
     //  The vector elements become the diagonal elements.
     vnl_diag_matrix(const vnl_vector<T>& v):base_class(v.size()){
-        std::copy(v.data(), v.data()+v.size(), this->data());
+        std::copy(v.data(), v.data()+v.size(), base_class::diagonal().data());
     }
     
     template<unsigned int n>

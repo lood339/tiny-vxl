@@ -462,6 +462,23 @@ template <typename T>
 vnl_matrix<double> const &
 vnl_levenberg_marquardt<T>::get_JtJ()
 {
+    /*
+    const int m = m_;
+    const int n = n_;
+    // check norm
+    double fnorm = lm.fvec.blueNorm();
+    double covfac = fnorm*fnorm/(m-n);
+    
+    // check covariance
+    
+    internal::covar(lm.fjac, lm.permutation.indices()); // TODO : move this as a function of lm
+    
+   
+    
+    MatrixXd cov;
+    cov =  covfac*lm.fjac.topLeftCorner<n,n>();
+    VERIFY_IS_APPROX( cov, cov_ref);
+    */
     std::cerr<<"Error  vnl_levenberg_marquardt<T>::get_JtJ() is not supported \n";
     JacobianType J = lmq_.fjac;
     JacobianType JtJ = J.transpose()*J;

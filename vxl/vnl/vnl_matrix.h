@@ -521,7 +521,7 @@ public:
     
     //: Access the 2D array, so that elements can be accessed with array[row][col] directly.
     //  2d array, [row][column].
-    //T const* const* data_array() const;// { return data; }
+    //T const* const* data_array() const { return data; }
     
     //: Access the 2D array, so that elements can be accessed with array[row][col] directly.
     //  2d array, [row][column].
