@@ -30,9 +30,9 @@
 class VNL_EXPORT vnl_nonlinear_minimizer
 {
  public:
-  vnl_nonlinear_minimizer();
+  inline vnl_nonlinear_minimizer();
 
-  virtual ~vnl_nonlinear_minimizer();
+  inline virtual ~vnl_nonlinear_minimizer();
 
 
   //: Set the convergence tolerance on F (sum of squared residuals).
@@ -117,15 +117,15 @@ class VNL_EXPORT vnl_nonlinear_minimizer
   bool obj_value_reduced() { return failure_code_ != ERROR_FAILURE && failure_code_ != ERROR_DODGY_INPUT && end_error_ < start_error_; }
 
   //:Return the covariance of the estimate at the end.
-  virtual vnl_matrix<double> const& get_covariance();
+  inline virtual vnl_matrix<double> const& get_covariance();
 
   //: Return the name of the class.
   //  Used by polymorphic IO
-  virtual std::string is_a() const;
+  inline virtual std::string is_a() const;
 
   //: Return true if the name of the class matches the argument.
   //  Used by polymorphic IO
-  virtual bool is_class(std::string const& s) const;
+  inline virtual bool is_class(std::string const& s) const;
 
   //:Return the failure code of the last minimization
   ReturnCodes get_failure_code() const { return failure_code_; }
@@ -152,16 +152,16 @@ class VNL_EXPORT vnl_nonlinear_minimizer
    int check_derivatives_{0};
    ReturnCodes failure_code_{ERROR_FAILURE};
 
-   void reset();
+   inline void reset();
 
    //: Called by derived classes after each function evaluation.
-   void report_eval(double f);
+   inline void report_eval(double f);
 
    //: Called by derived classes after each iteration.
    //  When true is returned, minimizer should stop with code
    //  FAILED_USER_REQUEST. Derived classes can redefine this function to make
    //  the optimizer stop when a condition is satisfied.
-   virtual bool report_iter();
+   inline virtual bool report_iter();
 };
 
 // copy from .cpp

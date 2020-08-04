@@ -16,11 +16,12 @@
 #include <vgl/algo/vgl_h_matrix_2d.h>
 #include <vgl/algo/vgl_norm_trans_2d.h>
 #include <vgl/algo/vgl_h_matrix_2d_compute_linear.h>
-/*
 #include <vgl/algo/vgl_h_matrix_2d_compute_4point.h>
+/*
 #include <vgl/algo/vgl_h_matrix_2d_compute_rigid_body.h>
+  */
 #include <vgl/algo/vgl_h_matrix_2d_optimize_lmq.h>
- */
+
 
 #include <gtest/gtest.h>
 
@@ -252,7 +253,6 @@ TEST(vgl_h_matrix_2d, test_compute_linear_points)
     std::cout << "The normalized upper diagonal " << hdiag << '\n';
     ASSERT_NEAR(length(hdiag - p23), 0.0, 1e-06)<<"recover 2x scale matrix\n";
     
-    /*
     // Test if optimization converges
     vgl_h_matrix_2d<double> h_init, h_opt;
     M[0][0] += 0.1; // perturb the initial guess
@@ -262,12 +262,9 @@ TEST(vgl_h_matrix_2d, test_compute_linear_points)
     std::cout << "The optimized transform\n" << h_opt << '\n';
     vnl_matrix_fixed<double, 3, 3> Mop = h_opt.get_matrix();
     ASSERT_NEAR(Mop[0][0] / Mop[2][2], 2.0, 5e-03)<<"Optimized Scale Factor\n";
-     */
 }
 
-/*
-static void
-test_compute_linear_lines()
+TEST(vgl_h_matrix_2d, test_compute_linear_lines)
 {
   std::cout << "\n=== Test the recovery of a 2x scale transform using the "
             << "linear algorithm using lines ===\n";
@@ -304,7 +301,7 @@ test_compute_linear_lines()
   vgl_homg_point_2d<double> hdiag(M[0][0], M[1][1], M[2][2]);
   std::cout << "The normalized upper diagonal " << hdiag << '\n';
   vgl_homg_point_2d<double> p23(2.0, 2.0, 1.0);
-  TEST_NEAR("recover 2x scale matrix", length(hdiag - p23), 0.0, 1e-06);
+  ASSERT_NEAR(length(hdiag - p23), 0.0, 1e-06)<<"recover 2x scale matrix\n";
   // solve the same problem with weighted least squares
   std::vector<double> w(6, 1.0);
   vgl_h_matrix_2d<double> Hwls = hmcl.compute(lines1, lines2, w);
@@ -312,7 +309,7 @@ test_compute_linear_lines()
   vnl_matrix_fixed<double, 3, 3> Mwls = H.get_matrix();
   vgl_homg_point_2d<double> hdiag_wls(Mwls[0][0], Mwls[1][1], Mwls[2][2]);
   std::cout << "The normalized upper diagonal (least squares) " << hdiag_wls << '\n';
-  TEST_NEAR("recover 2x scale matrix from weighted least squares", length(hdiag_wls - p23), 0.0, 1e-12);
+  ASSERT_NEAR(length(hdiag_wls - p23), 0.0, 1e-12)<<"recover 2x scale matrix from weighted least squares\n";
   // Test if optimization converges
   vgl_h_matrix_2d<double> h_init, h_opt;
   M[0][0] += 0.5; // perturb the initial guess
@@ -324,11 +321,11 @@ test_compute_linear_lines()
   vnl_matrix_fixed<double, 3, 3> Mop = h_opt.get_matrix();
   // Seems to work but convergence is slow and not particularly accurate
   // Use a large error tolerance just to detect a real defect in coding.
-  TEST_NEAR("Optimized Scale Factor", Mop[0][0] / Mop[2][2], 2.0, 0.5);
+  ASSERT_NEAR(Mop[0][0] / Mop[2][2], 2.0, 0.5)<<"Optimized Scale Factor\n";
 }
 
-static void
-test_compute_4point()
+
+TEST(vgl_h_matrix_2d, test_compute_4point)
 {
   std::cout << "\n=== Test the recovery of a 2x scale transform using 4 points ===\n";
   std::vector<vgl_homg_point_2d<double>> points1, points2;
@@ -356,9 +353,10 @@ test_compute_4point()
   vnl_matrix_fixed<double, 3, 3> M = H.get_matrix();
   vgl_homg_point_2d<double> hdiag(M[0][0], M[1][1], M[2][2]);
   std::cout << "The normalized upper diagonal " << hdiag << '\n';
-  TEST_NEAR("recover 2x scale matrix", length(hdiag - p23), 0.0, 1e-06);
+  ASSERT_NEAR(length(hdiag - p23), 0.0, 1e-06)<<"recover 2x scale matrix\n";
 }
 
+/*
 static void
 test_set_transform()
 {

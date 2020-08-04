@@ -57,6 +57,8 @@
 		BFCB58BB24AD5D5B00966C69 /* vnl_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_math.h; sourceTree = "<group>"; };
 		BFE0232224A306AC00936454 /* vnl_svd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_svd.h; sourceTree = "<group>"; };
 		BFE0232324A3098500936454 /* vnl_numeric_traits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_numeric_traits.h; sourceTree = "<group>"; };
+		BFE8198C24D91BA000BD7B2E /* vgl_h_matrix_2d_optimize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_h_matrix_2d_optimize.h; sourceTree = "<group>"; };
+		BFE8198D24D91F3800BD7B2E /* vgl_h_matrix_2d_compute_4point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_h_matrix_2d_compute_4point.h; sourceTree = "<group>"; };
 		BFE8646424A908CB00FC848F /* vnl_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_error.h; sourceTree = "<group>"; };
 		BFE8646524A9171800FC848F /* vnl_random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_random.h; sourceTree = "<group>"; };
 		BFE915D424C8C65C00FCD0E1 /* vnl_nonlinear_minimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_nonlinear_minimizer.h; sourceTree = "<group>"; };
@@ -225,6 +227,8 @@
 			children = (
 				BF64C53A24CE5AFD003C2F8A /* vgl_h_matrix_2d_compute_linear.h */,
 				BFBC2B3D24D2844800C8E8A6 /* vgl_h_matrix_2d_optimize_lmq.h */,
+				BFE8198D24D91F3800BD7B2E /* vgl_h_matrix_2d_compute_4point.h */,
+				BFE8198C24D91BA000BD7B2E /* vgl_h_matrix_2d_optimize.h */,
 				BF64C53B24CE5E3C003C2F8A /* vgl_norm_trans_2d.h */,
 				BFBC2B3C24D27DF800C8E8A6 /* vgl_h_matrix_2d_compute.h */,
 				BFF406E824BA707E00B8265B /* vgl_h_matrix_2d.h */,

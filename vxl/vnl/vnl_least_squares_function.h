@@ -121,21 +121,21 @@ public:
    // virtual void gradf(vnl_vector<double> const& x, vnl_matrix<double>& jacobian) = delete;
 
   //: Use this to compute a finite-difference gradient other than lmdif
-  void fdgradf(vnl_vector<double> const& x, vnl_matrix<double>& jacobian,
+  inline void fdgradf(vnl_vector<double> const& x, vnl_matrix<double>& jacobian,
                double stepsize);
 
   //: Use this to compute a finite-forward-difference gradient other than lmdif
   // This takes about half as many estimates as fdgradf
-  void ffdgradf(vnl_vector<double> const& x, vnl_matrix<double>& jacobian,
+  inline void ffdgradf(vnl_vector<double> const& x, vnl_matrix<double>& jacobian,
                 double stepsize);
 
   //: Called after each LM iteration to print debugging etc.
-  virtual void trace(int iteration,
+  inline virtual void trace(int iteration,
                      vnl_vector<double> const& x,
                      vnl_vector<double> const& fx);
 
   //: Compute the rms error at x by calling f and returning the norm of the residual vector.
-  double rms(vnl_vector<double> const& x);
+  inline double rms(vnl_vector<double> const& x);
 
   //: Return the number of unknowns
   unsigned int get_number_of_unknowns() const { return p_; }
@@ -154,7 +154,7 @@ public:
   void init(unsigned int number_of_unknowns, unsigned int number_of_residuals)
   { p_ = number_of_unknowns; n_ = number_of_residuals; dim_warning(p_,n_); }
  private:
-  void dim_warning(unsigned int n_unknowns, unsigned int n_residuals);
+  inline void dim_warning(unsigned int n_unknowns, unsigned int n_residuals);
 };
 
 // copy from .cpp
