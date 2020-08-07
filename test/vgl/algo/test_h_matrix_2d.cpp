@@ -17,11 +17,8 @@
 #include <vgl/algo/vgl_norm_trans_2d.h>
 #include <vgl/algo/vgl_h_matrix_2d_compute_linear.h>
 #include <vgl/algo/vgl_h_matrix_2d_compute_4point.h>
-/*
 #include <vgl/algo/vgl_h_matrix_2d_compute_rigid_body.h>
-  */
 #include <vgl/algo/vgl_h_matrix_2d_optimize_lmq.h>
-
 
 #include <gtest/gtest.h>
 
@@ -356,30 +353,27 @@ TEST(vgl_h_matrix_2d, test_compute_4point)
   ASSERT_NEAR(length(hdiag - p23), 0.0, 1e-06)<<"recover 2x scale matrix\n";
 }
 
-/*
-static void
-test_set_transform()
+TEST(vgl_h_matrix_2d, test_set_transform)
 {
-  std::cout << "\n=== Test setting basic transforms =======\n";
-  vgl_h_matrix_2d<double> H;
-  vgl_homg_point_2d<double> p(1.0, 0.0); // point on the x axis
-  H.set_identity().set_rotation(vnl_math::pi / 2.0);
-  vgl_homg_point_2d<double> rp, sp, tp;
-  rp = H(p);
-  std::cout << "rotated point " << rp << '\n';
-  H.set_scale(2.0);
-  sp = H(p);
-  std::cout << "rotated and scaled point " << sp << '\n';
-  H.set_translation(1.0, 3.0);
-  tp = H(p);
-  std::cout << "rotated, scaled and translated point " << tp << '\n';
-  TEST_NEAR("rotation", rp.y(), 1.0, 1e-06);
-  TEST_NEAR("scale and rotation", sp.y(), 2.0, 1e-06);
-  TEST_NEAR("scale, rotation and translation", tp.x() + tp.y(), 6.0, 1e-06);
+    std::cout << "\n=== Test setting basic transforms =======\n";
+    vgl_h_matrix_2d<double> H;
+    vgl_homg_point_2d<double> p(1.0, 0.0); // point on the x axis
+    H.set_identity().set_rotation(vnl_math::pi / 2.0);
+    vgl_homg_point_2d<double> rp, sp, tp;
+    rp = H(p);
+    std::cout << "rotated point " << rp << '\n';
+    H.set_scale(2.0);
+    sp = H(p);
+    std::cout << "rotated and scaled point " << sp << '\n';
+    H.set_translation(1.0, 3.0);
+    tp = H(p);
+    std::cout << "rotated, scaled and translated point " << tp << '\n';
+    ASSERT_NEAR(rp.y(), 1.0, 1e-06)<<"rotation\n";
+    ASSERT_NEAR(sp.y(), 2.0, 1e-06)<<"scale and rotation\n";
+    ASSERT_NEAR(tp.x() + tp.y(), 6.0, 1e-06)<<"scale, rotation and translation\n";
 }
 
-static void
-test_compute_rigid_body()
+TEST(vgl_h_matrix_2d, test_compute_rigid_body)
 {
   vgl_homg_point_2d<double> ps00(0, 0);
   vgl_homg_point_2d<double> ps01(1, 0);
@@ -394,7 +388,8 @@ test_compute_rigid_body()
   vgl_h_matrix_2d<double> RT = crb.compute(points0, points1);
   std::cout << "Rotation, translation\n" << RT << '\n';
   vnl_matrix_fixed<double, 3, 3> M = RT.get_matrix();
-  TEST_NEAR("rigid body pure rotation", M[0][0], 0.707107, 1.0e-6);
+  ASSERT_NEAR(M[0][0], 0.707107, 1.0e-6)<<"rigid body pure rotation\n"; // @todo, pure rotation not work
+  
   points0.clear();
   points1.clear();
   vgl_homg_point_2d<double> p00(-1, 1);
@@ -425,24 +420,7 @@ test_compute_rigid_body()
   std::cout << "Rotation, translation\n" << RT << '\n';
   M = RT.get_matrix();
   // 0.149438
-  TEST_NEAR("rigid body rotation and translation", M[0][0], 0.988771, 1.0e-3);
+  ASSERT_NEAR(M[0][0], 0.988771, 1.0e-3)<<"rigid body rotation and translation\n";
 }
 
-static void
-test_h_matrix_2d()
-{
-  test_identity_transform();
-  test_transform_types();
-  test_perspective_transform();
-  test_projective_basis();
-  test_projective_basis_from_lines();
-  test_norm_trans();
-  test_compute_linear_points();
-  test_compute_linear_lines();
-  test_compute_4point();
-  test_set_transform();
-  test_compute_rigid_body();
-}
 
-TESTMAIN(test_h_matrix_2d);
- */

@@ -66,6 +66,7 @@
 		BFE915D624C8C84300FCD0E1 /* vnl_algo_export.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vnl_algo_export.h; sourceTree = "<group>"; };
 		BFE915D724C8FBC200FCD0E1 /* vnl_least_squares_function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vnl_least_squares_function.h; sourceTree = "<group>"; };
 		BFE915DA24C9372700FCD0E1 /* test_levenberg_marquardt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_levenberg_marquardt.cpp; sourceTree = "<group>"; };
+		BFF1490B24DCFE6900F9E805 /* vgl_h_matrix_2d_compute_rigid_body.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_h_matrix_2d_compute_rigid_body.h; sourceTree = "<group>"; };
 		BFF406D024BA6BC300B8265B /* vpgl_proj_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vpgl_proj_camera.h; sourceTree = "<group>"; };
 		BFF406D124BA6BC300B8265B /* vpgl_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vpgl_camera.h; sourceTree = "<group>"; };
 		BFF406E824BA707E00B8265B /* vgl_h_matrix_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vgl_h_matrix_2d.h; sourceTree = "<group>"; };
@@ -229,6 +230,7 @@
 				BFBC2B3D24D2844800C8E8A6 /* vgl_h_matrix_2d_optimize_lmq.h */,
 				BFE8198D24D91F3800BD7B2E /* vgl_h_matrix_2d_compute_4point.h */,
 				BFE8198C24D91BA000BD7B2E /* vgl_h_matrix_2d_optimize.h */,
+				BFF1490B24DCFE6900F9E805 /* vgl_h_matrix_2d_compute_rigid_body.h */,
 				BF64C53B24CE5E3C003C2F8A /* vgl_norm_trans_2d.h */,
 				BFBC2B3C24D27DF800C8E8A6 /* vgl_h_matrix_2d_compute.h */,
 				BFF406E824BA707E00B8265B /* vgl_h_matrix_2d.h */,

@@ -227,5 +227,53 @@
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../vxl/vgl/algo/vgl_h_matrix_2d_compute_rigid_body.h"
+            timestampString = "618464251.420534"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
+            landmarkName = "vgl_h_matrix_2d_compute_rigid_body::compute_p(std::vector&lt;vgl_homg_point_2d&lt;double&gt;&gt; const &amp; points1, std::vector&lt;vgl_homg_point_2d&lt;double&gt;&gt; const &amp; points2, vgl_h_matrix_2d&lt;double&gt; &amp; H)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../vxl/vgl/algo/vgl_h_matrix_2d_compute_rigid_body.h"
+            timestampString = "618464251.4207259"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
+            landmarkName = "vgl_h_matrix_2d_compute_rigid_body::compute_p(std::vector&lt;vgl_homg_point_2d&lt;double&gt;&gt; const &amp; points1, std::vector&lt;vgl_homg_point_2d&lt;double&gt;&gt; const &amp; points2, vgl_h_matrix_2d&lt;double&gt; &amp; H)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../vxl/vgl/algo/vgl_h_matrix_2d_compute_rigid_body.h"
+            timestampString = "618464251.420837"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "178"
+            endingLineNumber = "178"
+            landmarkName = "vgl_h_matrix_2d_compute_rigid_body::compute_p(std::vector&lt;vgl_homg_point_2d&lt;double&gt;&gt; const &amp; points1, std::vector&lt;vgl_homg_point_2d&lt;double&gt;&gt; const &amp; points2, vgl_h_matrix_2d&lt;double&gt; &amp; H)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
