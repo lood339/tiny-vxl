@@ -20,16 +20,23 @@
 #include <vgl/vgl_homg_point_3d.h>
 #include <vgl/vgl_point_3d.h>
 #include <vgl/vgl_plane_3d.h>
+#include <vnl/vnl_math.h>
+#include <vnl/vnl_det.h>
+#include <vgl/algo/vgl_h_matrix_3d_compute_linear.h>
+#include <vgl/algo/vgl_h_matrix_3d_compute_affine.h>
+
 /*
 #include "vnl/vnl_double_3.h"
 #include "vnl/vnl_double_4x4.h"
-#include "vnl/vnl_math.h"
-#include <vgl/algo/vgl_h_matrix_3d_compute_linear.h>
-#include <vgl/algo/vgl_h_matrix_3d_compute_affine.h>
-#include "vnl/vnl_det.h"
+
+
+
  */
 
 #include <gtest/gtest.h>
+
+using vnl_double_3 = vnl_vector_fixed<double, 3>;
+using vnl_double_4x4 = vnl_matrix_fixed<double, 4, 4>;
 
 static bool
 equals(const double x[16], const double y[16])
@@ -152,9 +159,7 @@ TEST(vgl_h_matrix_3d, rotation_about_axis)
   ASSERT_NEAR(distance, 0.0, 1e-03);
 }
 
-/*
-static void
-test_compute_linear_points()
+TEST(vgl_h_matrix_3d, test_compute_linear_points)
 {
   std::cout << "\n=== Test the recovery of a general homography using the linear algorithm ===\n";
   std::vector<vgl_homg_point_3d<double>> points1, points2;
@@ -208,7 +213,7 @@ test_compute_linear_points()
 
   double dist = vgl_distance(p_test_mapped, p_test_mapped2);
   std::cout << " dist: " << dist << std::endl;
-  TEST_NEAR("testing computed H", dist, 0.0, 5e-03);
+  ASSERT_NEAR(dist, 0.0, 5e-03)<<"testing computed H\n";
 
   //: setup a general homography
   vnl_matrix_fixed<double, 4, 4> H_m;
@@ -249,12 +254,10 @@ test_compute_linear_points()
 
   dist = vgl_distance(p_test_mapped, p_test_mapped2);
   std::cout << " dist: " << dist << std::endl;
-  TEST_NEAR("testing computed H2o", dist, 0.0, 5e-03);
+  ASSERT_NEAR(dist, 0.0, 5e-03)<<"testing computed H2o\n";
 }
- */
-/*
-static void
-test_compute_affine_points()
+
+TEST(vgl_h_matrix_3d, test_compute_affine_points)
 {
   std::cout << "\n=== Test the recovery of an affine homography using the linear algorithm ===\n";
   std::vector<vgl_homg_point_3d<double>> points1, points2;
@@ -316,7 +319,7 @@ test_compute_affine_points()
 
   double dist = vgl_distance(p_test_mapped, p_test_mapped2);
   std::cout << " dist: " << dist << std::endl;
-  TEST_NEAR("testing computed H", dist, 0.0, 5e-03);
+  ASSERT_NEAR(dist, 0.0, 5e-03)<<"testing computed H\n";
 
   //: setup a general affine homography
   vnl_matrix_fixed<double, 4, 4> H_m;
@@ -357,9 +360,9 @@ test_compute_affine_points()
 
   dist = vgl_distance(p_test_mapped, p_test_mapped2);
   std::cout << " dist: " << dist << std::endl;
-  TEST_NEAR("testing computed H2a", dist, 0.0, 5e-03);
+  ASSERT_NEAR(dist, 0.0, 5e-03)<<"testing computed H2a\n";
 }
- */
+
 /*
 static void
 test_reflection_about_plane()
