@@ -114,8 +114,6 @@ vgl_point_3d<Type>::vgl_point_3d(vgl_plane_3d<Type> const& pl1,
     set(p.x()/p.w(), p.y()/p.w(), p.z()/p.w()); // could be infinite!
 }
 
-
-
 //  +-+-+ point_3d simple I/O +-+-+
 
 //: Write "<vgl_point_3d x,y,z> " to stream

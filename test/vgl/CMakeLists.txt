@@ -28,4 +28,7 @@ target_link_libraries(vgl_test_all gtest gmock_main)
 
 add_test(NAME vgl_test_all COMMAND vgl_test_all)
 
+# test for algo
+add_subdirectory(algo)
+
 

@@ -1,0 +1,11 @@
+There are known changes or problems not fixed.
+vnl:
+1. vnl_levenberg_marquardt: it requires a type template parameter
+
+vgl:
+
+vpgl:
+1. vpgl_proj_camera: when its matrix (P) is not correct, for example, a random matrix, then its camera center is
+   (NaN, NaN, NaN)
+
+

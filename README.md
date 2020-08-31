@@ -12,13 +12,22 @@ A comprehensive description of the VXL project can be views at https://vxl.githu
 2. Only rely on Eigen https://github.com/eigenteam/eigen-git-mirror 
 3. The project is on-going, please contact me (jhchen14@cs.ubc.ca) if you would like to contribute.  
 
-# What I do
+# What this project do
 1. Move code from .cxx, .cpp to the .h file
 2. The original souce code has a good record of author and history, keep them in the file as much as possible.  
 4. Rewrite the testing code using the Gtest Framework https://github.com/google/googletest    
 
 # How to use the code
-Add the vxl folder to your head file directory  
+Add the vxl folder to your head file directory 
+
+# Test  
+1. Mac OS Mojave (10.14.12). 
+    cd build   
+    cmake ..  
+    make -j4  
+
+
+ 
 
 
 

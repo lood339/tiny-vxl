@@ -363,14 +363,12 @@ TEST(vgl_h_matrix_3d, test_compute_affine_points)
   ASSERT_NEAR(dist, 0.0, 5e-03)<<"testing computed H2a\n";
 }
 
-/*
-static void
-test_reflection_about_plane()
+TEST(vgl_h_matrix_3d, reflection_about_plane)
 {
   vgl_h_matrix_3d<double> H;
   vgl_plane_3d<double> plane(1, 2, 3, 4);
   H.set_reflection_plane(plane);
-  TEST_NEAR("determinant(reflection)", vnl_det(H.get_matrix()), -1, 1e-8);
+  ASSERT_NEAR(vnl_det(H.get_matrix()), -1, 1e-8)<<"determinant(reflection)\n";
 
   vgl_point_3d<double> p1(10, 10, 10), p2(-20, -30, 50);
   vgl_point_3d<double> p1r = H * vgl_homg_point_3d<double>(p1);
@@ -379,41 +377,15 @@ test_reflection_about_plane()
   double reflect_dist1 = vgl_distance(p1, p1r);
   double plane_dist2 = vgl_distance(plane, p2);
   double reflect_dist2 = vgl_distance(p2, p2r);
-  TEST_NEAR("reflection distance",
-            std::max(std::abs(plane_dist1 - reflect_dist1 / 2.0), std::abs(plane_dist2 - reflect_dist2 / 2.0)),
+  ASSERT_NEAR(std::max(std::abs(plane_dist1 - reflect_dist1 / 2.0), std::abs(plane_dist2 - reflect_dist2 / 2.0)),
             0.0,
-            1e-8);
+            1e-8)<<"reflection distance\n";
 
   double plane_err1 = vgl_distance(vgl_closest_point(plane, p1), midpoint(p1, p1r));
   double plane_err2 = vgl_distance(vgl_closest_point(plane, p2), midpoint(p2, p2r));
-  TEST_NEAR("reflection midpoint", std::max(plane_err1, plane_err2), 0.0, 1e-8);
+  ASSERT_NEAR(std::max(plane_err1, plane_err2), 0.0, 1e-8)<<"reflection midpoint\n";
 
   vgl_point_3d<double> p1rr = H * vgl_homg_point_3d<double>(p1r);
   vgl_point_3d<double> p2rr = H * vgl_homg_point_3d<double>(p2r);
-  TEST_NEAR("reflection reversible", std::max(vgl_distance(p1, p1rr), vgl_distance(p2, p2rr)), 0.0, 1e-8);
+  ASSERT_NEAR(std::max(vgl_distance(p1, p1rr), vgl_distance(p2, p2rr)), 0.0, 1e-8)<<"reflection reversible\n";
 }
-
-
-static void
-test_h_matrix_3d()
-{
-  std::cout << "\n==================== test_constructors ====================\n\n";
-  test_constructors();
-  std::cout << "\n================= test_identity_transform =================\n\n";
-  test_identity_transform();
-  std::cout << "\n=============== test_perspective_transform ================\n\n";
-  test_perspective_transform();
-  std::cout << "\n================== test_projective_basis ==================\n\n";
-  test_projective_basis();
-  std::cout << "\n================ test_rotation_about_axis =================\n\n";
-  test_rotation_about_axis();
-  std::cout << "\n=============== test_compute_linear_points ================\n\n";
-  test_compute_linear_points();
-  std::cout << "\n=============== test_compute_affine_points ================\n\n";
-  test_compute_affine_points();
-  std::cout << "\n=============== test_reflection_about_plane ===============\n\n";
-  test_reflection_about_plane();
-}
-
-TESTMAIN(test_h_matrix_3d);
-*/

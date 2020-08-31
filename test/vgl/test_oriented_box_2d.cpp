@@ -34,7 +34,7 @@ TEST(oriented_box_2d, simple)
     
     vgl_oriented_box_2d<double> rtbox1 = tbox1.rotate(cent, 3.1415926535897/2.0);
     std::vector<vgl_point_2d<double> > rot_trans_corns1 = rtbox1.corners();
-    ASSERT_NEAR(rot_trans_corns1[2].x()+rot_trans_corns1[2].y(), 425.0, 0.000001)<<"rotate box\N";
+    ASSERT_NEAR(rot_trans_corns1[2].x()+rot_trans_corns1[2].y(), 425.0, 0.000001)<<"rotate box\n";
     
     vgl_box_2d<double> bb = rtbox1.enclosing_box();
     double area = vgl_area(bb);

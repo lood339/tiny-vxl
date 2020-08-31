@@ -1,29 +1,20 @@
 # This is core/vgl/tests/CMakeLists.txt
 
-project(vgl_test_all)
+project(vpgl_test_all)
 
 enable_testing()
 
 include_directories(${VXL_SRC_DIR})
+include_directories(${Eigen_SRC_DIR})
 
-add_executable(vgl_test_all
-  test_closest_point.cpp 
-  test_line_segment_3d.cpp
-  test_line_3d_2_points.cpp
-  test_infinite_line_3d.cpp
-  test_ray_3d.cpp
-  test_polygon.cpp
-  test_plane_3d.cpp
-  test_sphere_3d.cpp
-  test_frustum_3d.cpp
-  test_clip.cpp
-  test_area.cpp
-  test_affine_coordinates.cpp
-  test_quadric.cpp
+add_executable(vpgl_test_all
+    test_calibration_matrix.cpp
+    test_perspective_camera.cpp
+    test_proj_camera.cpp
 )
 
-target_link_libraries(vgl_test_all gtest gmock_main)
+target_link_libraries(vpgl_test_all gtest gmock_main)
 
-add_test(NAME vgl_test_all COMMAND vgl_test_all)
+add_test(NAME vpgl_test_all COMMAND vpgl_test_all)
 
 

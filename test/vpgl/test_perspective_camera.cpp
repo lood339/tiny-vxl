@@ -149,7 +149,6 @@ TEST(vpgl_perspective_camera, perspective_camera)
     EXPECT_EQ(all_succeeded, true)<<"testing finite backprojection: \n";
   }
     
-    
   // test stream operators
   vnl_matrix_fixed<double, 3, 3> k, Rm;
   vgl_point_3d<double> c(-25.3302, -31.0114, 1030.63);
