@@ -41,10 +41,23 @@ public:
     
     //: Construct a fixed-n-vector initialized from \a datablck
     //  The data \e must have enough data. No checks performed.
-    explicit vnl_vector( const T* datablck, size_t n ){
+    explicit vnl_vector( const T* data_block, size_t n ){
         *this = base_class::Zero(n);
-        std::memcpy(this->data(), datablck, n*sizeof(T));
+        std::memcpy(this->data(), data_block, n*sizeof(T));
     }
+    
+    /*
+    // construct a vector using provided memory
+    // why const T* data_block cause compiler error?
+    explicit vnl_vector(T* data_block, size_t n, bool allocate_memory) {
+        assert(allocate_memory == false);
+        auto m1 = Eigen::Map<base_class>(data_block, n, 1);
+        *this = Eigen::Map<base_class>(data_block, n, 1);  // call another constructor, deep copy
+        std::cout<<"input data_block: "<<data_block<<std::endl;
+        std::cout<<"m1 .data()" <<m1.data()<<std::endl;
+        std::cout<<"data_block(): "<<this->data()<<std::endl;
+    }
+     */
    
     //: Copy constructor.
     vnl_vector(const vnl_vector<T> &)=default;
@@ -61,7 +74,7 @@ public:
     //: Destructor
     /** This destructor *must* be virtual to ensure that the vnl_vector_ref subclass destructor
      * is called and memory is not accidently de-allocated. */
-    //virtual ~vnl_vector();
+    virtual ~vnl_vector() = default;
     
     template<typename OtherDrived>
     vnl_vector(const Eigen::MatrixBase<OtherDrived>& other):
@@ -75,7 +88,7 @@ public:
     }
     
     //: Return the length, number of elements, dimension of this vector.
-    //size_t size() const { return this->num_elmts; }
+    size_t size() const { return static_cast<size_t>(base_class::size()); }
     
     //: Put value at given position in vector.
     inline void put(size_t i, T const& v)

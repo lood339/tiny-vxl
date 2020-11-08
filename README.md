@@ -21,7 +21,7 @@ A comprehensive description of the VXL project can be views at https://vxl.githu
 Add the vxl folder to your head file directory 
 
 # Test  
-1. Mac OS Mojave (10.14.12). 
+1. Mac OS Mojave (10.14.12)   
     cd build   
     cmake ..  
     make -j4  
