@@ -45,14 +45,14 @@ class VNL_EXPORT vnl_vector_ref : public  Eigen::Map<Eigen::Matrix<T, Eigen::Dyn
   // (That is why the default copy constructor is \e not good.)
   // NOTE: This interface breaks const correctness,
     vnl_vector_ref(const vnl_vector_ref<T>& v):
-    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>>(v.data_block(), v.size(), 1)
+    Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::ColMajor>>(const_cast<T *>(v.data_block()), v.size(), 1)
     {}
 
   //: Destructor
   // Prevents base destructor from releasing memory we don't own
   ~vnl_vector_ref() = default;
     
-    /*
+    
   //: Reference to self to make non-const temporaries.
   // This is intended for passing vnl_vector_fixed objects to
   // functions that expect non-const vnl_vector references:
@@ -84,7 +84,7 @@ class VNL_EXPORT vnl_vector_ref : public  Eigen::Map<Eigen::Matrix<T, Eigen::Dyn
   vnl_vector_ref<T> as_ref() { return *this; }
   const vnl_vector_ref<T> as_ref() const { return *this; }
   vnl_vector<T> as_vector() const { return vnl_vector<T>(this->data_block(), this->size()); }
-    */
+    
     
     // functions from vnl_vector
     //: Access the contiguous block storing the elements in the vector. O(1).

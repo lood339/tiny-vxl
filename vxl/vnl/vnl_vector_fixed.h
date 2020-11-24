@@ -15,6 +15,7 @@
 #include <vnl/vnl_math.h>
 #include <vnl/vnl_vector.h>
 #include <vnl/vnl_matrix.h>
+#include <vnl/vnl_vector_ref.h>
 
 // fixed length column vector
 
@@ -159,6 +160,22 @@ public:
     {
         return this->data();
     }
+    
+    //----------------------------------------------------------------------
+    // Conversion to vnl_vector_ref.
+    
+    // The const version of as_ref should return a const vnl_vector_ref
+    // so that the vnl_vector_ref::non_const() cannot be used on
+    // it. This prevents a const vnl_vector_fixed from being cast into a
+    // non-const vnl_vector reference, giving a slight increase in type safety.
+    
+    //: Explicit conversion to a vnl_vector_ref or vnl_vector.
+    // This is a cheap conversion for those functions that have an interface
+    // for vnl_vector but not for vnl_vector_fixed. There is also a
+    // conversion operator that should work most of the time.
+    // \sa vnl_vector_ref::non_const
+    vnl_vector_ref<T> as_ref() { return vnl_vector_ref<T>( n, data_block() ); }
+    const vnl_vector_ref<T> as_ref() const { return vnl_vector_ref<T>( n, const_cast<T*>(data_block()));}
     
     vnl_vector<T> as_vector() const { return vnl_vector<T>(data_block(), n); }
     

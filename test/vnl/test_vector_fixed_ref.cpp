@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <vnl/vnl_vector_fixed.h>
 #include <vnl/vnl_vector_ref.h>
-//#include <vnl/vnl_vector_fixed_ref.h>
+#include <vnl/vnl_vector_fixed_ref.h>
 #include <memory>
 
 #include <gtest/gtest.h>
@@ -13,38 +13,33 @@ TEST(vnl_vector_fixed_ref, test_vector_fixed_ref)
         vnl_vector<double> v{ numbers, 4 };
         // vnl_vector_ref(numbers, 4); // Should fail to compile due to const double numbers
         vnl_vector_ref<double> memory_access_vnl_ref{ v.size(), v.data_block() };
-        //const vnl_vector_ref<double> const_cpprefvector{ memory_access_vnl_ref };
+        // const vnl_vector_ref<double> const_cpprefvector{ memory_access_vnl_ref };
      
         EXPECT_EQ(v.data_block(), memory_access_vnl_ref.data_block());
-        for(int i = 0; i<v.size(); ++i) {
-            std::cout<<v[i]<<std::endl;
-            std::cout<<memory_access_vnl_ref[i]<<std::endl;
-        }
-        
-        // const_cpprefvector.as_ref();
+        //const_cpprefvector.as_ref();
         //const_cpprefvector.fill(-99); //<- This should fail to compile, but it modifies the data
     }
     
-    /*
+    
     // Test conversion behaviors in the presence of move constructors/move assignments
     {
         constexpr double bulk_data_array[4]{ 1.0, 2.0, 3.0, 4.0 };
         vnl_vector_fixed<double, 4> initial_fixed_size_matrix(bulk_data_array);
         vnl_vector_ref<double> ref_to_data( initial_fixed_size_matrix.as_ref() );
         
-        TEST("vnl_vector_ref{ vnl_vector_fixed } share data pointer",
+        EXPECT_EQ(
              initial_fixed_size_matrix.data_block() == ref_to_data.data_block(),
-             true);
+                  true)<<"vnl_vector_ref{ vnl_vector_fixed } share data pointer"<<std::endl;
         
         vnl_vector<double> new_independant_matrix{ ref_to_data };
-        TEST("vnl_vector{ vnl_vector_ref } creates new memory",
+        EXPECT_EQ(
              ref_to_data.data_block() != new_independant_matrix.data_block(),
-             true);
+                  true)<<"vnl_vector{ vnl_vector_ref } creates new memory"<<std::endl;
         
         vnl_vector<double> rval_initialized_independant_matrix{ initial_fixed_size_matrix.as_ref() };
-        TEST("vnl_vector{ .as_ref rval}) creates new memory",
+        EXPECT_EQ(
              initial_fixed_size_matrix.data_block() != rval_initialized_independant_matrix.data_block(),
-             true);
+                  true)<<"vnl_vector{ .as_ref rval}) creates new memory"<<std::endl;
         //    std::cout << static_cast<void *>(initial_fixed_size_matrix.data_block()) << "\n"
         //      << static_cast<void *>(ref_to_data.data_block()) << "\n"
         //      << static_cast<void *>(new_independant_matrix.data_block()) << "\n"
@@ -57,7 +52,7 @@ TEST(vnl_vector_fixed_ref, test_vector_fixed_ref)
     };
     typedef vnl_vector_fixed<double, size> vf;
     typedef vnl_vector_fixed_ref<double, size> vfr;
-    typedef vnl_vector_fixed_ref_const<double, size> vfrc;
+    //typedef vnl_vector_fixed_ref_const<double, size> vfrc;
     
     int i;
     vf vec; // copy in
@@ -69,6 +64,7 @@ TEST(vnl_vector_fixed_ref, test_vector_fixed_ref)
     // vector fixed_ref tests
     
     
+    /*
     // fixed_ref_const
     const vf & cvf = vec;
     vfrc cref(cvf);
@@ -77,6 +73,7 @@ TEST(vnl_vector_fixed_ref, test_vector_fixed_ref)
     {
         TEST("const_address", &cref(i), &vec(i));
     }
+     */
     
     
     // fixed_ref (non-const)
@@ -85,10 +82,10 @@ TEST(vnl_vector_fixed_ref, test_vector_fixed_ref)
     // check address
     for (i = 0; i < size; ++i)
     {
-        TEST("nonconst_address", &ref(i), &vec(i));
+        EXPECT_EQ(&ref(i), &vec(i))<<"nonconst_address"<<std::endl;
     }
     
-    
+    /*
     //    assign from vec
     vf other;
     std::generate(other.begin(), other.end(), std::rand);

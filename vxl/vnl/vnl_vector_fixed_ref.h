@@ -24,10 +24,11 @@
 
 /*
 template <class T, unsigned int n>
-class VNL_EXPORT vnl_vector_fixed_ref_const
+class VNL_EXPORT vnl_vector_fixed_ref : public  Eigen::Map<Eigen::Matrix<T, n, 1, Eigen::ColMajor>>
 {
+    
 protected:
-    const T* data_;
+    using base_class = Eigen::Matrix<T, n, 1, Eigen::ColMajor>;
     
 public:
     typedef size_t size_type;
@@ -302,23 +303,31 @@ private:
     void assert_finite_internal() const;
 };
 
+ */
 // Non const vector fixed reference
 
 template <class T, unsigned n>
-class VNL_EXPORT vnl_vector_fixed_ref : public vnl_vector_fixed_ref_const<T,n>
+class VNL_EXPORT vnl_vector_fixed_ref : public  Eigen::Map<Eigen::Matrix<T, n, 1, Eigen::ColMajor>>
 {
-    typedef vnl_vector_fixed_ref_const<T,n> base;
+    //typedef vnl_vector_fixed_ref_const<T,n> base;
+    using base_class = Eigen::Map<Eigen::Matrix<T, n, 1, Eigen::ColMajor>>;
     
 public:
     typedef unsigned int size_type;
     
+    vnl_vector_fixed_ref(vnl_vector_fixed<T,n> const& rhs) : base_class(const_cast<T*>(rhs.data_block())) {}
+    
+    explicit vnl_vector_fixed_ref(const T * dataptr) : base_class(dataptr) {}
+    
+    vnl_vector_fixed_ref(const vnl_vector_fixed_ref<T,n> & rhs) : base_class(const_cast<T*>(rhs.data_block())) {}
+    
     // this is the only point where the const_cast happens
     // the base class is used to store the pointer, so that conversion is not necessary
-    T * data_block() const { return const_cast<T*>(this->data_); }
+    T * data_block() const { return const_cast<T*>(this->data()); }
     
-    vnl_vector_fixed_ref(vnl_vector_fixed<T,n>& rhs) : base(rhs.data_block()) {}
+    //vnl_vector_fixed_ref(vnl_vector_fixed<T,n>& rhs) : base(rhs.data_block()) {}
     
-    explicit vnl_vector_fixed_ref(T * dataptr) : base(dataptr) {}
+   // explicit vnl_vector_fixed_ref(T * dataptr) : base(dataptr) {}
     
     //: Copy operator
     vnl_vector_fixed_ref<T,n> const & operator=( const vnl_vector_fixed<T,n>& rhs ) const {
@@ -332,11 +341,13 @@ public:
         return *this;
     }
     
+    /*
     //: Copy operator
     vnl_vector_fixed_ref<T,n> const& operator=( const vnl_vector_fixed_ref_const<T,n>& rhs ) const {
         std::memcpy( data_block(), rhs.data_block(), n * sizeof(T) );
         return *this;
     }
+     */
     
     
     //: Put value at given position in vector.
@@ -389,6 +400,7 @@ public:
     
     vnl_vector_fixed_ref const& flip() const;
     
+    /*
     //:
     vnl_vector_fixed_ref<T,n> const & operator+=( T s ) const {
         base::add( data_block(), s, data_block() ); return *this;
@@ -430,9 +442,10 @@ public:
         assert( v.size() == n );
         base::sub( data_block(), v.data_block(), data_block() ); return *this;
     }
+     */
 };
 
-
+/*
 // Make the operators below inline because (1) they are small and
 // (2) we then have less explicit instantiation trouble.
 
