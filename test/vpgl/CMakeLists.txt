@@ -8,7 +8,9 @@ include_directories(${VXL_SRC_DIR})
 include_directories(${Eigen_SRC_DIR})
 
 add_executable(vpgl_test_all
+    test_affine_camera.cpp    
     test_calibration_matrix.cpp
+    test_generic_camera.cpp
     test_perspective_camera.cpp
     test_proj_camera.cpp
 )

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Workspace
    version = "1.0">
+   <Group
+      location = "group:../../vxl/vbl"
+      name = "vbl">
+      <FileRef
+         location = "group:vbl_array_2d.h">
+      </FileRef>
+   </Group>
    <FileRef
-      location = "self:vxl.xcodeproj">
+      location = "self:">
    </FileRef>
 </Workspace>
